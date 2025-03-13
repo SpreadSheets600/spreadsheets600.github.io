@@ -8,23 +8,409 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
+    <style>
+      :root {
+        --bg-color: #0f0f0f;
+        --text-color: #ffffff;
+        --accent-color: #1a1a1a;
+        --hover-color: #2a2a2a;
+        --highlight-color: #ffffff6e;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-image: url("BG.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: #fff; /* Adjust text color if needed */
+        background-image: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0.6),
+            rgba(0, 0, 0, 0.6)
+          ),
+          url("BG.jpg");
+        backdrop-filter: blur(10px);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .profile-pic {
+        flex-shrink: 0; /* Prevents the profile picture from shrinking */
+        width: 370px; /* Adjust width as needed */
+        height: 370px; /* Adjust height as needed */
+      }
+
+      .profile-pic-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Ensures the image covers the area while maintaining aspect ratio */
+        border-radius: 8%; /* Makes the image circular */
+      }
+
+      /* .profile-pic:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+      } */
+
+      nav {
+        background-color: rgba(26, 26, 26, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 15px 0;
+        position: -webkit-sticky; /* Safari */
+        position: sticky;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+
+      .navbar {
+        background-color: rgba(26, 26, 26, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 15px 0;
+        /* position: fixed; */
+        position: -webkit-sticky;
+        position: sticky;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      nav ul li {
+        margin: 0 15px;
+      }
+
+      nav ul li a {
+        color: var(--text-color);
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
+
+      nav ul li a:hover {
+        color: var(--highlight-color);
+      }
+
+      header {
+        text-align: center;
+        padding: 150px 0 80px;
+        margin-top: 0;
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+        border-radius: 20px;
+        margin-bottom: 50px;
+        position: relative;
+      }
+
+      h1 {
+        font-size: 3.5em;
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+      }
+
+      h2 {
+        font-size: 2.5em;
+        margin-bottom: 30px;
+        position: relative;
+        display: inline-block;
+      }
+
+      h2::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50%;
+        height: 3px;
+        background-color: var(--highlight-color);
+      }
+
+      .card-container {
+        display: flex;
+        align-items: flex; /* Aligns items at the top */
+        gap: 20px; /* Space between the profile picture and the card */
+      }
+
+      .card {
+        background-color: var(--accent-color);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        flex: 1; /* Ensures the card takes up remaining space */
+      }
+
+      .card:hover {
+        transform: translateY(-10px);
+      }
+
+      .prj-card {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .flex-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+
+      .flex-item {
+        flex: 1;
+        min-width: 300px;
+        margin: 10px;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+      }
+
+      img:hover {
+        transform: scale(1.05);
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 5px;
+        color: var(--bg-color);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .top-langs {
+        height: 205px;
+        max-width: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .github-streak {
+        height: 205px;
+        max-width: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .btn:hover {
+        /* background-color: var(--text-color); */
+        color: var(--bg-color);
+        /* transform: translateY(-3px); */
+        /* box-shadow: 0 5px 15px rgba(255, 255, 255, 0.4); */
+      }
+
+      .project-btn {
+        display: inline-block;
+        padding: 8px 12px;
+        background-color: var(--highlight-color);
+        color: var(--bg-color);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 15px;
+      }
+
+      .project-btn:hover {
+        background-color: var(--text-color);
+        color: var(--bg-color);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(100, 255, 218, 0.4);
+      }
+
+      .skill-category {
+        margin-bottom: 30px;
+      }
+
+      .skill-icons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 20px;
+      }
+
+      .skill-icons img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      /* .skill-icons img:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(255, 255, 255, 0.3);
+      } */
+
+      .github-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .commits {
+        max-width: 100%;
+        height: auto;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .stat-row {
+        display: flex;
+        gap: 30px;
+        justify-content: space-between;
+      }
+
+      .stat-item {
+        flex: 1;
+        text-align: center;
+      }
+
+      .full-width {
+        flex-basis: 100%;
+      }
+
+      .github-stats img {
+        width: 100%;
+        max-width: 100%;
+        /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
+        border-radius: 10px;
+      }
+
+      .github-stats img:hover {
+        transform: scale(1.03);
+      }
+
+      .project {
+        background-color: var(--hover-color);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .project:hover {
+        transform: translateY(-5px);
+      }
+
+      .footer {
+        text-align: center;
+        background: rgba(26, 26, 26, 0.8);
+        color: #fff;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        padding: 0px;
+        height: 50px;
+        backdrop-filter: blur(10px);
+      }
+
+      @media (max-width: 900px) {
+        .flex-container {
+          flex-direction: column;
+        }
+
+        header {
+          padding: 100px 0 60px;
+        }
+
+        h1 {
+          font-size: 2.5em;
+        }
+
+        h2 {
+          font-size: 2em;
+        }
+
+        .profile-pic {
+          width: 380px;
+          height: 380px;
+          align-items: center;
+          padding: 5px;
+        }
+
+        .prj-card {
+          grid-template-columns: 1fr;
+        }
+
+        footer {
+          font-size: 12px;
+          height: auto;
+          padding: 10px;
+        }
+        .header {
+          font-size: 1.5em;
+        }
+        .project-card {
+          width: 100%;
+          margin: 10px 0;
+        }
+        .stat-row {
+          flex-direction: column;
+        }
+
+        .card-container {
+          flex-direction: column;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 2s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      #particles-js {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+      }
+    </style>
   </head>
   <body>
-    <!-- Navbar -->
+    <div id="particles-js"></div>
+
     <nav class="navbar">
       <ul>
         <li><a href="#about">About</a></li>
-        <li><a href="projects.html">Projects</a></li>
+        <li><a href="#projects">Projects</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#github">GitHub</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
 
-    <!-- Main Content -->
     <div class="container">
-      <!-- Header Section -->
       <header>
         <h1>「 SOHAM 」</h1>
         <p>
@@ -33,7 +419,6 @@
         </p>
       </header>
 
-      <!-- About Section -->
       <section id="about">
         <div class="card-container">
           <div class="profile-pic">
@@ -43,15 +428,165 @@
             <h2>About Me</h2>
             <p>
               I'm a Computer Science major with a deep passion for building
-              aesthetically pleasing projects...
+              aesthetically pleasing projects that stand out. I specialize in
+              coding Discord bots and have a strong affinity for anime, which
+              fuels my creativity. My primary goal is to craft innovative
+              solutions that seamlessly blend functionality with stunning
+              design, ensuring every project not only performs well but also
+              leaves a lasting visual impression. I thrive on turning ideas into
+              reality, where form and function coexist in perfect harmony.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- Skills Section -->
+      <section id="projects" class="card">
+        <h2>Projects</h2>
+        <div class="prj-card">
+          <div class="project">
+            <h3>Budget Tracker</h3>
+            <p>
+              The project is a simple UI based budget tracker that got quite a
+              fetures, starting from tracking your expenses to tracking your
+              income, with graphs and charts to show your spending habits. It is
+              a simple project that i made to learn how to make UI based
+              applications in python. It is a simple project but it is very
+              useful and has a lot of features.
+            </p>
+            <a
+              href="https://github.com/SpreadSheets600/Budget-Tracker"
+              class="project-btn"
+              >View Project</a
+            >
+          </div>
+          <div class="project">
+            <h3>Password Manager</h3>
+            <p>
+              The project is a simple UI based password Manager that got quite a
+              fetures, starting from storing your passwords to generating new
+              ones, with a password strength checker and a password generator.
+              It got password export and import features from google passwords
+              and a simple UI to manage all your passwords. It is a simple
+              project that i made to learn how to make UI based applications in
+              python. It is a simple project but it is very useful and has a lot
+              of features.
+            </p>
+            <a
+              href="https://github.com/SpreadSheets600/Budget-Tracker"
+              class="project-btn"
+              >View Project</a
+            >
+          </div>
+          <div class="project">
+            <h3>Astrum - Discord Bot</h3>
+            <p>
+              Astrum is a versatile Discord bot with a beautifully designed user
+              interface, offering a wide range of features for both server
+              management and entertainment. Whether you need moderation tools or
+              a fun and interactive experience, Astrum has it all. It includes a
+              variety of mini-games, anime viewing , meme generation, jokes,
+              quotes, and powerful utilities to enhance your server. And Astrum
+              is open source and is constantly being updated and improved ;)
+            </p>
+            <a href="https://github.com/Sheets-Astrum-BOT" class="project-btn"
+              >View Project</a
+            >
+          </div>
+          <div class="project">
+            <h3>Fallen SMP</h3>
+            <p>
+              This is a unique Minecraft SMP that I’ve been dedicated to making
+              one-of-a-kind. Not only did I design and develop the website, but
+              I also created a custom Discord bot that seamlessly connects the
+              Minecraft server with the Discord community. The bot offers a
+              variety of advanced features, including an in-game economy, stock
+              and cryptocurrency tracking, detailed player statistics, and an
+              innovative whitelisting system for exclusive access to the SMP.
+              Every aspect of this project is crafted to provide an immersive
+              and integrated experience for all players.
+            </p>
+            <a
+              href="https://github.com/SpreadSheets600/Fallen-SMP-BOT"
+              class="project-btn"
+              >View Project</a
+            >
+            <a href="https://fallensmp.xyz" class="project-btn">View Website</a>
+          </div>
+          <div class="project">
+            <h3>PokeTwo AI Catcher</h3>
+            <p>
+              <bold>FOR EDUCATIONAL PURPOSES ONLY</bold><br />
+              It is a AI based bot that plays the game PokeTwo in discord. It
+              uses the discord.py library to interact with the discord api and
+              uses the tenserflow based ai model to predict pokemon images. It
+              uses a simple algorithm to catch pokemons and sell them for money.
+              It is a simple project to understand how to interact with the
+              discord api and how to implement AI based image detection models.
+              It's still underdevelopment, but i lost intrest in it and thus
+              receives updates late.
+            </p>
+            <a
+              href="https://github.com/Sheets-PokeHakz/PokeAI-Catcher-V2"
+              class="project-btn"
+              >View Project</a
+            >
+          </div>
+          <div class="project">
+            <h3>PhotoSpectroscope</h3>
+            <p>
+              The project involves real-time sectroscope analysis using a live
+              video feed. The program captures video frames from a webcam and
+              extracts spectral information, generating graphs of reflectance
+              and transmittance. This tool can be used for various applications,
+              including material analysis, chemical testing, and educational
+              purposes. I used python and OpenCV to develop this project.
+            </p>
+            <a
+              href="https://github.com/SpreadSheets600/PhotoSpectroscope"
+              class="project-btn"
+              >View Project</a
+            >
+          </div>
+          <div class="project">
+            <h3>Pomodoria</h3>
+            <p>
+              The project is a simple pomodoro timer that helps users manage
+              time along with a todo list. It got spotify integration to play
+              music while working and some vibrant video backgrounds to keep the
+              user engaged. It is a simple project created with my friend Param,
+              since we could not use custom background images or videos in
+              exsisiting pomodoro apps, we decided to make our own. It is a
+              simple project but it is very useful and has a lot of features.
+            </p>
+            <a
+              href="https://github.com/SpreadSheets600/Pomodoria"
+              class="project-btn"
+              >View Project</a
+            >
+          </div>
+          <div class="project">
+            <h3>File Sorter</h3>
+            <p>
+              The project is a simple UI based file sorter that sorts files
+              according to their type. It is a simple project that i made to
+              learn how to make UI based applications in python. It allows you
+              to specify a directory, file extensions, and an optional log file
+              for tracking file movements. The program then sorts the files into
+              folders based on their extensions. It is a simple project but it
+              is very useful and has a lot of features.
+            </p>
+            <a
+              href="https://github.com/SpreadSheets600/File-Sorter"
+              class="project-btn"
+              >View Project</a
+            >
+          </div>
+        </div>
+      </section>
+
       <section id="skills" class="card">
         <h2>Skills</h2>
+
         <div class="skill-category">
           <h3>Languages</h3>
           <div class="skill-icons">
@@ -61,46 +596,143 @@
             />
           </div>
         </div>
+
+        <div class="skill-category">
+          <h3>Technologies</h3>
+          <div class="skill-icons">
+            <img
+              src="https://skillicons.dev/icons?i=django,flask,tensorflow,nodejs&theme=dark"
+              alt="Technology Skills"
+            />
+          </div>
+        </div>
+
+        <div class="skill-category">
+          <h3>Design & Creativity</h3>
+          <div class="skill-icons">
+            <img
+              src="https://skillicons.dev/icons?i=illustrator,xd,figma&theme=dark"
+              alt="Design Skills"
+            />
+          </div>
+        </div>
+
+        <div class="skill-category">
+          <h3>Database</h3>
+          <div class="skill-icons">
+            <img
+              src="https://skillicons.dev/icons?i=mongo,mysql&theme=dark"
+              alt="Database Skills"
+            />
+          </div>
+        </div>
+
+        <div class="skill-category">
+          <h3>Tools</h3>
+          <div class="skill-icons">
+            <img
+              src="https://skillicons.dev/icons?i=vscode,sublime,replit,notion,github,discord,bots&theme=dark"
+              alt="Tool Skills"
+            />
+          </div>
+        </div>
       </section>
 
-      <!-- GitHub Section -->
       <section id="github" class="card">
         <h2>GitHub Stats</h2>
-        <div class="github-stats">
-          <img
-            src="https://github-readme-stats.vercel.app/api?username=spreadsheets600&show_icons=true&theme=dark"
-          />
-          <img
-            src="https://github-readme-streak-stats.herokuapp.com?user=spreadsheets600&theme=dark"
-          />
+        <div id="github-stats" class="github-stats">
+          <div class="stat-row">
+            <div class="stat-item">
+              <img
+                class="commits"
+                src="https://github-readme-stats.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff"
+                alt="GitHub Stats"
+              />
+            </div>
+            <!-- <div class="stat-item">
+              <img
+                src="https://github-readme-stats.vercel.app/api/top-langs/?username=spreadsheets600&layout=compact&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=00ffff"
+                alt="Top Languages"
+              />
+            </div> -->
+            <div class="stat-item">
+              <img
+                src="https://github-readme-streak-stats.herokuapp.com?user=spreadsheets600&theme=dark&card_height=180&hide_border=true&background=151515&stroke=FFFFFF&ring=FFFFFF&fire=FFFFFF&currStreakNum=FFFFFF&sideNums=FFFFFF&currStreakLabel=FFFFFF&sideLabels=FFFFFF&dates=FFFFFF"
+                alt="GitHub Streak"
+              />
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-item full-width">
+              <img
+                src="https://github-readme-activity-graph.vercel.app/graph?username=SpreadSheets600&theme=react-dark&hide_border=true&bg_color=151515&color=FFFFFF&line=FFFFFF&point=FFFFFF"
+                alt="GitHub Activity Graph"
+              />
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-item full-width">
+              <img
+                src="https://holopin.me/spreadsheets600"
+                alt="Hoplin Badges"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- Contact Section -->
       <section id="contact" class="card">
         <h2>Contact & Social</h2>
-        <div class="social-links">
-          <a href="https://blog.spreadsheets600.me" class="social-btn">Blog</a>
-          <a href="https://dev.to/sspreadsheets600" class="social-btn"
-            >Dev.to</a
-          >
-          <a
-            href="https://stackoverflow.com/users/23220449/soham-maity"
-            class="social-btn"
-            >Stack Overflow</a
-          >
-          <a
-            href="https://www.linkedin.com/in/soham-maity-114466218"
-            class="social-btn"
-            >LinkedIn</a
-          >
-        </div>
+        <br />
+        <a href="https://blog.spreadsheets600.me" class="btn">
+          <img
+            src="https://img.shields.io/badge/Visit%20My%20Blog-black?style=for-the-badge&logo=blogger&logoColor=white"
+            alt="Blog"
+          />
+        </a>
+        <a href="https://dev.to/sspreadsheets600" class="btn">
+          <img
+            src="https://img.shields.io/badge/DEV.TO-0A0A0A?style=for-the-badge&logo=dev-dot-to&logoColor=white"
+            alt="Dev.to"
+          />
+        </a>
+        <a
+          href="https://stackoverflow.com/users/23220449/soham-maity"
+          class="btn"
+        >
+          <img
+            src="https://img.shields.io/badge/STACKOVERFLOW-FE7A16?style=for-the-badge&logo=stackoverflow&logoColor=white"
+            alt="Stack Overflow"
+          />
+        </a>
+        <a href="https://www.linkedin.com/in/soham-maity-114466218" class="btn">
+          <img
+            src="https://img.shields.io/badge/LINKEDIN-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"
+            alt="LinkedIn"
+          />
+        </a>
       </section>
     </div>
-
-    <!-- Footer -->
     <footer class="footer">
       <p>© 2024 | Made With ❤ By SOHAM</p>
     </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+      particlesJS.load("particles-js", "particles.json", function () {
+        console.log("particles.js loaded");
+      });
+
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+    </script>
   </body>
 </html>
