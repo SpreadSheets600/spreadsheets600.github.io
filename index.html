@@ -295,6 +295,14 @@
 				</div>
 			</section>
 
+			<!-- AniList -->
+			<section id="anilist" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4">
+					<h2 class="text-2xl font-semibold">AniList Stats</h2>
+				</div>
+				<div id="anilist-card" class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl"></div>
+			</section>
+
 			<!-- GitHub -->
 			<section id="github" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4">
@@ -538,16 +546,16 @@
 						const safeName = String(name ?? "—");
 						const safeRight = String(rightText ?? "—");
 						return `
-					           <div class="grid gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
-					             <div class="flex items-center justify-between text-sm">
-					               <span class="text-white/90">${safeName}</span>
-					               <span class="text-white/70">${safeRight}</span>
-					             </div>
-					             <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-					               <div class="h-full rounded-full bg-white/70" style="width:${pct}%"></div>
-					             </div>
-					           </div>
-					         `;
+							   <div class="grid gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+								 <div class="flex items-center justify-between text-sm">
+								   <span class="text-white/90">${safeName}</span>
+								   <span class="text-white/70">${safeRight}</span>
+								 </div>
+								 <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+								   <div class="h-full rounded-full bg-white/70" style="width:${pct}%"></div>
+								 </div>
+							   </div>
+							 `;
 					}
 
 					async function loadWakaTime() {
@@ -626,6 +634,246 @@
 			if (toggle && menu) {
 				toggle.addEventListener("click", () => menu.classList.toggle("hidden"));
 			}
+		</script>
+
+		<script>
+			function renderAniListData(data) {
+				const card = document.getElementById("anilist-card");
+				if (!card || !data) return;
+
+				const user = data.User;
+				const anime = user.statistics.anime;
+				const manga = user.statistics.manga;
+				const latestAnime = data.latestAnime.activities?.[0] || null;
+				const latestManga = data.latestManga.activities?.[0] || null;
+
+				card.innerHTML = `
+			        <div class="grid md:grid-cols-2 gap-8">
+			          
+                <!-- Stats Column -->
+                <div class="grid gap-6">
+
+                  <!-- User Header -->
+                  <div class="flex items-center justify-between p-4 bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10">
+                    <h2 class="text-xl font-bold text-white/90">${user.name}</h2>
+                    <a href="${user.siteUrl}" target="_blank" 
+                      class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-400/30 hover:bg-blue-500/30 transition text-sm">
+                      View Profile
+                    </a>
+                  </div>
+
+                  <!-- Anime Stats -->
+                  <div class="bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10 p-4 hover:border-white/20 transition">
+                    <h3 class="text-lg font-bold text-white/90 mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+                      </svg>
+                      Anime Stats
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm text-white/70">
+                      <div>
+                        <div class="text-white/50">Anime</div>
+                        <div class="text-xl font-bold text-white/90">${anime.count}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Episodes</div>
+                        <div class="text-xl font-bold text-white/90">${anime.episodesWatched}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Mean Score</div>
+                        <div class="text-xl font-bold text-white/90">${anime.meanScore}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Time Watched</div>
+                        <div class="text-xl font-bold text-white/90">
+                          ${anime.minutesWatched} Min
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Manga Stats -->
+                  <div class="bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10 p-4 hover:border-white/20 transition">
+                    <h3 class="text-lg font-bold text-white/90 mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Manga Stats
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm text-white/70">
+                      <div>
+                        <div class="text-white/50">Manga</div>
+                        <div class="text-xl font-bold text-white/90">${manga.count}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Volumes</div>
+                        <div class="text-xl font-bold text-white/90">${manga.volumesRead}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Chapters</div>
+                        <div class="text-xl font-bold text-white/90">${manga.chaptersRead}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Mean Score</div>
+                        <div class="text-xl font-bold text-white/90">${manga.meanScore}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+			          <!-- Latest Activity Column -->
+			          <div class="grid grid-cols-2 gap-6">
+			            <!-- Latest Anime -->
+			            <div class="bg-white/5 rounded-xl border border-white/10 p-3">
+			              <h3 class="text-lg font-bold text-white/90 mb-3">Latest Anime</h3>
+			              ${
+								latestAnime
+									? `
+			          <a href="${latestAnime.media.siteUrl}" target="_blank" rel="noopener" class="block group">
+			            <div class="aspect-[2/3] w-full mb-2">
+			              <img
+			                src="${latestAnime.media.coverImage.large}"
+			                alt="${latestAnime.media.title.english}"
+			                class="w-full h-full object-cover rounded-lg border border-white/10 group-hover:opacity-90 transition"
+			              />
+			            </div>
+			            <div class="font-medium text-white/90 truncate">${latestAnime.media.title.english || "-"}</div>
+			            <div class="mt-1 text-xs text-white/60 mb-0.5">
+			              ${(latestAnime.status || "-").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())} • ${latestAnime.media.format || "-"}
+			            </div>
+			          </a>
+			        `
+									: `<div class="text-sm text-white/60">No Recent Anime Activity</div>`
+							}
+			            </div>
+
+			            <!-- Latest Manga -->
+			            <div class="bg-white/5 rounded-xl border border-white/10 p-3">
+			              <h3 class="text-lg font-bold text-white/90 mb-3">Latest Manga</h3>
+			              ${
+								latestManga
+									? `
+			            <a href="${latestManga.media.siteUrl}" target="_blank" rel="noopener" class="block group">
+			              <div class="aspect-[2/3] w-full mb-2">
+			                <img
+			                  src="${latestManga.media.coverImage.large}"
+			                  alt="${latestManga.media.title.english}"
+			                  class="w-full h-full object-cover rounded-lg border border-white/10 group-hover:opacity-90 transition"
+			                />
+			              </div>
+			              <div class="font-medium text-white/90 truncate">${latestManga.media.title.english || "-"}</div>
+			              <div class="mt-1 text-xs text-white/60 mb-0.5">
+			                ${(latestManga.status || "-").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())} • ${latestManga.media.format || "-"}
+			              </div>
+			            </a>
+			          `
+									: `<div class="text-sm text-white/60">No Recent Manga Activity</div>`
+							}
+			            </div>
+			          </div>
+			        </div>
+			      `;
+			}
+
+			async function fetchAniListData(username) {
+				const query = `
+			  query ($name: String, $userId: Int) {
+				User(name: $name) {
+				  id
+				  name
+				  avatar {
+					large
+				  }
+				  siteUrl
+				  statistics {
+					anime {
+					  count
+					  minutesWatched
+					  episodesWatched
+					  meanScore
+					}
+					manga {
+					  count
+					  chaptersRead
+					  volumesRead
+					  meanScore
+					}
+				  }
+				}
+				latestAnime: Page(perPage: 1) {
+				  activities(userId: $userId, sort: ID_DESC, type_in: ANIME_LIST) {
+					... on ListActivity {
+					  status
+					  media {
+						type
+						format
+						title {
+						  english
+						}
+						coverImage {
+						  large
+						}
+						duration
+						episodes
+						chapters
+						siteUrl
+					  }
+					}
+				  }
+				}
+				latestManga: Page(perPage: 1) {
+				  activities(userId: $userId, sort: ID_DESC, type_in: MANGA_LIST)  {
+					... on ListActivity {
+					  status
+					  media {
+						type
+						format
+						title {
+						  english
+						}
+						coverImage {
+						  large
+						}
+						duration
+						episodes
+						chapters
+						siteUrl
+					  }
+					}
+				  }
+				}
+			  }
+			`;
+
+				try {
+					const userDataRes = await fetch("https://graphql.anilist.co", {
+						method: "POST",
+						headers: { "Content-Type": "application/json", Accept: "application/json" },
+						body: JSON.stringify({
+							query: `query ($name: String) { User(name: $name) { id } }`,
+							variables: { name: username },
+						}),
+					});
+
+					const userData = await userDataRes.json();
+					const userId = userData.data.User.id;
+
+					const res = await fetch("https://graphql.anilist.co", {
+						method: "POST",
+						headers: { "Content-Type": "application/json", Accept: "application/json" },
+						body: JSON.stringify({ query, variables: { name: username, userId } }),
+					});
+
+					const json = await res.json();
+					renderAniListData(json.data);
+					return;
+					json.data;
+				} catch (err) {
+					console.error("Error Fetching AniList Data :", err);
+				}
+			}
+
+			fetchAniListData("SpreadSheeets");
 		</script>
 	</body>
 </html>
