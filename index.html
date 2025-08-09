@@ -110,13 +110,13 @@
 		<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<!-- Hero -->
 			<header class="relative py-16 sm:py-20">
-				<div class="grid items-center gap-10 md:grid-cols-2 data-animate" data-animate>
-					<div>
+				<div class="grid items-center gap-10 md:grid-cols-2 justify-center" data-animate>
+					<div class="justify-center text-center md:text-left">
 						<h1 class="text-4xl font-bold leading-tight sm:text-5xl">
 							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">「 SOHAM MAITY 」</span>
 						</h1>
-						<p class="mt-4 max-w-xl text-white/80">Computer Science Major • Tech Enthusiast • Anime Lover</p>
-						<div class="mt-6 flex flex-wrap gap-3">
+						<p class="mt-4 max-w-xl text-white/80 mx-auto md:mx-0">Computer Science Major • Tech Enthusiast • Anime Lover</p>
+						<div class="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
 							<a href="#projects" class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/15 transition">
 								View Projects
 								<svg xmlns="http://www.w3.org/2000/svg" class="size-4 opacity-80" viewBox="0 0 20 20" fill="currentColor">
@@ -140,7 +140,6 @@
 				<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl sm:p-8" data-animate>
 					<div class="mb-5 flex items-center justify-between gap-4">
 						<h2 class="text-2xl font-semibold">About Me</h2>
-						<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
 					</div>
 					<p class="text-white/80">I'm a Computer Science major with a passion for crafting clean, aesthetic, and functional experiences. I specialize in building Discord bots and love blending technology with creative design. My goal is to design solutions that feel delightful and look beautiful—where form and function meet seamlessly.</p>
 				</div>
@@ -150,11 +149,30 @@
 			<section id="projects" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4" data-animate>
 					<h2 class="text-2xl font-semibold">Projects</h2>
-					<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
 				</div>
 
 				<div class="grid gap-6 sm:grid-cols-2" data-animate>
 					<!-- Project Card -->
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Novatra</h3>
+						<p class="mt-2 text-sm text-white/75">Novatra is a 100% free online platform for JEE aspirants that offers topic-wise and year-wise previous exam (PYQ) practice questions in a clean, ad-free interface.</p>
+						<a href="https://github.com/NovatraX" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+						<a href="https://novatra.in" class="rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition">View Website</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Exam Countdown</h3>
+						<p class="mt-2 text-sm text-white/75">A simple javascript based extension that provides countdown timers for the JEE and NEET exams, allowing users to track the time remaining until each exam. Users can customize their preferences to show or hide countdowns based on their interests.</p>
+						<a href="https://github.com/NovatraX/exam-countdown-extension" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+						<a href="https://chromewebstore.google.com/detail/exam-countdown/mhjcpnnmmalddidegkfcempomlpkkdan" class="rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition">View Website</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Quiz Master</h3>
+						<p class="mt-2 text-sm text-white/75">A desktop file sorter that organizes files by extension into folders. Specify directory, extensions, and optional logging—simple, handy, and featureful.</p>
+						<a href="https://github.com/SpreadSheets600/File-Sorter" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
 					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
 						<h3 class="text-lg font-semibold">Budget Tracker</h3>
 						<p class="mt-2 text-sm text-white/75">A simple UI-based budget tracker with expense and income tracking, plus graphs and charts to visualize spending habits. Built in Python to explore desktop UI development.</p>
@@ -178,7 +196,6 @@
 						<p class="mt-2 text-sm text-white/75">A unique Minecraft SMP with a custom website and Discord bot linking in-game systems with the community: economy, stocks/crypto, player stats, and an innovative whitelist system.</p>
 						<div class="mt-4 flex flex-wrap gap-2">
 							<a href="https://github.com/SpreadSheets600/Fallen-SMP-BOT" class="rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
-							<a href="https://fallensmp.xyz" class="rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition">View Website</a>
 						</div>
 					</article>
 
@@ -199,12 +216,6 @@
 						<p class="mt-2 text-sm text-white/75">A focused Pomodoro timer with a to‑do list, Spotify integration, and vibrant video backgrounds—built to create an engaging, customizable workflow.</p>
 						<a href="https://github.com/SpreadSheets600/Pomodoria" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
 					</article>
-
-					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
-						<h3 class="text-lg font-semibold">File Sorter</h3>
-						<p class="mt-2 text-sm text-white/75">A desktop file sorter that organizes files by extension into folders. Specify directory, extensions, and optional logging—simple, handy, and featureful.</p>
-						<a href="https://github.com/SpreadSheets600/File-Sorter" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
-					</article>
 				</div>
 			</section>
 
@@ -212,7 +223,6 @@
 			<section id="skills" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4" data-animate>
 					<h2 class="text-2xl font-semibold">Skills</h2>
-					<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
 				</div>
 
 				<div class="grid gap-6" data-animate>
@@ -246,8 +256,7 @@
 			<!-- WakaTime -->
 			<section id="wakatime" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4">
-					<h2 class="text-2xl font-semibold">WakaTime (Last 7 Days)</h2>
-					<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
+					<h2 class="text-2xl font-semibold">Coding Stats</h2>
 				</div>
 
 				<!-- Summary cards -->
@@ -263,9 +272,9 @@
 						<p class="mt-1 text-xs text-white/50">Across Last Week</p>
 					</div>
 					<div class="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-xl">
-						<p class="text-xs uppercase tracking-wider text-white/60">Best Day</p>
-						<p id="wk2-best" class="mt-2 text-2xl font-semibold leading-snug">—</p>
-						<p id="wk2-best-date" class="mt-1 text-xs text-white/50">—</p>
+						<p class="text-xs uppercase tracking-wider text-white/60">Today's Stats</p>
+						<p id="wk2-latest" class="mt-2 text-2xl font-semibold leading-snug">—</p>
+						<p id="wk2-latest-date" class="mt-1 text-xs text-white/50">—</p>
 					</div>
 				</div>
 
@@ -273,15 +282,15 @@
 				<div class="mt-6 grid gap-6 xl:grid-cols-3">
 					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
 						<h3 class="text-lg font-semibold">Operating System</h3>
-						<div id="wk2-projects" class="mt-4 grid gap-3"></div>
+						<div id="wk2-oses" class="mt-4 grid gap-3"></div>
 					</div>
 					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
 						<h3 class="text-lg font-semibold">Top Languages</h3>
-						<div id="wk2-editors" class="mt-4 grid gap-3"></div>
+						<div id="wk2-langs" class="mt-4 grid gap-3"></div>
 					</div>
 					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
 						<h3 class="text-lg font-semibold">Code Editor</h3>
-						<div id="wk2-oses" class="mt-4 grid gap-3"></div>
+						<div id="wk2-editor" class="mt-4 grid gap-3"></div>
 					</div>
 				</div>
 			</section>
@@ -290,7 +299,6 @@
 			<section id="github" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4">
 					<h2 class="text-2xl font-semibold">GitHub Stats</h2>
-					<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
 				</div>
 
 				<div class="grid gap-6" data-animate>
@@ -317,7 +325,6 @@
 			<section id="social" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4">
 					<h2 class="text-2xl font-semibold">Social Links</h2>
-					<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
 				</div>
 
 				<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl" data-animate>
@@ -345,7 +352,6 @@
 			<section id="contact" class="scroll-mt-24 mt-12">
 				<div class="mb-6 flex items-center justify-between gap-4">
 					<h2 class="text-2xl font-semibold">Contact Me</h2>
-					<span class="h-px flex-1 bg-gradient-to-r from-white/50 to-transparent"></span>
 				</div>
 
 				<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl" data-animate>
@@ -373,228 +379,241 @@
 						<p id="formStatus" class="hidden text-sm"></p>
 					</form>
 				</div>
-
-				<script>
-					const BACKGROUND_IMAGES = ["https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/1.jpg?token=GHSAT0AAAAAADHSNRKD7UYYVLBQL35JLJ6K2EWJY5Q", "https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/2.jpg?token=GHSAT0AAAAAADHSNRKCE22COY6EI3TSCU4U2EWJY7A", "https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/3.jpg?token=GHSAT0AAAAAADHSNRKDNWGLWCVMQOYJRH3M2EWJZAA"];
-					const WEBHOOK_URL = "https://discord.com/api/webhooks/1403400949078167633/cZXHdZmraxI7sHa5gdIpGL-_8ensis45KtEJy8y8SLIDN2d2WV03jZQY7OnCuiT-5ly1";
-
-					// Use A Random Background Image On Load
-					const randomIndex = Math.floor(Math.random() * BACKGROUND_IMAGES.length);
-					const backgroundImage = BACKGROUND_IMAGES[randomIndex] || "";
-
-					document.addEventListener("DOMContentLoaded", () => {
-						const bgDiv = document.getElementById("backgroundImage");
-						if (bgDiv && backgroundImage) {
-							bgDiv.style.backgroundImage = `url('${backgroundImage}')`;
-						}
-					});
-
-					const form = document.getElementById("contactForm");
-					const statusEl = document.getElementById("formStatus");
-					const submitBtn = form.querySelector('button[type="submit"]');
-					const labelSpan = submitBtn.querySelector("[data-label]");
-
-					form.addEventListener("submit", async (e) => {
-						e.preventDefault();
-						const data = new FormData(form);
-						const name = (data.get("name") || "Anonymous").toString().trim() || "Anonymous";
-						const email = (data.get("email") || "").toString().trim();
-						const message = (data.get("message") || "").toString().trim();
-
-						if (!message) return showStatus("Please Enter A Message.", false);
-						if (!email) return showStatus("Please Enter A Valid Email.", false);
-
-						setLoading(true);
-
-						const contentLine = `New Contact From ${name} (${email})`;
-						const payload = {
-							content: contentLine,
-							embeds: [
-								{
-									title: "Portfolio Contact",
-									color: 0xffffff,
-									fields: [
-										{ name: "Name", value: name, inline: true },
-										{ name: "Email", value: email, inline: false },
-										{
-											name: "Message",
-											value: message.length > 1024 ? message.slice(0, 1021) + "..." : message,
-										},
-									],
-									timestamp: new Date().toISOString(),
-								},
-							],
-							allowed_mentions: { parse: [] },
-						};
-
-						try {
-							const res = await fetch(WEBHOOK_URL, {
-								method: "POST",
-								headers: { "Content-Type": "application/json" },
-								body: JSON.stringify(payload),
-							});
-							if (!res.ok) throw new Error("Request Fsailed");
-							form.reset();
-							showStatus("Message Sent Successfully.", true);
-						} catch (err) {
-							showStatus("Failed To Send Message!", false);
-						} finally {
-							setLoading(false);
-						}
-					});
-
-					function setLoading(state) {
-						submitBtn.disabled = state;
-						submitBtn.classList.toggle("opacity-60", state);
-						submitBtn.classList.toggle("cursor-not-allowed", state);
-						labelSpan.textContent = state ? "Sending ..." : "Send Message";
-					}
-
-					function showStatus(msg, ok) {
-						statusEl.textContent = msg;
-						statusEl.classList.remove("hidden");
-						statusEl.classList.toggle("text-green-400", ok);
-						statusEl.classList.toggle("text-red-400", !ok);
-					}
-
-					// Typewriter Effect
-					(function () {
-						const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-						const el = document.getElementById("typewriter");
-						if (!el) return;
-						const lines = ["Computer Science Major", "Tech Enthusiast", "Discord Bot Developer", "Anime Lover"];
-						if (prefersReduced) {
-							el.textContent = lines.join(" • ");
-							return;
-						}
-
-						let i = 0,
-							j = 0,
-							deleting = false,
-							pause = 1000;
-						function tick() {
-							const word = lines[i];
-							if (!deleting) {
-								el.textContent = word.slice(0, j + 1);
-								j++;
-								if (j === word.length) {
-									deleting = true;
-									setTimeout(tick, pause);
-									return;
-								}
-							} else {
-								el.textContent = word.slice(0, j - 1);
-								j--;
-								if (j === 0) {
-									deleting = false;
-									i = (i + 1) % lines.length;
-								}
-							}
-							const speed = deleting ? 45 : 70;
-							setTimeout(tick, speed);
-						}
-						tick();
-					})();
-
-					// Scroll On Reveal Animation
-					(function () {
-						const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-						const items = document.querySelectorAll("[data-animate]");
-						items.forEach((el) => {
-							el.classList.add("opacity-0", "translate-y-6", "transition", "duration-700");
-						});
-						if (prefersReduced) {
-							items.forEach((el) => el.classList.remove("opacity-0", "translate-y-6"));
-							return;
-						}
-						const io = new IntersectionObserver(
-							(entries) => {
-								entries.forEach((entry) => {
-									if (entry.isIntersecting) {
-										const delay = entry.target.getAttribute("data-animate-delay") || 0;
-										entry.target.style.transitionDelay = `${delay}ms`;
-										entry.target.classList.remove("opacity-0", "translate-y-6");
-										io.unobserve(entry.target);
-									}
-								});
-							},
-							{ threshold: 0.12 }
-						);
-						items.forEach((el) => io.observe(el));
-					})();
-
-					(function () {
-						const $ = (id) => document.getElementById(id);
-
-						function rowHTML(name, rightText, percent) {
-							const pct = Math.max(0, Math.min(100, Math.round(percent || 0)));
-							const safeName = String(name ?? "—");
-							const safeRight = String(rightText ?? "—");
-							return `
-                <div class="grid gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
-                  <div class="flex items-center justify-between text-sm">
-                    <span class="text-white/90">${safeName}</span>
-                    <span class="text-white/70">${safeRight}</span>
-                  </div>
-                  <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                    <div class="h-full rounded-full bg-white/70" style="width:${pct}%"></div>
-                  </div>
-                </div>
-              `;
-						}
-
-						async function loadWakaTime() {
-							try {
-								const urls = {
-									operating_systems: "https://wakatime.com/share/@SpreadSheets600/0d457d01-8ea3-4aa7-8fb7-d3e3e142225b.json",
-									coding_activity: "https://wakatime.com/share/@SpreadSheets600/14d09c69-9da4-48fb-ac4b-699d64e13ed8.json",
-									languages: "https://wakatime.com/share/@SpreadSheets600/1ba226df-e4a8-413e-aaa4-d17868b15135.json",
-									editors: "https://wakatime.com/share/@SpreadSheets600/8956f2d0-defe-41f6-b03a-b76668490432.json",
-								};
-
-								const [osRes, activityRes, langsRes, editorsRes] = await Promise.all(Object.values(urls).map((url) => fetch(url).then((r) => r.json())));
-
-								// Debugging
-								console.log("OS:", osRes);
-								console.log("Activity:", activityRes);
-								console.log("Languages:", langsRes);
-								console.log("Editors:", editorsRes);
-
-								// Summary cards
-								if (activityRes.data) {
-									const total = activityRes.data.grand_total?.human_readable_total ?? "—";
-									const daily = activityRes.data.grand_total?.human_readable_daily_average ?? "—";
-									const best = activityRes.data.best_day?.text ?? "—";
-									const bestDate = activityRes.data.best_day?.date ? new Date(activityRes.data.best_day.date).toLocaleDateString() : "—";
-
-									$("wk2-total").textContent = total;
-									$("wk2-daily").textContent = daily;
-									$("wk2-best").textContent = best;
-									$("wk2-best-date").textContent = bestDate;
-
-									$("wk2-range").textContent = `From ${new Date(activityRes.data.range.start).toLocaleDateString()} To ${new Date(activityRes.data.range.end).toLocaleDateString()}`;
-								}
-
-								// Operating Systems
-								const oses = (osRes.data || []).slice(0, 5);
-								$("wk2-projects").innerHTML = oses.length ? oses.map((o) => rowHTML(o.name, `${o.percent.toFixed(2)}%`, o.percent)).join("") : `<p class="text-sm text-white/60">No OS Data</p>`;
-
-								// Languages
-								const langs = (langsRes.data || []).slice(0, 5);
-								$("wk2-editors").innerHTML = langs.length ? langs.map((l) => rowHTML(l.name, `${l.percent.toFixed(2)}%`, l.percent)).join("") : `<p class="text-sm text-white/60">No Language Data</p>`;
-
-								// Editors
-								const editors = (editorsRes.data || []).slice(0, 5);
-								$("wk2-oses").innerHTML = editors.length ? editors.map((e) => rowHTML(e.name, `${e.percent.toFixed(2)}%`, e.percent)).join("") : `<p class="text-sm text-white/60">No Editor Data</p>`;
-							} catch (err) {
-								console.error("WakaTime Public Data Error : ", err);
-							}
-						}
-
-						loadWakaTime();
-					})();
-				</script>
 			</section>
+
+			<script>
+				const BACKGROUND_IMAGES = ["1.jpg", "2.jpg", "3.jpg"];
+				const WEBHOOK_URL = "https://discord.com/api/webhooks/1403400949078167633/cZXHdZmraxI7sHa5gdIpGL-_8ensis45KtEJy8y8SLIDN2d2WV03jZQY7OnCuiT-5ly1";
+
+				// Use A Random Background Image On Load
+				const randomIndex = Math.floor(Math.random() * BACKGROUND_IMAGES.length);
+				const backgroundImage = BACKGROUND_IMAGES[randomIndex] || "";
+
+				document.addEventListener("DOMContentLoaded", () => {
+					const bgDiv = document.getElementById("backgroundImage");
+					if (bgDiv && backgroundImage) {
+						bgDiv.style.backgroundImage = `url('${backgroundImage}')`;
+					}
+				});
+
+				const form = document.getElementById("contactForm");
+				const statusEl = document.getElementById("formStatus");
+				const submitBtn = form.querySelector('button[type="submit"]');
+				const labelSpan = submitBtn.querySelector("[data-label]");
+
+				form.addEventListener("submit", async (e) => {
+					e.preventDefault();
+					const data = new FormData(form);
+					const name = (data.get("name") || "Anonymous").toString().trim() || "Anonymous";
+					const email = (data.get("email") || "").toString().trim();
+					const message = (data.get("message") || "").toString().trim();
+
+					if (!message) return showStatus("Please Enter A Message.", false);
+					if (!email) return showStatus("Please Enter A Valid Email.", false);
+
+					setLoading(true);
+
+					const contentLine = `New Contact From ${name} (${email})`;
+					const payload = {
+						content: contentLine,
+						embeds: [
+							{
+								title: "Portfolio Contact",
+								color: 0xffffff,
+								fields: [
+									{ name: "Name", value: name, inline: true },
+									{ name: "Email", value: email, inline: false },
+									{
+										name: "Message",
+										value: message.length > 1024 ? message.slice(0, 1021) + "..." : message,
+									},
+								],
+								timestamp: new Date().toISOString(),
+							},
+						],
+						allowed_mentions: { parse: [] },
+					};
+
+					try {
+						const res = await fetch(WEBHOOK_URL, {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(payload),
+						});
+						if (!res.ok) throw new Error("Request Fsailed");
+						form.reset();
+						showStatus("Message Sent Successfully.", true);
+					} catch (err) {
+						showStatus("Failed To Send Message!", false);
+					} finally {
+						setLoading(false);
+					}
+				});
+
+				function setLoading(state) {
+					submitBtn.disabled = state;
+					submitBtn.classList.toggle("opacity-60", state);
+					submitBtn.classList.toggle("cursor-not-allowed", state);
+					labelSpan.textContent = state ? "Sending ..." : "Send Message";
+				}
+
+				function showStatus(msg, ok) {
+					statusEl.textContent = msg;
+					statusEl.classList.remove("hidden");
+					statusEl.classList.toggle("text-green-400", ok);
+					statusEl.classList.toggle("text-red-400", !ok);
+				}
+
+				// Typewriter Effect
+				(function () {
+					const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+					const el = document.getElementById("typewriter");
+					if (!el) return;
+					const lines = ["Computer Science Major", "Tech Enthusiast", "Discord Bot Developer", "Anime Lover"];
+					if (prefersReduced) {
+						el.textContent = lines.join(" • ");
+						return;
+					}
+
+					let i = 0,
+						j = 0,
+						deleting = false,
+						pause = 1000;
+					function tick() {
+						const word = lines[i];
+						if (!deleting) {
+							el.textContent = word.slice(0, j + 1);
+							j++;
+							if (j === word.length) {
+								deleting = true;
+								setTimeout(tick, pause);
+								return;
+							}
+						} else {
+							el.textContent = word.slice(0, j - 1);
+							j--;
+							if (j === 0) {
+								deleting = false;
+								i = (i + 1) % lines.length;
+							}
+						}
+						const speed = deleting ? 45 : 70;
+						setTimeout(tick, speed);
+					}
+					tick();
+				})();
+
+				// Scroll On Reveal Animation
+				(function () {
+					const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+					const items = document.querySelectorAll("[data-animate]");
+					items.forEach((el) => {
+						el.classList.add("opacity-0", "translate-y-6", "transition", "duration-700");
+					});
+					if (prefersReduced) {
+						items.forEach((el) => el.classList.remove("opacity-0", "translate-y-6"));
+						return;
+					}
+					const io = new IntersectionObserver(
+						(entries) => {
+							entries.forEach((entry) => {
+								if (entry.isIntersecting) {
+									const delay = entry.target.getAttribute("data-animate-delay") || 0;
+									entry.target.style.transitionDelay = `${delay}ms`;
+									entry.target.classList.remove("opacity-0", "translate-y-6");
+									io.unobserve(entry.target);
+								}
+							});
+						},
+						{ threshold: 0.12 }
+					);
+					items.forEach((el) => io.observe(el));
+				})();
+
+				(function () {
+					const $ = (id) => document.getElementById(id);
+
+					function rowHTML(name, rightText, percent) {
+						const pct = Math.max(0, Math.min(100, Math.round(percent || 0)));
+						const safeName = String(name ?? "—");
+						const safeRight = String(rightText ?? "—");
+						return `
+					           <div class="grid gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+					             <div class="flex items-center justify-between text-sm">
+					               <span class="text-white/90">${safeName}</span>
+					               <span class="text-white/70">${safeRight}</span>
+					             </div>
+					             <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+					               <div class="h-full rounded-full bg-white/70" style="width:${pct}%"></div>
+					             </div>
+					           </div>
+					         `;
+					}
+
+					async function loadWakaTime() {
+						try {
+							const urls = {
+								operating_systems: "https://wakatime.com/share/@SpreadSheets600/d3bada79-4d56-4544-8240-c9c6ff7a669d.json",
+								coding_activity: "https://wakatime.com/share/@SpreadSheets600/6f79156a-5f87-43a8-9a05-0edd976b8c9a.json",
+								languages: "https://wakatime.com/share/@SpreadSheets600/322b4068-62e5-430c-bfa2-cc92e8f7e7e3.json",
+								editors: "https://wakatime.com/share/@SpreadSheets600/d13c536f-1f9d-40a6-8bd5-ec5902652383.json",
+								current: "https://wakatime.com/share/@SpreadSheets600/9ce6920b-5ae7-4f33-90fd-f18d82f3aeb9.json",
+							};
+
+							const [osRes, activityRes, langsRes, editorsRes, currentRes] = await Promise.all(Object.values(urls).map((url) => fetch(url).then((r) => r.json())));
+
+							// Summary cards
+							if (activityRes.data) {
+								const total = activityRes.data.grand_total?.human_readable_total_including_other_language ?? "—";
+								const daily = activityRes.data.grand_total?.human_readable_daily_average_including_other_language ?? "—";
+
+								const best = activityRes.data.best_day?.text ?? "—";
+								const bestDate = activityRes.data.best_day?.date ? new Date(activityRes.data.best_day.date).toLocaleDateString() : "—";
+
+								const current = currentRes.data?.text ?? "—";
+								const currentDate = currentRes.data?.date ? new Date(currentRes.data.date).toLocaleDateString() : "—";
+
+								let todayText = "—";
+								let todayDate = "—";
+
+								if (Array.isArray(currentRes.data)) {
+									const today = new Date();
+									const todayISO = today.toISOString().slice(0, 10);
+									const todayObj = currentRes.data.find((d) => d.range?.date === todayISO);
+									if (todayObj && todayObj.grand_total) {
+										todayText = todayObj.grand_total.text ?? "—";
+										todayDate = todayObj.range?.text ?? todayISO;
+									}
+								}
+
+								$("wk2-total").textContent = total;
+								$("wk2-daily").textContent = daily;
+
+								$("wk2-latest").textContent = todayText;
+								$("wk2-latest-date").textContent = todayDate;
+
+								$("wk2-range").textContent = `From ${new Date(activityRes.data.range.start).toLocaleDateString()} To ${new Date(activityRes.data.range.end).toLocaleDateString()}`;
+							}
+
+							// Operating Systems Top 5
+							const oses = (osRes.data || []).slice(0, 5);
+							$("wk2-oses").innerHTML = oses.length ? oses.map((o) => rowHTML(o.name, `${o.text}`, o.percent)).join("") : `<p class="text-sm text-white/60">No OS Data</p>`;
+
+							// Languages Top 5
+							const langs = (langsRes.data || []).slice(0, 5);
+							$("wk2-langs").innerHTML = langs.length ? langs.map((l) => rowHTML(l.name, `${l.text}`, l.percent)).join("") : `<p class="text-sm text-white/60">No Language Data</p>`;
+
+							// Editors Top 5
+							const editors = (editorsRes.data || []).slice(0, 5);
+							$("wk2-editor").innerHTML = editors.length ? editors.map((e) => rowHTML(e.name, `${e.text}`, e.percent)).join("") : `<p class="text-sm text-white/60">No Editor Data</p>`;
+						} catch (err) {
+							console.error("WakaTime Public Data Error : ", err);
+						}
+					}
+
+					loadWakaTime();
+				})();
+			</script>
 
 			<!-- Footer -->
 			<footer class="mt-12 mb-6 text-center text-sm text-white/60">© 2025 • Made With ❤ By SOHAM</footer>
@@ -610,4 +629,3 @@
 		</script>
 	</body>
 </html>
-
