@@ -59,7 +59,17 @@
 			};
 		</script>
 
-		<meta name="description" content="Soham's Portfolio — Computer Science Major & Tech Enthusiast. Projects, Skills And Stats." />
+		<!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-WSDZ5CG030"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-WSDZ5CG030');
+        </script>
+
+		<meta name="description" content="Soham Maity's Portfolio — Computer Science Major & Tech Enthusiast. Projects, Skills And Stats." />
 	</head>
 	<body class="bg-base text-white font-sans antialiased selection:bg-white/20 selection:text-white/90">
 		<!-- Background -->
@@ -649,14 +659,14 @@
 
 				card.innerHTML = `
 			        <div class="grid md:grid-cols-2 gap-8">
-			          
+
                 <!-- Stats Column -->
                 <div class="grid gap-6">
 
                   <!-- User Header -->
                   <div class="flex items-center justify-between p-4 bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10">
                     <h2 class="text-xl font-bold text-white/90">${user.name}</h2>
-                    <a href="${user.siteUrl}" target="_blank" 
+                    <a href="${user.siteUrl}" target="_blank"
                       class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-400/30 hover:bg-blue-500/30 transition text-sm">
                       View Profile
                     </a>
@@ -866,6 +876,7 @@
 
 					const json = await res.json();
 					renderAniListData(json.data);
+
 					return;
 					json.data;
 				} catch (err) {
