@@ -53,7 +53,7 @@ export default {
 				{
 					title: "Instagram",
 					description: "Personal Life",
-					url: "https://instagram.com/soham.zip",
+					url: "https://instagram.com/spreadheets600",
 					icon: markRaw(PhInstagramLogo),
 					color: "text-pink-400",
 				},
