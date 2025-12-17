@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>SOHAM — Portfolio</title>
+
+		<!-- Fonts -->
+		<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+		<!-- Tailwind CDN -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							base: "#0f0f0f",
+						},
+						fontFamily: {
+							sans: ["Poppins", "ui-sans-serif", "system-ui", "sans-serif"],
+						},
+						boxShadow: {
+							glow: "0 10px 40px rgba(0,0,0,0.45)",
+							innerGlow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
+						},
+						keyframes: {
+							float: {
+								"0%, 100%": { transform: "translateY(0)" },
+								"50%": { transform: "translateY(-8px)" },
+							},
+							tilt: {
+								"0%, 100%": { transform: "rotate(-1deg)" },
+								"50%": { transform: "rotate(1deg)" },
+							},
+							glow: {
+								"0%, 100%": { filter: "drop-shadow(0 0 0 rgba(255,255,255,0.0))" },
+								"50%": { filter: "drop-shadow(0 0 24px rgba(255,255,255,0.15))" },
+							},
+							aurora: {
+								"0%": { backgroundPosition: "0% 50%" },
+								"50%": { backgroundPosition: "100% 50%" },
+								"100%": { backgroundPosition: "0% 50%" },
+							},
+							shimmer: {
+								"0%": { transform: "translateX(-100%)" },
+								"100%": { transform: "translateX(100%)" },
+							},
+						},
+						animation: {
+							float: "float 6s ease-in-out infinite",
+							tilt: "tilt 8s ease-in-out infinite",
+							glow: "glow 4s ease-in-out infinite",
+							aurora: "aurora 18s ease infinite",
+							shimmer: "shimmer 2.4s linear infinite",
+						},
+					},
+				},
+			};
+		</script>
+
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-WSDZ5CG030"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+
+			gtag("config", "G-WSDZ5CG030");
+		</script>
+
+		<meta name="description" content="Soham Maity's Portfolio — Computer Science Major & Tech Enthusiast. Projects, Skills And Stats." />
+	</head>
+	<body class="bg-base text-white font-sans antialiased selection:bg-white/20 selection:text-white/90">
+		<!-- Background -->
+		<div class="fixed inset-0 -z-10">
+			<div class="absolute inset-0 bg-[url('3.jpg')] bg-cover bg-center" id="backgroundImage"></div>
+
+			<div class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
+			<div class="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_10%,rgba(255,255,255,0.08),rgba(0,0,0,0))]"></div>
+		</div>
+
+		<!-- Nav -->
+		<nav class="sticky top-0 z-50 border-b border-white/10 bg-black/30 backdrop-blur-xl">
+			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+				<div class="flex h-16 items-center justify-between">
+					<a href="#" class="text-lg font-semibold tracking-wide">
+						<span class="bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text text-transparent">SpreadSheets600</span>
+					</a>
+					<ul class="hidden gap-6 md:flex">
+						<li><a href="./index.html#about" class="text-sm font-semibold text-white/80 hover:text-white transition">About</a></li>
+						<li><a href="./index.html#projects" class="text-sm font-semibold text-white/80 hover:text-white transition">Projects</a></li>
+						<li><a href="./index.html#skills" class="text-sm font-semibold text-white/80 hover:text-white transition">Skills</a></li>
+						<li><a href="./index.html#github" class="text-sm font-semibold text-white/80 hover:text-white transition">GitHub</a></li>
+						<li><a href="./links.html" class="text-sm font-semibold text-white/80 hover:text-white transition">Links</a></li>
+						<li><a href="./index.html#contact" class="text-sm font-semibold text-white/80 hover:text-white transition">Contact</a></li>
+					</ul>
+					<button id="navToggle" class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:text-white hover:bg-white/10 transition" aria-label="Open Menu">
+						<svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+						</svg>
+					</button>
+				</div>
+			</div>
+
+			<!-- Mobile menu -->
+			<div id="mobileMenu" class="hidden border-t border-white/10 bg-black/40 backdrop-blur-xl md:hidden">
+				<div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+					<ul class="grid gap-2">
+						<li><a href="./index.html#about" class="block rounded-md px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition">About</a></li>
+						<li><a href="./index.html#projects" class="block rounded-md px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition">Projects</a></li>
+						<li><a href="./index.html#skills" class="block rounded-md px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition">Skills</a></li>
+						<li><a href="./index.html#github" class="block rounded-md px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition">GitHub</a></li>
+						<li><a href="./links.html" class="text-sm font-semibold text-white/80 hover:text-white transition">Links</a></li>
+						<li><a href="./index.html#contact" class="block rounded-md px-3 py-2 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 transition">Contact</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Main -->
+		<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<!-- Hero -->
+			<header class="relative py-16 sm:py-20">
+				<div class="grid items-center gap-10 md:grid-cols-2 justify-center" data-animate>
+					<div class="justify-center text-center md:text-left">
+						<h1 class="text-4xl font-bold leading-tight sm:text-5xl">
+							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">「 SOHAM MAITY 」</span>
+						</h1>
+						<p class="mt-4 max-w-xl text-white/80 mx-auto md:mx-0">Computer Science Major • Tech Enthusiast • Anime Lover</p>
+						<div class="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+							<a href="#projects" class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+								View Projects
+								<svg xmlns="http://www.w3.org/2000/svg" class="size-4 opacity-80" viewBox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M3 10a1 1 0 011-1h9.586L11.293 6.707a1 1 0 111.414-1.414l4.0 4.0a1 1 0 010 1.414l-4.0 4.0a1 1 0 11-1.414-1.414L13.586 11H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+								</svg>
+							</a>
+							<a href="#contact" class="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/10 transition"> Contact </a>
+						</div>
+					</div>
+					<div class="flex justify-center md:justify-end">
+						<div class="relative">
+							<div class="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-white/20 via-white/10 to-transparent blur-xl"></div>
+							<img src="https://avatars.githubusercontent.com/u/115402296?v=4" alt="Soham profile picture" class="relative size-64 rounded-2xl object-cover ring-1 ring-white/20 shadow-glow sm:size-72 md:size-80" />
+						</div>
+					</div>
+				</div>
+			</header>
+
+			<!-- About -->
+			<section id="about" class="scroll-mt-24">
+				<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl sm:p-8" data-animate>
+					<div class="mb-5 flex items-center justify-between gap-4">
+						<h2 class="text-2xl font-semibold">About Me</h2>
+					</div>
+					<p class="text-white/80">I'm a Computer Science major with a passion for crafting clean, aesthetic, and functional experiences. I specialize in building Discord bots and love blending technology with creative design. My goal is to design solutions that feel delightful and look beautiful—where form and function meet seamlessly.</p>
+				</div>
+			</section>
+
+			<!-- Projects -->
+			<section id="projects" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4" data-animate>
+					<h2 class="text-2xl font-semibold">Projects</h2>
+				</div>
+
+				<div class="grid gap-6 sm:grid-cols-2" data-animate>
+					<!-- Project Card -->
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Novatra</h3>
+						<p class="mt-2 text-sm text-white/75">Novatra is a 100% free online platform for JEE aspirants that offers topic-wise and year-wise previous exam (PYQ) practice questions in a clean, ad-free interface.</p>
+						<a href="https://github.com/NovatraX" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+						<a href="https://novatra.in" class="rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition">View Website</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Exam Countdown</h3>
+						<p class="mt-2 text-sm text-white/75">A simple javascript based extension that provides countdown timers for the JEE and NEET exams, allowing users to track the time remaining until each exam. Users can customize their preferences to show or hide countdowns based on their interests.</p>
+						<a href="https://github.com/NovatraX/exam-countdown-extension" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+						<a href="https://chromewebstore.google.com/detail/exam-countdown/mhjcpnnmmalddidegkfcempomlpkkdan" class="rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 transition">View Website</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Quiz Master</h3>
+						<p class="mt-2 text-sm text-white/75">A desktop file sorter that organizes files by extension into folders. Specify directory, extensions, and optional logging—simple, handy, and featureful.</p>
+						<a href="https://github.com/SpreadSheets600/File-Sorter" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Budget Tracker</h3>
+						<p class="mt-2 text-sm text-white/75">A simple UI-based budget tracker with expense and income tracking, plus graphs and charts to visualize spending habits. Built in Python to explore desktop UI development.</p>
+						<a href="https://github.com/SpreadSheets600/Budget-Tracker" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Password Manager</h3>
+						<p class="mt-2 text-sm text-white/75">A desktop password manager with a generator, strength checker, and import/export for Google Passwords—built to learn UI application patterns in Python.</p>
+						<a href="https://github.com/SpreadSheets600/Password-Manager" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Astrum — Discord Bot</h3>
+						<p class="mt-2 text-sm text-white/75">A versatile Discord bot for server management and fun—moderation tools, mini-games, anime viewing, memes, quotes, and more. Open source and actively improved.</p>
+						<a href="https://github.com/Sheets-Astrum-BOT" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Fallen SMP</h3>
+						<p class="mt-2 text-sm text-white/75">A unique Minecraft SMP with a custom website and Discord bot linking in-game systems with the community: economy, stocks/crypto, player stats, and an innovative whitelist system.</p>
+						<div class="mt-4 flex flex-wrap gap-2">
+							<a href="https://github.com/SpreadSheets600/Fallen-SMP-BOT" class="rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+						</div>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">PokeTwo AI Catcher</h3>
+						<p class="mt-2 text-sm text-white/75">For educational purposes: an AI-assisted bot that plays PokeTwo on Discord, using discord.py and a TensorFlow-based image model to detect and catch Pokémon.</p>
+						<a href="https://github.com/Sheets-PokeHakz/PokeAI-Catcher-V2" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">PhotoSpectroscope</h3>
+						<p class="mt-2 text-sm text-white/75">Real-time spectroscope analysis from a webcam feed—calculating reflectance and transmittance with OpenCV and Python. Useful for material analysis and education.</p>
+						<a href="https://github.com/SpreadSheets600/PhotoSpectroscope" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+
+					<article class="group rounded-2xl border border-white/10 bg-black/30 p-6 transition hover:-translate-y-1 hover:bg-black/40 hover:border-white/20 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Pomodoria</h3>
+						<p class="mt-2 text-sm text-white/75">A focused Pomodoro timer with a to‑do list, Spotify integration, and vibrant video backgrounds—built to create an engaging, customizable workflow.</p>
+						<a href="https://github.com/SpreadSheets600/Pomodoria" class="mt-4 inline-block rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 transition">View Project</a>
+					</article>
+				</div>
+			</section>
+
+			<!-- Skills -->
+			<section id="skills" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4" data-animate>
+					<h2 class="text-2xl font-semibold">Skills</h2>
+				</div>
+
+				<div class="grid gap-6" data-animate>
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="font-semibold">Languages</h3>
+						<img class="mt-3 rounded-xl" src="https://skillicons.dev/icons?i=python,html,css,javascript,bash,c,java&theme=dark" alt="Language skills: Python, HTML, CSS, JavaScript, Bash, C, Java" />
+					</div>
+
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="font-semibold">Technologies</h3>
+						<img class="mt-3 rounded-xl" src="https://skillicons.dev/icons?i=django,flask,tensorflow,nodejs,opencv,tailwind,vue&theme=dark" alt="Tech skills: Django, Flask, TensorFlow, Node.js, OpenCV, Tailwind, Vue" />
+					</div>
+
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="font-semibold">Design & Creativity</h3>
+						<img class="mt-3 rounded-xl" src="https://skillicons.dev/icons?i=illustrator,xd,figma&theme=dark" alt="Design skills: Illustrator, Adobe XD, Figma" />
+					</div>
+
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="font-semibold">Database</h3>
+						<img class="mt-3 rounded-xl" src="https://skillicons.dev/icons?i=sqlite,mongo,mysql,postgres&theme=dark" alt="Database skills: SQLite, MongoDB, MySQL, PostgreSQL" />
+					</div>
+
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="font-semibold">Tools</h3>
+						<img class="mt-3 rounded-xl" src="https://skillicons.dev/icons?i=linux,vscode,sublime,replit,notion,github,discord,bots&theme=dark" alt="Tools: Linux, VSCode, Sublime, Replit, Notion, GitHub, Discord, Bots" />
+					</div>
+				</div>
+			</section>
+
+			<!-- WakaTime -->
+			<section id="wakatime" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4">
+					<h2 class="text-2xl font-semibold">Coding Stats</h2>
+				</div>
+
+				<!-- Summary cards -->
+				<div class="grid gap-4 sm:grid-cols-3">
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-xl">
+						<p class="text-xs uppercase tracking-wider text-white/60">Total</p>
+						<p id="wk2-total" class="mt-2 text-2xl font-semibold">—</p>
+						<p id="wk2-range" class="mt-1 text-xs text-white/50">—</p>
+					</div>
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-xl">
+						<p class="text-xs uppercase tracking-wider text-white/60">Daily Average</p>
+						<p id="wk2-daily" class="mt-2 text-2xl font-semibold">—</p>
+						<p class="mt-1 text-xs text-white/50">Across Last Week</p>
+					</div>
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-xl">
+						<p class="text-xs uppercase tracking-wider text-white/60">Today's Stats</p>
+						<p id="wk2-latest" class="mt-2 text-2xl font-semibold leading-snug">—</p>
+						<p id="wk2-latest-date" class="mt-1 text-xs text-white/50">—</p>
+					</div>
+				</div>
+
+				<!-- Details -->
+				<div class="mt-6 grid gap-6 xl:grid-cols-3">
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Operating System</h3>
+						<div id="wk2-oses" class="mt-4 grid gap-3"></div>
+					</div>
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Top Languages</h3>
+						<div id="wk2-langs" class="mt-4 grid gap-3"></div>
+					</div>
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl">
+						<h3 class="text-lg font-semibold">Code Editor</h3>
+						<div id="wk2-editor" class="mt-4 grid gap-3"></div>
+					</div>
+				</div>
+			</section>
+
+			<!-- AniList -->
+			<section id="anilist" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4">
+					<h2 class="text-2xl font-semibold">AniList Stats</h2>
+				</div>
+				<div id="anilist-card" class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl"></div>
+			</section>
+
+			<!-- GitHub -->
+			<section id="github" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4">
+					<h2 class="text-2xl font-semibold">GitHub Stats</h2>
+				</div>
+
+				<div class="grid gap-6" data-animate>
+					<div class="grid gap-6 md:grid-cols-2">
+						<div class="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl">
+							<img class="w-full rounded-lg" src="https://github-readme-stats.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff" alt="GitHub stats" />
+						</div>
+						<div class="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl">
+							<img class="w-full rounded-lg" src="https://github-readme-streak-stats.herokuapp.com?user=spreadsheets600&theme=dark&card_height=180&hide_border=true&background=151515&stroke=FFFFFF&ring=FFFFFF&fire=FFFFFF&currStreakNum=FFFFFF&sideNums=FFFFFF&currStreakLabel=FFFFFF&sideLabels=FFFFFF&dates=FFFFFF" alt="GitHub streak" />
+						</div>
+					</div>
+
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl">
+						<img class="w-full rounded-lg" src="https://github-readme-activity-graph.vercel.app/graph?username=SpreadSheets600&theme=react-dark&hide_border=true&bg_color=151515&color=FFFFFF&line=FFFFFF&point=FFFFFF" alt="GitHub activity graph" />
+					</div>
+
+					<div class="rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl">
+						<img class="w-full rounded-lg" src="https://holopin.me/spreadsheets600" alt="Holopin badges" />
+					</div>
+				</div>
+			</section>
+
+			<!-- Social -->
+			<section id="social" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4">
+					<h2 class="text-2xl font-semibold">Social Links</h2>
+				</div>
+
+				<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl" data-animate>
+					<div class="flex flex-wrap items-center gap-3">
+						<a href="https://sites.google.com/view/sheetsblog/blog" class="inline-block rounded-lg border border-white/10 bg-grey/5 p-1.5 hover:bg-grey/10 transition">
+							<img src="https://img.shields.io/badge/Visit%20My%20Blog-black?style=for-the-badge&logo=blogger&logoColor=white" alt="Blog" />
+						</a>
+						<a href="https://dev.to/sspreadsheets600" class="inline-block rounded-lg border border-white/10 bg-grey/5 p-1.5 hover:bg-grey/10 transition">
+							<img src="https://img.shields.io/badge/DEV.TO-0A0A0A?style=for-the-badge&logo=dev-dot-to&logoColor=white" alt="Dev.to" />
+						</a>
+						<a href="https://stackoverflow.com/users/23220449/soham-maity" class="inline-block rounded-lg border border-white/10 bg-grey/5 p-1.5 hover:bg-grey/10 transition">
+							<img src="https://img.shields.io/badge/STACKOVERFLOW-FE7A16?style=for-the-badge&logo=stackoverflow&logoColor=white" alt="Stack Overflow" />
+						</a>
+						<a href="https://www.linkedin.com/in/soham-maity-114466218" class="inline-block rounded-lg border border-white/10 bg-grey/5 p-1.5 hover:bg-grey/10 transition">
+							<img src="https://img.shields.io/badge/LINKEDIN-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+						</a>
+						<a href="https://www.instagram.com/spreadsheets600/" class="inline-block rounded-lg border border-white/10 bg-grey/5 p-1.5 hover:bg-white/10 transition">
+							<img src="https://img.shields.io/badge/INSTAGRAM-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
+						</a>
+					</div>
+				</div>
+			</section>
+
+			<!-- Contact -->
+			<section id="contact" class="scroll-mt-24 mt-12">
+				<div class="mb-6 flex items-center justify-between gap-4">
+					<h2 class="text-2xl font-semibold">Contact Me</h2>
+				</div>
+
+				<div class="rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur-xl" data-animate>
+					<form id="contactForm" class="grid gap-4">
+						<div class="grid gap-4 md:grid-cols-2">
+							<div>
+								<label for="name" class="block text-sm font-medium text-white/80">Name</label>
+								<input type="text" id="name" name="name" autocomplete="name" placeholder="Your Name" class="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30" />
+							</div>
+							<div>
+								<label for="email" class="block text-sm font-medium text-white/80">Email</label>
+								<input type="email" id="email" name="email" required autocomplete="email" placeholder="yourname@youremail.com" class="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30" />
+							</div>
+						</div>
+
+						<div>
+							<label for="message" class="block text-sm font-medium text-white/80">Message</label>
+							<textarea id="message" name="message" required rows="5" placeholder="Write Your Message ..." class="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30"></textarea>
+						</div>
+
+						<button type="submit" class="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/15 transition">
+							<span data-label>Send Message</span>
+						</button>
+
+						<p id="formStatus" class="hidden text-sm"></p>
+					</form>
+				</div>
+			</section>
+
+			<script>
+				const BACKGROUND_IMAGES = ["1.jpg", "2.jpg", "3.jpg"];
+				const WEBHOOK_URL = "https://discord.com/api/webhooks/1403400949078167633/cZXHdZmraxI7sHa5gdIpGL-_8ensis45KtEJy8y8SLIDN2d2WV03jZQY7OnCuiT-5ly1";
+
+				// Use A Random Background Image On Load
+				const randomIndex = Math.floor(Math.random() * BACKGROUND_IMAGES.length);
+				const backgroundImage = BACKGROUND_IMAGES[randomIndex] || "";
+
+				document.addEventListener("DOMContentLoaded", () => {
+					const bgDiv = document.getElementById("backgroundImage");
+					if (bgDiv && backgroundImage) {
+						bgDiv.style.backgroundImage = `url('${backgroundImage}')`;
+					}
+				});
+
+				const form = document.getElementById("contactForm");
+				const statusEl = document.getElementById("formStatus");
+				const submitBtn = form.querySelector('button[type="submit"]');
+				const labelSpan = submitBtn.querySelector("[data-label]");
+
+				form.addEventListener("submit", async (e) => {
+					e.preventDefault();
+					const data = new FormData(form);
+					const name = (data.get("name") || "Anonymous").toString().trim() || "Anonymous";
+					const email = (data.get("email") || "").toString().trim();
+					const message = (data.get("message") || "").toString().trim();
+
+					if (!message) return showStatus("Please Enter A Message.", false);
+					if (!email) return showStatus("Please Enter A Valid Email.", false);
+
+					setLoading(true);
+
+					const contentLine = `New Contact From ${name} (${email})`;
+					const payload = {
+						content: contentLine,
+						embeds: [
+							{
+								title: "Portfolio Contact",
+								color: 0xffffff,
+								fields: [
+									{ name: "Name", value: name, inline: true },
+									{ name: "Email", value: email, inline: false },
+									{
+										name: "Message",
+										value: message.length > 1024 ? message.slice(0, 1021) + "..." : message,
+									},
+								],
+								timestamp: new Date().toISOString(),
+							},
+						],
+						allowed_mentions: { parse: [] },
+					};
+
+					try {
+						const res = await fetch(WEBHOOK_URL, {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify(payload),
+						});
+						if (!res.ok) throw new Error("Request Fsailed");
+						form.reset();
+						showStatus("Message Sent Successfully.", true);
+					} catch (err) {
+						showStatus("Failed To Send Message!", false);
+					} finally {
+						setLoading(false);
+					}
+				});
+
+				function setLoading(state) {
+					submitBtn.disabled = state;
+					submitBtn.classList.toggle("opacity-60", state);
+					submitBtn.classList.toggle("cursor-not-allowed", state);
+					labelSpan.textContent = state ? "Sending ..." : "Send Message";
+				}
+
+				function showStatus(msg, ok) {
+					statusEl.textContent = msg;
+					statusEl.classList.remove("hidden");
+					statusEl.classList.toggle("text-green-400", ok);
+					statusEl.classList.toggle("text-red-400", !ok);
+				}
+
+				// Typewriter Effect
+				(function () {
+					const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+					const el = document.getElementById("typewriter");
+					if (!el) return;
+					const lines = ["Computer Science Major", "Tech Enthusiast", "Discord Bot Developer", "Anime Lover"];
+					if (prefersReduced) {
+						el.textContent = lines.join(" • ");
+						return;
+					}
+
+					let i = 0,
+						j = 0,
+						deleting = false,
+						pause = 1000;
+					function tick() {
+						const word = lines[i];
+						if (!deleting) {
+							el.textContent = word.slice(0, j + 1);
+							j++;
+							if (j === word.length) {
+								deleting = true;
+								setTimeout(tick, pause);
+								return;
+							}
+						} else {
+							el.textContent = word.slice(0, j - 1);
+							j--;
+							if (j === 0) {
+								deleting = false;
+								i = (i + 1) % lines.length;
+							}
+						}
+						const speed = deleting ? 45 : 70;
+						setTimeout(tick, speed);
+					}
+					tick();
+				})();
+
+				// Scroll On Reveal Animation
+				(function () {
+					const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+					const items = document.querySelectorAll("[data-animate]");
+					items.forEach((el) => {
+						el.classList.add("opacity-0", "translate-y-6", "transition", "duration-700");
+					});
+					if (prefersReduced) {
+						items.forEach((el) => el.classList.remove("opacity-0", "translate-y-6"));
+						return;
+					}
+					const io = new IntersectionObserver(
+						(entries) => {
+							entries.forEach((entry) => {
+								if (entry.isIntersecting) {
+									const delay = entry.target.getAttribute("data-animate-delay") || 0;
+									entry.target.style.transitionDelay = `${delay}ms`;
+									entry.target.classList.remove("opacity-0", "translate-y-6");
+									io.unobserve(entry.target);
+								}
+							});
+						},
+						{ threshold: 0.12 }
+					);
+					items.forEach((el) => io.observe(el));
+				})();
+
+				(function () {
+					const $ = (id) => document.getElementById(id);
+
+					function rowHTML(name, rightText, percent) {
+						const pct = Math.max(0, Math.min(100, Math.round(percent || 0)));
+						const safeName = String(name ?? "—");
+						const safeRight = String(rightText ?? "—");
+						return `
+							   <div class="grid gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+								 <div class="flex items-center justify-between text-sm">
+								   <span class="text-white/90">${safeName}</span>
+								   <span class="text-white/70">${safeRight}</span>
+								 </div>
+								 <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+								   <div class="h-full rounded-full bg-white/70" style="width:${pct}%"></div>
+								 </div>
+							   </div>
+							 `;
+					}
+
+					async function loadWakaTime() {
+						try {
+							const urls = {
+								operating_systems: "https://wakatime.com/share/@SpreadSheets600/d3bada79-4d56-4544-8240-c9c6ff7a669d.json",
+								coding_activity: "https://wakatime.com/share/@SpreadSheets600/6f79156a-5f87-43a8-9a05-0edd976b8c9a.json",
+								languages: "https://wakatime.com/share/@SpreadSheets600/322b4068-62e5-430c-bfa2-cc92e8f7e7e3.json",
+								editors: "https://wakatime.com/share/@SpreadSheets600/d13c536f-1f9d-40a6-8bd5-ec5902652383.json",
+								current: "https://wakatime.com/share/@SpreadSheets600/9ce6920b-5ae7-4f33-90fd-f18d82f3aeb9.json",
+							};
+
+							const [osRes, activityRes, langsRes, editorsRes, currentRes] = await Promise.all(Object.values(urls).map((url) => fetch(url).then((r) => r.json())));
+
+							// Summary cards
+							if (activityRes.data) {
+								const total = activityRes.data.grand_total?.human_readable_total_including_other_language ?? "—";
+								const daily = activityRes.data.grand_total?.human_readable_daily_average_including_other_language ?? "—";
+
+								const best = activityRes.data.best_day?.text ?? "—";
+								const bestDate = activityRes.data.best_day?.date ? new Date(activityRes.data.best_day.date).toLocaleDateString() : "—";
+
+								const current = currentRes.data?.text ?? "—";
+								const currentDate = currentRes.data?.date ? new Date(currentRes.data.date).toLocaleDateString() : "—";
+
+								let todayText = "—";
+								let todayDate = "—";
+
+								if (Array.isArray(currentRes.data)) {
+									const today = new Date();
+									const todayISO = today.toISOString().slice(0, 10);
+									const todayObj = currentRes.data.find((d) => d.range?.date === todayISO);
+									if (todayObj && todayObj.grand_total) {
+										todayText = todayObj.grand_total.text ?? "—";
+										todayDate = todayObj.range?.text ?? todayISO;
+									}
+								}
+
+								$("wk2-total").textContent = total;
+								$("wk2-daily").textContent = daily;
+
+								$("wk2-latest").textContent = todayText;
+								$("wk2-latest-date").textContent = todayDate;
+
+								$("wk2-range").textContent = `From ${new Date(activityRes.data.range.start).toLocaleDateString()} To ${new Date(activityRes.data.range.end).toLocaleDateString()}`;
+							}
+
+							// Operating Systems Top 5
+							const oses = (osRes.data || []).slice(0, 5);
+							$("wk2-oses").innerHTML = oses.length ? oses.map((o) => rowHTML(o.name, `${o.text}`, o.percent)).join("") : `<p class="text-sm text-white/60">No OS Data</p>`;
+
+							// Languages Top 5
+							const langs = (langsRes.data || []).slice(0, 5);
+							$("wk2-langs").innerHTML = langs.length ? langs.map((l) => rowHTML(l.name, `${l.text}`, l.percent)).join("") : `<p class="text-sm text-white/60">No Language Data</p>`;
+
+							// Editors Top 5
+							const editors = (editorsRes.data || []).slice(0, 5);
+							$("wk2-editor").innerHTML = editors.length ? editors.map((e) => rowHTML(e.name, `${e.text}`, e.percent)).join("") : `<p class="text-sm text-white/60">No Editor Data</p>`;
+						} catch (err) {
+							console.error("WakaTime Public Data Error : ", err);
+						}
+					}
+
+					loadWakaTime();
+				})();
+			</script>
+
+			<!-- Footer -->
+			<footer class="mt-12 mb-6 text-center text-sm text-white/60">© 2025 • Made With ❤ By SOHAM</footer>
+		</main>
+
+		<!-- Minimal JS: Mobile menu toggle only -->
+		<script>
+			const toggle = document.getElementById("navToggle");
+			const menu = document.getElementById("mobileMenu");
+			if (toggle && menu) {
+				toggle.addEventListener("click", () => menu.classList.toggle("hidden"));
+			}
+		</script>
+
+		<script>
+			function renderAniListData(data) {
+				const card = document.getElementById("anilist-card");
+				if (!card || !data) return;
+
+				const user = data.User;
+				const anime = user.statistics.anime;
+				const manga = user.statistics.manga;
+				const latestAnime = data.latestAnime.activities?.[0] || null;
+				const latestManga = data.latestManga.activities?.[0] || null;
+
+				card.innerHTML = `
+			        <div class="grid md:grid-cols-2 gap-8">
+
+                <!-- Stats Column -->
+                <div class="grid gap-6">
+
+                  <!-- User Header -->
+                  <div class="flex items-center justify-between p-4 bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10">
+                    <h2 class="text-xl font-bold text-white/90">${user.name}</h2>
+                    <a href="${user.siteUrl}" target="_blank"
+                      class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-400/30 hover:bg-blue-500/30 transition text-sm">
+                      View Profile
+                    </a>
+                  </div>
+
+                  <!-- Anime Stats -->
+                  <div class="bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10 p-4 hover:border-white/20 transition">
+                    <h3 class="text-lg font-bold text-white/90 mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+                      </svg>
+                      Anime Stats
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm text-white/70">
+                      <div>
+                        <div class="text-white/50">Anime</div>
+                        <div class="text-xl font-bold text-white/90">${anime.count}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Episodes</div>
+                        <div class="text-xl font-bold text-white/90">${anime.episodesWatched}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Mean Score</div>
+                        <div class="text-xl font-bold text-white/90">${anime.meanScore}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Time Watched</div>
+                        <div class="text-xl font-bold text-white/90">
+                          ${anime.minutesWatched} Min
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Manga Stats -->
+                  <div class="bg-gradient-to-br from-white/5 to-white/0 rounded-xl border border-white/10 p-4 hover:border-white/20 transition">
+                    <h3 class="text-lg font-bold text-white/90 mb-4 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Manga Stats
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm text-white/70">
+                      <div>
+                        <div class="text-white/50">Manga</div>
+                        <div class="text-xl font-bold text-white/90">${manga.count}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Volumes</div>
+                        <div class="text-xl font-bold text-white/90">${manga.volumesRead}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Chapters</div>
+                        <div class="text-xl font-bold text-white/90">${manga.chaptersRead}</div>
+                      </div>
+                      <div>
+                        <div class="text-white/50">Mean Score</div>
+                        <div class="text-xl font-bold text-white/90">${manga.meanScore}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+			          <!-- Latest Activity Column -->
+			          <div class="grid grid-cols-2 gap-6">
+			            <!-- Latest Anime -->
+			            <div class="bg-white/5 rounded-xl border border-white/10 p-3">
+			              <h3 class="text-lg font-bold text-white/90 mb-3">Latest Anime</h3>
+			              ${
+								latestAnime
+									? `
+			          <a href="${latestAnime.media.siteUrl}" target="_blank" rel="noopener" class="block group">
+			            <div class="aspect-[2/3] w-full mb-2">
+			              <img
+			                src="${latestAnime.media.coverImage.large}"
+			                alt="${latestAnime.media.title.english}"
+			                class="w-full h-full object-cover rounded-lg border border-white/10 group-hover:opacity-90 transition"
+			              />
+			            </div>
+			            <div class="font-medium text-white/90 truncate">${latestAnime.media.title.english || "-"}</div>
+			            <div class="mt-1 text-xs text-white/60 mb-0.5">
+			              ${(latestAnime.status || "-").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())} • ${latestAnime.media.format || "-"}
+			            </div>
+			          </a>
+			        `
+									: `<div class="text-sm text-white/60">No Recent Anime Activity</div>`
+							}
+			            </div>
+
+			            <!-- Latest Manga -->
+			            <div class="bg-white/5 rounded-xl border border-white/10 p-3">
+			              <h3 class="text-lg font-bold text-white/90 mb-3">Latest Manga</h3>
+			              ${
+								latestManga
+									? `
+			            <a href="${latestManga.media.siteUrl}" target="_blank" rel="noopener" class="block group">
+			              <div class="aspect-[2/3] w-full mb-2">
+			                <img
+			                  src="${latestManga.media.coverImage.large}"
+			                  alt="${latestManga.media.title.english}"
+			                  class="w-full h-full object-cover rounded-lg border border-white/10 group-hover:opacity-90 transition"
+			                />
+			              </div>
+			              <div class="font-medium text-white/90 truncate">${latestManga.media.title.english || "-"}</div>
+			              <div class="mt-1 text-xs text-white/60 mb-0.5">
+			                ${(latestManga.status || "-").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())} • ${latestManga.media.format || "-"}
+			              </div>
+			            </a>
+			          `
+									: `<div class="text-sm text-white/60">No Recent Manga Activity</div>`
+							}
+			            </div>
+			          </div>
+			        </div>
+			      `;
+			}
+
+			async function fetchAniListData(username) {
+				const query = `
+			  query ($name: String, $userId: Int) {
+				User(name: $name) {
+				  id
+				  name
+				  avatar {
+					large
+				  }
+				  siteUrl
+				  statistics {
+					anime {
+					  count
+					  minutesWatched
+					  episodesWatched
+					  meanScore
+					}
+					manga {
+					  count
+					  chaptersRead
+					  volumesRead
+					  meanScore
+					}
+				  }
+				}
+				latestAnime: Page(perPage: 1) {
+				  activities(userId: $userId, sort: ID_DESC, type_in: ANIME_LIST) {
+					... on ListActivity {
+					  status
+					  media {
+						type
+						format
+						title {
+						  english
+						}
+						coverImage {
+						  large
+						}
+						duration
+						episodes
+						chapters
+						siteUrl
+					  }
+					}
+				  }
+				}
+				latestManga: Page(perPage: 1) {
+				  activities(userId: $userId, sort: ID_DESC, type_in: MANGA_LIST)  {
+					... on ListActivity {
+					  status
+					  media {
+						type
+						format
+						title {
+						  english
+						}
+						coverImage {
+						  large
+						}
+						duration
+						episodes
+						chapters
+						siteUrl
+					  }
+					}
+				  }
+				}
+			  }
+			`;
+
+				try {
+					const userDataRes = await fetch("https://graphql.anilist.co", {
+						method: "POST",
+						headers: { "Content-Type": "application/json", Accept: "application/json" },
+						body: JSON.stringify({
+							query: `query ($name: String) { User(name: $name) { id } }`,
+							variables: { name: username },
+						}),
+					});
+
+					const userData = await userDataRes.json();
+					const userId = userData.data.User.id;
+
+					const res = await fetch("https://graphql.anilist.co", {
+						method: "POST",
+						headers: { "Content-Type": "application/json", Accept: "application/json" },
+						body: JSON.stringify({ query, variables: { name: username, userId } }),
+					});
+
+					const json = await res.json();
+					renderAniListData(json.data);
+
+					return;
+					json.data;
+				} catch (err) {
+					console.error("Error Fetching AniList Data :", err);
+				}
+			}
+
+			fetchAniListData("SpreadSheeets");
+		</script>
+	</body>
+</html>
