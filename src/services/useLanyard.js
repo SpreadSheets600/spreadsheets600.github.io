@@ -16,7 +16,7 @@ export function useLanyard() {
 		try {
 			const response = await axios.get("/api/discord/status");
 			userInfo.value = response.data;
-			presence.value = response.data; // for initial data before ws connects
+			presence.value = response.data;
 			loading.value = false;
 			error.value = false;
 		} catch (err) {
@@ -38,7 +38,7 @@ export function useLanyard() {
 				const data = JSON.parse(event.data);
 
 				switch (data.op) {
-					case 1: // Hello
+					case 1:
 						if (heartbeatInterval) clearInterval(heartbeatInterval);
 						heartbeatInterval = setInterval(() => {
 							if (ws.readyState === WebSocket.OPEN) {
@@ -54,14 +54,13 @@ export function useLanyard() {
 						);
 						break;
 
-					case 0: // Event
+					case 0:
 						if (data.t === "INIT_STATE") {
 							presence.value = data.d;
 							wsConnected.value = true;
 						} else if (data.t === "PRESENCE_UPDATE") {
 							presence.value = data.d;
 						}
-						// merge initial user data with presence data
 						if (userInfo.value) {
 							presence.value = { ...userInfo.value, ...presence.value };
 						}

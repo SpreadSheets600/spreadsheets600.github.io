@@ -73,11 +73,34 @@
 
 <script setup>
 import { ref, computed, watchEffect, onMounted, onUnmounted } from "vue";
-import { useLanyard } from "@/services/useLanyard.js";
-import { decodeUserFlags, fetchUserImages } from "@/utils/imageUtils.js";
 import { PhWarningCircle, PhDeviceMobile, PhDesktopTower, PhGlobe, PhGameController, PhBroadcast, PhMusicNote, PhTelevision, PhTrophy, PhCircle } from "@phosphor-icons/vue";
+import { fetchUserImages, decodeUserFlags } from "../../utils/imageUtils.js";
 
-const { presence, loading, error, wsConnected, fetchUserData } = useLanyard();
+// Simple Lanyard composable
+const useLanyard = () => {
+	const presence = ref(null);
+	const loading = ref(true);
+	const error = ref(false);
+
+	const fetchPresence = async () => {
+		try {
+			const response = await fetch("https://api.lanyard.rest/v1/users/727012870683885578");
+			const data = await response.json();
+			if (data.success) {
+				presence.value = data.data;
+			}
+		} catch (err) {
+			error.value = true;
+		} finally {
+			loading.value = false;
+		}
+	};
+
+	onMounted(fetchPresence);
+	return { presence, loading, error, fetchUserData: fetchPresence };
+};
+
+const { presence, loading, error, fetchUserData } = useLanyard();
 
 const images = ref({});
 const badges = ref([]);

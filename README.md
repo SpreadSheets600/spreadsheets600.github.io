@@ -1,23 +1,39 @@
-# Soham's Portfolio - Unified Vue.js Application
+# Soham's Portfolio
 
-A modern portfolio website built with Vue.js and integrated Express.js backend for live status integrations.
+Modern Vue.js portfolio with real-time integrations.
 
-## 🚀 Features
+## 🚀 Quick Start
 
-- **Vue.js Frontend**: Modern reactive UI with Vue Router
-- **Integrated Backend**: Express.js API routes within the same project
-- **Live Integrations**: Real-time Discord, Spotify, and AniList status
-- **Interactive Terminal**: Full-featured terminal simulator
-- **Responsive Design**: Works on all devices
-- **Unified Deployment**: Single Vercel deployment for both frontend and backend
+```bash
+npm install
+npm run dev:full
+```
+
+## 📦 Deployment (Netlify Only)
+
+```bash
+# Set environment variables in Netlify dashboard:
+# SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN
+# STEAM_API_KEY, STEAM_USER_ID, GITHUB_TOKEN
+
+npm run deploy
+```
+
+## ✨ Features
+
+- Real-time Spotify integration
+- GitHub projects showcase
+- Discord status via Lanyard
+- Steam profile with games
+- AniList anime/manga stats
+- Serverless architecture (Netlify Functions)
 
 ## 🛠️ Tech Stack
 
-- Vue.js 3 with Composition API
-- Vue Router for navigation
-- Tailwind CSS for styling
-- Vite for build tooling
-- Express.js for API routes
+- Vue.js 3 + Vite
+- Tailwind CSS
+- Netlify Functions
+- Multiple API integrations
 - Axios for API calls
 
 ## 📁 Project Structure

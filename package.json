@@ -5,13 +5,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "vercel-build": "vite build",
     "preview": "vite preview",
-    "start": "vite",
-    "server": "node server/index.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
-    "stop": "npm run stop:ports",
-    "stop:ports": "kill-port 3000 3001 || true"
+    "dev:functions": "netlify dev",
+    "dev:full": "concurrently \"netlify dev\" \"npm run dev\"",
+    "deploy": "netlify deploy --prod --build"
   },
   "dependencies": {
     "@eggsydev/vue-lanyard": "^1.1.3",

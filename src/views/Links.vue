@@ -22,7 +22,13 @@
 				<StatusCard title="Steam" :icon="steamIcon" iconColor="text-sky-300" :loading="steamLoading" :data="steamData" type="steam" />
 
 				<div class="lg:col-span-2">
-					<StatusCard title="Spotify Activity" :icon="spotifyIcon" iconColor="text-green-400" :loading="spotifyLoading" :data="{ ...spotifyData, playlists: playlists }" type="spotify" />
+					<div class="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+						<div class="flex items-center gap-3 mb-4">
+							<ph-spotify-logo :size="24" class="text-green-400" />
+							<h3 class="text-lg font-semibold text-white">Spotify Activity</h3>
+						</div>
+						<SpotifyStatus />
+					</div>
 				</div>
 
 				<div class="lg:col-span-2">
@@ -30,7 +36,6 @@
 				</div>
 			</div>
 		</div>
-
 		<Footer />
 	</main>
 </template>
@@ -40,6 +45,7 @@ import { markRaw } from "vue";
 import StatusCard from "../components/StatusCard.vue";
 import SocialLinks from "../components/SocialLinks.vue";
 import Footer from "../components/Footer.vue";
+import SpotifyStatus from "../components/status/SpotifyStatus.vue";
 import { apiService } from "../services/api.js";
 import { PhActivity, PhDiscordLogo, PhSteamLogo, PhSpotifyLogo, PhTelevision } from "@phosphor-icons/vue";
 
@@ -49,27 +55,25 @@ export default {
 		StatusCard,
 		SocialLinks,
 		Footer,
+		SpotifyStatus,
 		PhActivity,
+		PhSpotifyLogo,
 	},
 	data() {
 		return {
 			steamLoading: true,
-			spotifyLoading: true,
 			anilistLoading: true,
 			anilistCacheKey: "anilist_data",
 			anilistCacheExpiry: 60 * 60 * 1000, // 1 hour
 			steamData: null,
-			spotifyData: null,
 			anilistData: null,
-			playlists: [],
 			discordIcon: markRaw(PhDiscordLogo),
 			steamIcon: markRaw(PhSteamLogo),
-			spotifyIcon: markRaw(PhSpotifyLogo),
 			anilistIcon: markRaw(PhTelevision),
 		};
 	},
 	async mounted() {
-		await Promise.all([this.fetchSteamData(), this.fetchSpotifyData(), this.fetchAniListData(), this.fetchPlaylists()]);
+		await Promise.all([this.fetchSteamData(), this.fetchAniListData()]);
 	},
 	methods: {
 		async fetchSpotifyData() {
@@ -78,48 +82,54 @@ export default {
 				this.spotifyData = await apiService.getSpotifyStatus();
 			} catch (error) {
 				console.error("Failed to fetch Spotify data:", error);
-				this.spotifyData = null;
+				this.spotifyData = { is_playing: false, error: "Unable to connect to Spotify" };
 			} finally {
 				this.spotifyLoading = false;
 			}
 		},
 		async fetchPlaylists() {
-			try {
-				this.playlists = await apiService.getSpotifyPlaylists();
-			} catch (error) {
-				console.error("Failed to fetch Spotify playlists:", error);
-				this.playlists = [];
-			}
+			// Removed - handled by Spotify component
 		},
 		async fetchSteamData() {
 			try {
+				console.log('🎮 Fetching Steam data...');
 				this.steamLoading = true;
-				this.steamData = await apiService.getSteamStatus();
+				const rawData = await apiService.getSteamStatus();
+				console.log('✅ Raw Steam data:', rawData);
+				
+				// Transform data to match SteamStatus component expectations
+				this.steamData = {
+					name: rawData.personaname,
+					avatar: rawData.avatarfull,
+					profileUrl: rawData.profileurl,
+					status: rawData.personastate,
+					realName: rawData.realname,
+					...rawData
+				};
+				console.log('✅ Transformed Steam data:', this.steamData);
 			} catch (error) {
-				console.error("Failed to fetch Steam data:", error);
-				this.steamData = null;
+				console.error("❌ Failed to fetch Steam data:", error);
+				this.steamData = { error: "Unable to connect to Steam" };
 			} finally {
 				this.steamLoading = false;
 			}
 		},
 		async fetchAniListData() {
 			try {
+				console.log('📺 Fetching AniList data...');
 				this.anilistLoading = true;
 
-				// Check cache first
-				const cached = this.getAniListFromCache();
-				if (cached) {
-					this.anilistData = cached;
-					this.anilistLoading = false;
-					return;
-				}
+				// Clear cache for fresh data
+				localStorage.removeItem(this.anilistCacheKey);
 
+				console.log('🔄 Fetching fresh AniList data...');
 				this.anilistData = await apiService.getAniListData("SpreadSheeets");
+				console.log('✅ AniList data received:', this.anilistData);
 
 				// Cache the results
 				this.saveAniListToCache(this.anilistData);
 			} catch (error) {
-				console.error("Failed to fetch AniList data:", error);
+				console.error("❌ Failed to fetch AniList data:", error);
 				this.anilistData = null;
 			} finally {
 				this.anilistLoading = false;

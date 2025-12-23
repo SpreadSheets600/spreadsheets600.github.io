@@ -100,36 +100,18 @@ export async function fetchUserImages(data) {
 	const { discord_user, activities, spotify } = data;
 
 	const avatarExtension = discord_user.avatar?.startsWith("a_") ? "gif" : "webp";
-	const defaultAvatarIndex =
-		discord_user.discriminator === "0"
-			? (Number(BigInt(discord_user.id) >> BigInt(22)) % 6) || 0
-			: Number(discord_user.discriminator) % 5;
+	const defaultAvatarIndex = discord_user.discriminator === "0" ? Number(BigInt(discord_user.id) >> BigInt(22)) % 6 || 0 : Number(discord_user.discriminator) % 5;
 
-	const avatar = discord_user.avatar
-		? `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.${avatarExtension}?size=256`
-		: `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png?size=256`;
+	const avatar = discord_user.avatar ? `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.${avatarExtension}?size=256` : `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png?size=256`;
 
-	const avatarDecoration = discord_user.avatar_decoration_data?.asset
-		? `https://cdn.discordapp.com/avatar-decoration-presets/${discord_user.avatar_decoration_data.asset}.png?size=128&passthrough=true`
-		: null;
+	const avatarDecoration = discord_user.avatar_decoration_data?.asset ? `https://cdn.discordapp.com/avatar-decoration-presets/${discord_user.avatar_decoration_data.asset}.png?size=128&passthrough=true` : null;
 
-	const clanBadge =
-		discord_user.primary_guild?.identity_guild_id && discord_user.primary_guild.badge
-			? `https://cdn.discordapp.com/clan-badges/${discord_user.primary_guild.identity_guild_id}/${discord_user.primary_guild.badge}.png?size=32`
-			: null;
+	const clanBadge = discord_user.primary_guild?.identity_guild_id && discord_user.primary_guild.badge ? `https://cdn.discordapp.com/clan-badges/${discord_user.primary_guild.identity_guild_id}/${discord_user.primary_guild.badge}.png?size=32` : null;
 
 	const mainActivity = activities?.find((act) => act.type === 0);
-	const assetLargeImage = mainActivity?.assets?.large_image
-		? mainActivity.assets.large_image.startsWith("mp:external/")
-			? `https://media.discordapp.net/${mainActivity.assets.large_image.replace("mp:", "")}`
-			: `https://cdn.discordapp.com/app-assets/${mainActivity.application_id}/${mainActivity.assets.large_image}.webp`
-		: null;
+	const assetLargeImage = mainActivity?.assets?.large_image ? (mainActivity.assets.large_image.startsWith("mp:external/") ? `https://media.discordapp.net/${mainActivity.assets.large_image.replace("mp:", "")}` : `https://cdn.discordapp.com/app-assets/${mainActivity.application_id}/${mainActivity.assets.large_image}.webp`) : null;
 
-	const assetSmallImage = mainActivity?.assets?.small_image
-		? mainActivity.assets.small_image.startsWith("mp:external/")
-			? `https://media.discordapp.net/${mainActivity.assets.small_image.replace("mp:", "")}`
-			: `https://cdn.discordapp.com/app-assets/${mainActivity.application_id}/${mainActivity.assets.small_image}.webp`
-		: null;
+	const assetSmallImage = mainActivity?.assets?.small_image ? (mainActivity.assets.small_image.startsWith("mp:external/") ? `https://media.discordapp.net/${mainActivity.assets.small_image.replace("mp:", "")}` : `https://cdn.discordapp.com/app-assets/${mainActivity.application_id}/${mainActivity.assets.small_image}.webp`) : null;
 
 	const spotifyAlbumArt = spotify?.album_art_url || null;
 

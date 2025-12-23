@@ -59,9 +59,7 @@
 						<ph-folder :size="24" class="text-blue-400" />
 						All Repositories
 					</h2>
-					<a href="https://github.com/SpreadSheets600?tab=repositories" target="_blank" class="px-4 py-2 rounded-full border border-blue-400/40 bg-blue-600/30 text-sm text-blue-100 hover:bg-blue-600/50 transition self-start sm:self-auto">
-						View More
-					</a>
+					<a href="https://github.com/SpreadSheets600?tab=repositories" target="_blank" class="px-4 py-2 rounded-full border border-blue-400/40 bg-blue-600/30 text-sm text-blue-100 hover:bg-blue-600/50 transition self-start sm:self-auto"> View More </a>
 				</div>
 				<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					<div v-for="repo in otherRepositories" :key="repo.id" class="group rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-6 backdrop-blur-xl hover:border-white/20 transition-all flex flex-col">
@@ -113,7 +111,7 @@ export default {
 			loading: true,
 			error: false,
 			cacheKey: "github_repositories",
-			cacheExpiry: 60 * 60 * 1000, // 1 hour
+			cacheExpiry: 6 * 60 * 60 * 1000, // 6 hours
 
 			blacklistedRepos: ["spreadsheets600", "Uptime-Monitor", "status-page", "dashboard-designs"],
 
@@ -170,12 +168,12 @@ export default {
 				Accept: "application/vnd.github+json",
 				"User-Agent": "spreadsheets600-portfolio",
 			};
-			
+
 			const token = import.meta.env.VITE_GITHUB_TOKEN;
 			if (token) {
 				headers.Authorization = `Bearer ${token}`;
 			}
-			
+
 			return headers;
 		},
 		isValidRepoArray(payload) {
@@ -216,7 +214,7 @@ export default {
 				}
 
 				this.repositories = allRepos
-					.filter((repo) => repo?.name && !repo.archived && !repo.private && !repo.fork && repo.language !== 'Markdown' && repo.updated_at && !this.blacklistedRepos.includes(repo.name.toLowerCase()))
+					.filter((repo) => repo?.name && !repo.archived && !repo.private && !repo.fork && repo.language !== "Markdown" && repo.updated_at && !this.blacklistedRepos.includes(repo.name.toLowerCase()))
 					.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
 					.slice(0, 9);
 
