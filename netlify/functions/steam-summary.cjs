@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
 		const STEAM_USER_ID = process.env.STEAM_USER_ID;
 
 		if (!STEAM_API_KEY || !STEAM_USER_ID) {
-			return { statusCode: 500, headers, body: JSON.stringify({ error: "Steam API not configured" }) };
+			return { statusCode: 500, headers, body: JSON.stringify({ error: "Steam API Not Configured" }) };
 		}
 
 		const playerSummaryUrl = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${STEAM_USER_ID}`;
@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
 
 		const player = playerResponse.response?.players?.[0];
 		if (!player) {
-			return { statusCode: 404, headers, body: JSON.stringify({ error: "Steam user not found" }) };
+			return { statusCode: 404, headers, body: JSON.stringify({ error: "Steam User Not Found" }) };
 		}
 
 		const ownedGames = ownedResponse.response?.games || [];
