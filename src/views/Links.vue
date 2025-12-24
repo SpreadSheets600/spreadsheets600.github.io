@@ -92,11 +92,11 @@ export default {
 		},
 		async fetchSteamData() {
 			try {
-				console.log('🎮 Fetching Steam data...');
+				console.log("🎮 Fetching Steam data...");
 				this.steamLoading = true;
 				const rawData = await apiService.getSteamStatus();
-				console.log('✅ Raw Steam data:', rawData);
-				
+				console.log("✅ Raw Steam data:", rawData);
+
 				// Transform data to match SteamStatus component expectations
 				this.steamData = {
 					name: rawData.personaname,
@@ -104,9 +104,9 @@ export default {
 					profileUrl: rawData.profileurl,
 					status: rawData.personastate,
 					realName: rawData.realname,
-					...rawData
+					...rawData,
 				};
-				console.log('✅ Transformed Steam data:', this.steamData);
+				console.log("✅ Transformed Steam data:", this.steamData);
 			} catch (error) {
 				console.error("❌ Failed to fetch Steam data:", error);
 				this.steamData = { error: "Unable to connect to Steam" };
@@ -116,15 +116,15 @@ export default {
 		},
 		async fetchAniListData() {
 			try {
-				console.log('📺 Fetching AniList data...');
+				console.log("📺 Fetching AniList data...");
 				this.anilistLoading = true;
 
 				// Clear cache for fresh data
 				localStorage.removeItem(this.anilistCacheKey);
 
-				console.log('🔄 Fetching fresh AniList data...');
+				console.log("🔄 Fetching fresh AniList data...");
 				this.anilistData = await apiService.getAniListData("SpreadSheeets");
-				console.log('✅ AniList data received:', this.anilistData);
+				console.log("✅ AniList data received:", this.anilistData);
 
 				// Cache the results
 				this.saveAniListToCache(this.anilistData);
