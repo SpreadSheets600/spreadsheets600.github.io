@@ -16,7 +16,6 @@ const badgeFlags = {
 	ACTIVE_DEVELOPER: 1 << 22,
 };
 
-// Based on https://lanyard.alejo.io/badges
 const badgeInfo = {
 	STAFF: {
 		label: "Discord Staff",
