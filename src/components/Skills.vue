@@ -7,7 +7,7 @@
 		<div class="grid gap-4 sm:gap-6">
 			<div v-for="skill in skills" :key="skill.title" class="rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-6 backdrop-blur-xl">
 				<h3 class="font-semibold text-sm sm:text-base">{{ skill.title }}</h3>
-				<img class="mt-3 rounded-xl max-w-full h-auto" style="max-height: 48px;" :src="skill.image" :alt="skill.alt" />
+				<img class="mt-3 rounded-xl max-w-full h-auto" style="max-height: 48px" :src="skill.image" :alt="skill.alt" />
 			</div>
 		</div>
 	</section>
