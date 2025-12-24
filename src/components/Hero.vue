@@ -7,10 +7,10 @@
 				</h1>
 				<p class="mt-4 max-w-xl text-white/80 mx-auto lg:mx-0 text-sm sm:text-base">Computer Science Major • Tech Enthusiast • Anime Lover</p>
 				<div class="mt-6 flex flex-wrap gap-3 justify-center lg:justify-start">
-					<a href="#projects" class="btn-primary">
+					<router-link to="/projects" class="btn-primary">
 						View Projects
 						<ph-arrow-right :size="16" class="opacity-80" />
-					</a>
+					</router-link>
 					<a href="#contact" class="btn-secondary">Contact</a>
 					<router-link to="/terminal" class="btn-terminal">
 						<ph-terminal :size="16" />
