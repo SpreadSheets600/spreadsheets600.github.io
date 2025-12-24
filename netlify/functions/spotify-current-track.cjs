@@ -40,10 +40,13 @@ exports.handler = async (event, context) => {
 		const data = await response.json();
 		const result = {
 			is_playing: data.is_playing,
+
 			track: data.item?.name,
 			artist: data.item?.artists?.[0]?.name,
+
 			album: data.item?.album?.name,
 			image: data.item?.album?.images?.[0]?.url,
+
 			progress_ms: data.progress_ms,
 			duration_ms: data.item?.duration_ms,
 		};
@@ -57,7 +60,7 @@ exports.handler = async (event, context) => {
 		return {
 			statusCode: 200,
 			headers,
-			body: JSON.stringify({ is_playing: false, error: "Spotify unavailable" }),
+			body: JSON.stringify({ is_playing: false, error: "Spotify Unavailable" }),
 		};
 	}
 };
