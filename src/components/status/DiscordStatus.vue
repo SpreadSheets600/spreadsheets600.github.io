@@ -76,7 +76,6 @@ import { ref, computed, watchEffect, onMounted, onUnmounted } from "vue";
 import { PhWarningCircle, PhDeviceMobile, PhDesktopTower, PhGlobe, PhGameController, PhBroadcast, PhMusicNote, PhTelevision, PhTrophy, PhCircle } from "@phosphor-icons/vue";
 import { fetchUserImages, decodeUserFlags } from "../../utils/imageUtils.js";
 
-// Simple Lanyard composable
 const useLanyard = () => {
 	const presence = ref(null);
 	const loading = ref(true);
