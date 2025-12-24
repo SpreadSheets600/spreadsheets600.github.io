@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const API_BASE = import.meta.env.DEV 
-	? "http://localhost:8888/.netlify/functions" 
-	: "/.netlify/functions";
+const API_BASE = import.meta.env.DEV ? "http://localhost:8888/.netlify/functions" : "/.netlify/functions";
 
 const api = axios.create({
 	baseURL: API_BASE,
