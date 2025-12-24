@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
 	}
 
 	try {
-		const username = event.queryStringParameters?.username || 'SpreadSheets600';
+		const username = event.queryStringParameters?.username || "SpreadSheets600";
 		const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=6`, {
 			headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` },
 		});
