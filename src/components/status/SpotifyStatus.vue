@@ -100,44 +100,34 @@
 <script>
 import { PhMusicNote, PhSpotifyLogo } from "@phosphor-icons/vue";
 
-// Hybrid Spotify: SDK first, API fallback with smart caching
 class SpotifyManager {
 	constructor(callback) {
 		this.callback = callback;
 		this.cache = { data: null, timestamp: 0, isPlaying: false };
+
 		this.sdk = null;
 		this.usingSDK = false;
 	}
 
 	async init() {
-		// Always try API first for reliability
-		console.log('🎵 Using Spotify API (more reliable)');
+		console.log("🎵 Using Spotify API");
 		this.initAPI();
-		
-		// Optionally try SDK in background (comment out if causing issues)
-		// try {
-		// 	await this.initSDK();
-		// 	this.usingSDK = true;
-		// 	console.log('🎵 SDK also available');
-		// } catch (error) {
-		// 	console.warn('SDK unavailable:', error.message);
-		// }
 	}
 
 	async initSDK() {
 		try {
 			await this.loadSDK();
 			const token = await this.getToken();
-			
+
 			this.sdk = new window.Spotify.Player({
-				name: 'Soham Portfolio',
-				getOAuthToken: cb => cb(token),
-				volume: 0.0
+				name: "Soham Portfolio",
+				getOAuthToken: (cb) => cb(token),
+				volume: 0.0,
 			});
 
-			this.sdk.addListener('player_state_changed', state => {
+			this.sdk.addListener("player_state_changed", (state) => {
 				if (!state) return this.callback({ is_playing: false });
-				
+
 				const track = state.track_window.current_track;
 				this.callback({
 					is_playing: !state.paused,
@@ -146,77 +136,69 @@ class SpotifyManager {
 					album: track.album.name,
 					image: track.album.images[0]?.url,
 					progress_ms: state.position,
-					duration_ms: state.duration
+					duration_ms: state.duration,
 				});
 			});
 
-			// Handle SDK errors
-			this.sdk.addListener('initialization_error', ({ message }) => {
+			this.sdk.addListener("initialization_error", ({ message }) => {
 				throw new Error(`SDK init error: ${message}`);
 			});
 
-			this.sdk.addListener('authentication_error', ({ message }) => {
+			this.sdk.addListener("authentication_error", ({ message }) => {
 				throw new Error(`SDK auth error: ${message}`);
 			});
 
 			await this.sdk.connect();
 		} catch (error) {
-			// Any SDK error should fallback to API
 			throw error;
 		}
 	}
 
 	initAPI() {
 		this.fetchFromAPI();
-		// Smart polling: 2s if playing, 30s if not
 		setInterval(() => this.fetchFromAPI(), 5000);
 	}
 
 	async fetchFromAPI() {
 		const now = Date.now();
 		const cacheAge = now - this.cache.timestamp;
-		const maxAge = 60000; // 1 minute for everything
+		const maxAge = 60000;
 
 		if (this.cache.data && cacheAge < maxAge) {
 			return this.callback(this.cache.data);
 		}
 
 		try {
-			const baseUrl = import.meta.env.DEV 
-				? 'http://localhost:8888/.netlify/functions' 
-				: '/.netlify/functions';
-				
-			const [trackResponse, playlistResponse] = await Promise.all([
-				fetch(`${baseUrl}/spotify-current-track`),
-				fetch(`${baseUrl}/spotify-playlists`)
-			]);
-			
+			const baseUrl = import.meta.env.DEV ? "http://localhost:8888/.netlify/functions" : "/.netlify/functions";
+
+			const [trackResponse, playlistResponse] = await Promise.all([fetch(`${baseUrl}/spotify-current-track`), fetch(`${baseUrl}/spotify-playlists`)]);
+
 			const trackData = await trackResponse.json();
 			const playlists = await playlistResponse.json();
-			
+
 			const data = { ...trackData, playlists };
-			
+
 			this.cache = {
 				data,
 				timestamp: now,
-				isPlaying: data.is_playing
+				isPlaying: data.is_playing,
 			};
-			
+
 			this.callback(data);
 		} catch (error) {
-			console.warn('API failed:', error);
+			console.warn("API failed:", error);
 			if (this.cache.data) this.callback(this.cache.data);
 		}
 	}
 
 	async getToken() {
-		const response = await fetch('https://accounts.spotify.com/api/token', {
-			method: 'POST',
+		const response = await fetch("https://accounts.spotify.com/api/token", {
+			method: "POST",
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Authorization': 'Basic ' + btoa('c935b949cfde454d8542a79b6c654b14:1f78595256fb48c98edfd7884c0e92ad')
+				"Content-Type": "application/x-www-form-urlencoded",
+				Authorization: "Basic " + btoa("c935b949cfde454d8542a79b6c654b14:1f78595256fb48c98edfd7884c0e92ad"),
 			},
-			body: 'grant_type=refresh_token&refresh_token=AQCioBzlA2O3eNeFp2e413SDb3Jw8ZjD06fQdhpdR3uu8uJx1aNENKkwFbouNyNLzY-eIOrnWjzfhlJf0ze9bv_MiMpfY4sJjwed_-PErZjLJzunIdWcfK4s2WN2sBM8XBI'
+			body: "grant_type=refresh_token&refresh_token=AQCioBzlA2O3eNeFp2e413SDb3Jw8ZjD06fQdhpdR3uu8uJx1aNENKkwFbouNyNLzY-eIOrnWjzfhlJf0ze9bv_MiMpfY4sJjwed_-PErZjLJzunIdWcfK4s2WN2sBM8XBI",
 		});
 		const data = await response.json();
 		return data.access_token;
@@ -225,18 +207,18 @@ class SpotifyManager {
 	loadSDK() {
 		return new Promise((resolve, reject) => {
 			if (window.Spotify) return resolve();
-			
-			const timeout = setTimeout(() => reject(new Error('SDK timeout')), 5000);
+
+			const timeout = setTimeout(() => reject(new Error("SDK timeout")), 5000);
 			window.onSpotifyWebPlaybackSDKReady = () => {
 				clearTimeout(timeout);
 				resolve();
 			};
-			
-			const script = document.createElement('script');
-			script.src = 'https://sdk.scdn.co/spotify-player.js';
+
+			const script = document.createElement("script");
+			script.src = "https://sdk.scdn.co/spotify-player.js";
 			script.onerror = () => {
 				clearTimeout(timeout);
-				reject(new Error('SDK load failed'));
+				reject(new Error("SDK load failed"));
 			};
 			document.head.appendChild(script);
 		});
@@ -252,7 +234,7 @@ export default {
 			spotifyData: null,
 			progress: 0,
 			interval: null,
-			manager: null
+			manager: null,
 		};
 	},
 	computed: {
@@ -266,14 +248,14 @@ export default {
 			this.spotifyData = data;
 			this.loading = false;
 			this.progress = data.progress_ms || 0;
-			
+
 			if (data.is_playing) {
 				this.startProgress();
 			} else {
 				this.stopProgress();
 			}
 		});
-		
+
 		await this.manager.init();
 	},
 	methods: {
