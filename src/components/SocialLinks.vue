@@ -5,13 +5,7 @@
 			Social Links
 		</h2>
 		<div class="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			<a
-				v-for="link in socialLinks"
-				:key="link.title"
-				:href="link.url"
-				target="_blank"
-				class="flex items-center gap-3 sm:gap-4 rounded-xl border border-white/20 bg-white/5 p-3 sm:p-4 transition hover:bg-white/10 hover:border-white/30"
-			>
+			<a v-for="link in socialLinks" :key="link.title" :href="link.url" target="_blank" class="flex items-center gap-3 sm:gap-4 rounded-xl border border-white/20 bg-white/5 p-3 sm:p-4 transition hover:bg-white/10 hover:border-white/30">
 				<div class="flex size-8 sm:size-10 items-center justify-center rounded-lg bg-white/10 flex-shrink-0">
 					<component :is="link.icon" :size="16" :class="link.color" />
 				</div>
