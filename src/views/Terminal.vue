@@ -1,52 +1,32 @@
 <template>
-	<div class="text-white font-sans min-h-screen">
-		<div class="h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)] p-2 sm:p-4 lg:p-8">
-			<div ref="terminalContainer" class="h-full rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl overflow-hidden">
-				<!-- Terminal Header -->
-				<div class="border-b border-white/10 bg-black/20 p-3 sm:p-4">
-					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-2 sm:gap-4">
-							<div class="flex gap-1 sm:gap-2">
-								<div class="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
-								<div class="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-500 rounded-full"></div>
-								<div class="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
-							</div>
-							<span class="font-mono text-green-400 text-xs sm:text-sm">soham@archlinux:~</span>
-						</div>
-						<div class="flex items-center gap-2 sm:gap-4">
-							<span class="text-xs sm:text-sm text-white/60 hidden sm:block">Arch Terminal</span>
-							<router-link to="/" class="text-white/70 hover:text-white transition">
-								<ph-house :size="16" class="sm:w-5 sm:h-5" />
-							</router-link>
-						</div>
-					</div>
+	<div class="terminal-page">
+		<div class="terminal-container">
+			<div class="terminal-header">
+				<div class="header-left">
+					<span class="terminal-icon">$</span>
+					<span class="terminal-title">Terminal</span>
 				</div>
-
-				<!-- Terminal Content -->
-				<div class="p-3 sm:p-6 font-mono text-xs sm:text-sm overflow-auto h-[calc(100%-60px)] sm:h-[calc(100%-80px)]" @click="$refs.commandInput?.focus()">
-					<div class="mb-4">
-						<div class="text-green-400">Welcome to soham's Arch Terminal</div>
-						<div class="text-white/60 text-xs">Type 'help' to see available commands</div>
-					</div>
-
-					<div ref="output" class="mb-4"></div>
-
-					<div class="flex items-center flex-wrap sm:flex-nowrap">
-						<span class="text-green-400">soham@archlinux</span>
-						<span class="text-white">:</span>
-						<span class="text-blue-400">{{ currentDirDisplay }}</span>
-						<span class="text-white ml-1">$ </span>
-						<div class="flex-1 ml-2 relative min-w-0">
-							<input 
-								ref="commandInput" 
-								v-model="currentCommand" 
-								@keydown="handleKeydown" 
-								type="text" 
-								class="bg-transparent border-none outline-none text-green-400 w-full font-mono text-xs sm:text-sm" 
-								autocomplete="off" 
-								autofocus 
-							/>
-						</div>
+				<router-link to="/" class="back-btn">
+					<ph-house :size="20" />
+				</router-link>
+			</div>
+			
+			<div class="terminal-content" @click="focusInput">
+				<div class="output-section">
+					<div v-for="(line, index) in visibleLines" :key="index" v-html="line" class="line"></div>
+					
+					<div class="current-line">
+						<span class="prompt">{{ prompt }}</span>
+						<span class="input-display">{{ currentCommand }}</span>
+						<span class="cursor">|</span>
+						<input 
+							ref="commandInput" 
+							v-model="currentCommand" 
+							@keydown="handleKeydown" 
+							class="terminal-input"
+							autocomplete="off" 
+							autofocus 
+						/>
 					</div>
 				</div>
 			</div>
@@ -70,37 +50,59 @@ export default {
 			historyIndex: -1,
 			currentDir: "/home/soham",
 			startTime: Date.now(),
+			lines: [],
+			maxLines: 30,
 		};
 	},
 	computed: {
 		currentDirDisplay() {
 			return this.currentDir === "/home/soham" ? "~" : this.currentDir;
 		},
-		cursorPosition() {
-			return this.currentCommand.length;
+		prompt() {
+			return `soham@archlinux:${this.currentDirDisplay}$ `;
+		},
+		visibleLines() {
+			return this.lines.slice(-this.maxLines);
 		},
 	},
 	mounted() {
-		this.addOutput("", terminalCommands.neofetch([], { startTime: this.startTime }));
-		// Focus input when component mounts
-		this.$nextTick(() => {
-			if (this.$refs.commandInput) {
-				this.$refs.commandInput.focus();
-			}
-		});
+		this.showWelcome();
+		this.focusInput();
 	},
 	methods: {
+		focusInput() {
+			this.$nextTick(() => {
+				this.$refs.commandInput?.focus();
+			});
+		},
+		showWelcome() {
+			const welcome = terminalCommands.neofetch([], { startTime: this.startTime });
+			this.lines.push('<div class="welcome">Welcome to Soham\'s Terminal</div>');
+			this.lines.push('<div class="help-text">Type "help" for available commands</div>');
+			this.lines.push('');
+			welcome.split('\n').forEach(line => {
+				this.lines.push(`<div class="output-line">${line}</div>`);
+			});
+		},
 		async handleKeydown(e) {
 			if (e.key === "Enter") {
 				const command = this.currentCommand.trim();
+				
 				if (command === "clear") {
-					this.$refs.output.innerHTML = "";
+					this.lines = [];
 					this.currentCommand = "";
 					return;
 				}
+
+				this.addCommandLine(command);
 				
-				const result = await this.executeCommand(command);
-				this.addOutput(command, result);
+				if (command) {
+					const result = await this.executeCommand(command);
+					if (result) {
+						this.addOutput(result);
+					}
+				}
+				
 				this.currentCommand = "";
 			} else if (e.key === "ArrowUp") {
 				e.preventDefault();
@@ -123,7 +125,18 @@ export default {
 				if (matches.length === 1) {
 					this.currentCommand = matches[0];
 				}
+			} else if (e.key === "l" && e.ctrlKey) {
+				e.preventDefault();
+				this.lines = [];
 			}
+		},
+		addCommandLine(command) {
+			this.lines.push(`<div class="command-line">${this.prompt}${command}</div>`);
+		},
+		addOutput(output) {
+			output.split('\n').forEach(line => {
+				this.lines.push(`<div class="output-line">${line}</div>`);
+			});
 		},
 		async executeCommand(cmd) {
 			const trimmed = cmd.trim();
@@ -142,34 +155,173 @@ export default {
 						this.currentDir = dir;
 					},
 					commandHistory: this.commandHistory,
-					outputRef: this.$refs.output,
 				});
 				return result instanceof Promise ? await result : result;
 			} else {
 				return `bash: ${command}: command not found`;
 			}
 		},
-		addOutput(command, result) {
-			const div = document.createElement("div");
-			div.innerHTML = `
-        <div class="flex items-center mb-1">
-          <span class="text-green-400">soham@archlinux</span>
-          <span class="text-white">:</span>
-          <span class="text-blue-400">${this.currentDirDisplay}</span>
-          <span class="text-white ml-1">$ </span>
-          <span class="text-green-400 ml-1">${command}</span>
-        </div>
-        ${result ? `<div class="mb-2 whitespace-pre-wrap text-white/80">${result}</div>` : ""}
-      `;
-			this.$refs.output.appendChild(div);
-
-			this.$nextTick(() => {
-				const terminal = this.$refs.terminalContainer;
-				if (terminal) {
-					terminal.scrollTop = terminal.scrollHeight;
-				}
-			});
-		},
 	},
 };
 </script>
+
+<style scoped>
+.terminal-page {
+	height: 100vh;
+	background: #0a0a0a81;
+	color: #ffffff;
+	font-family: 'JetBrains Mono', 'Fira Code', monospace;
+	overflow: hidden;
+	padding: 25px;
+	box-sizing: border-box;
+}
+
+.terminal-container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background: rgba(15, 15, 15, 0.3);
+	backdrop-filter: blur(15px);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background: rgba(255, 255, 255, 0.02);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-left {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.terminal-icon {
+	color: #00ff88;
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.terminal-title {
+	color: #ffffff;
+	font-size: 1.1rem;
+	font-weight: 500;
+}
+
+.back-btn {
+	color: #888888;
+	transition: color 0.2s ease;
+	padding: 0.5rem;
+	border-radius: 6px;
+}
+
+.back-btn:hover {
+	color: #00ff88;
+	background: rgba(0, 255, 136, 0.1);
+}
+
+.terminal-content {
+	flex: 1;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.output-section {
+	flex: 1;
+	overflow: hidden;
+}
+
+.line {
+	color: #cccccc;
+	font-size: 0.95rem;
+	line-height: 1.5;
+	margin-bottom: 0.2rem;
+	white-space: pre-wrap;
+}
+
+.current-line {
+	display: flex;
+	align-items: center;
+	margin-top: 0.5rem;
+	position: relative;
+}
+
+.prompt {
+	color: #00ff88;
+	font-weight: 600;
+	margin-right: 0.5rem;
+	white-space: nowrap;
+}
+
+.input-display {
+	color: #ffffff;
+	font-size: 0.95rem;
+	font-family: inherit;
+}
+
+.terminal-input {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	outline: none;
+	color: transparent;
+	font-family: inherit;
+	font-size: 0.95rem;
+	caret-color: transparent;
+}
+
+.cursor {
+	color: #00ff88;
+	animation: blink 1s infinite;
+	font-weight: normal;
+}
+
+@keyframes blink {
+	0%, 50% { opacity: 1; }
+	51%, 100% { opacity: 0; }
+}
+
+/* Command styling */
+:deep(.welcome) {
+	color: #00ff88;
+	font-weight: 600;
+}
+
+:deep(.help-text) {
+	color: #888888;
+}
+
+:deep(.command-line) {
+	color: #00ff88;
+}
+
+:deep(.output-line) {
+	color: #cccccc;
+}
+
+@media (max-width: 768px) {
+	.terminal-header {
+		padding: 1rem;
+	}
+	
+	.terminal-content {
+		padding: 1rem;
+	}
+	
+	.terminal-title {
+		font-size: 1rem;
+	}
+}
+</style>
