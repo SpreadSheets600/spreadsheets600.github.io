@@ -1,0 +1,55 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const blogs = await getCollection('blogs');
+const sortedBlogs = blogs.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout title="Blogs - Soham Maity">
+  <section class="max-w-7xl mx-auto px-4 py-20">
+    <h1 class="text-5xl font-bold mb-4 text-center gradient-text">Blog</h1>
+    <p class="text-center text-muted-foreground mb-16">My thoughts and experiences</p>
+
+    <div class="max-w-4xl mx-auto space-y-6">
+      {sortedBlogs.map((blog) => (
+        <a href={`/blogs/${blog.slug}`} class="blog-card block">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex-1">
+              <h2 class="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                {blog.data.title}
+              </h2>
+              <p class="text-muted-foreground mb-3">{blog.data.description}</p>
+              <div class="flex flex-wrap gap-2">
+                {blog.data.tags?.map((tag) => (
+                  <span class="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div class="text-sm text-muted-foreground md:text-right">
+              {blog.data.date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    {sortedBlogs.length === 0 && (
+      <div class="text-center text-muted-foreground py-20">
+        <p>No blog posts yet. Check back soon!</p>
+      </div>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .blog-card {
+    @apply bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 group;
+  }
+</style>

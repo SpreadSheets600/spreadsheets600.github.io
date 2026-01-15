@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const bookmarks = await getCollection('bookmarks');
+const sortedBookmarks = bookmarks.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Group by category
+const categories = [...new Set(bookmarks.map((b) => b.data.category))];
+---
+
+<Layout title="Bookmarks - Soham Maity">
+  <section class="max-w-7xl mx-auto px-4 py-20">
+    <h1 class="text-5xl font-bold mb-4 text-center gradient-text">Bookmarks</h1>
+    <p class="text-center text-muted-foreground mb-16">Useful resources I've collected</p>
+
+    {categories.map((category) => {
+      const categoryBookmarks = sortedBookmarks.filter((b) => b.data.category === category);
+      return (
+        <div class="mb-12">
+          <h2 class="text-3xl font-bold mb-6">{category}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categoryBookmarks.map((bookmark) => (
+              <a
+                href={bookmark.data.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bookmark-card group"
+              >
+                <div class="flex items-start justify-between mb-3">
+                  <h3 class="text-xl font-semibold group-hover:text-primary transition-colors flex-1">
+                    {bookmark.data.title}
+                  </h3>
+                  <svg
+                    class="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 ml-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </div>
+                <p class="text-sm text-muted-foreground mb-3">{bookmark.data.description}</p>
+                {bookmark.data.tags && (
+                  <div class="flex flex-wrap gap-2">
+                    {bookmark.data.tags.map((tag) => (
+                      <span class="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </a>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+
+    {sortedBookmarks.length === 0 && (
+      <div class="text-center text-muted-foreground py-20">
+        <p>No bookmarks yet. Check back soon!</p>
+      </div>
+    )}
+  </section>
+</Layout>
+
+<style>
+  .bookmark-card {
+    @apply bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 block;
+  }
+</style>

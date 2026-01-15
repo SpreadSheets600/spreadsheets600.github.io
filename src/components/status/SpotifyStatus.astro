@@ -1,0 +1,235 @@
+---
+---
+
+<div id="spotify-container" class="w-full">
+  <!-- Desktop Layout -->
+  <div class="hidden lg:flex gap-4">
+    <!-- Player -->
+    <div class="flex-1">
+      <div id="spotify-desktop-playing" class="hidden flex items-center gap-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-xl h-full">
+        <div class="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
+          <img id="spotify-desktop-cover" src="" alt="Album Cover" class="w-full h-full object-cover" />
+        </div>
+
+        <div class="flex-1 min-w-0 flex flex-col justify-center">
+          <div id="spotify-desktop-track" class="font-bold text-white text-base truncate"></div>
+          <div id="spotify-desktop-artist" class="text-gray-300 text-sm truncate"></div>
+
+          <div id="spotify-desktop-progress-container" class="mt-2 w-full hidden">
+            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+              <div id="spotify-desktop-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-400 mt-1">
+              <span id="spotify-desktop-current-time">0:00</span>
+              <span id="spotify-desktop-total-time">0:00</span>
+            </div>
+          </div>
+
+          <div id="spotify-desktop-recent-label" class="mt-1 text-xs text-gray-400 italic hidden">Recently Played</div>
+        </div>
+      </div>
+
+      <div id="spotify-desktop-idle" class="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 shadow-xl h-full">
+        <div class="flex items-center gap-3">
+          <i class="ph ph-spotify-logo text-green-500 text-xl"></i>
+          <div id="spotify-desktop-status-text" class="text-gray-400 text-sm">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playlists -->
+    <div id="spotify-desktop-playlists" class="flex gap-2">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+
+  <!-- Mobile Layout -->
+  <div class="lg:hidden space-y-4">
+    <div id="spotify-mobile-playing" class="hidden flex items-center gap-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-xl">
+      <div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
+        <img id="spotify-mobile-cover" src="" alt="Album Cover" class="w-full h-full object-cover" />
+        <div id="spotify-mobile-no-cover" class="w-full h-full bg-gray-700 flex items-center justify-center hidden">
+          <i class="ph ph-music-note text-green-400 text-2xl"></i>
+        </div>
+        <div class="absolute bottom-1 right-1 p-0.5 bg-black/50 rounded-full">
+          <i class="ph ph-spotify-logo text-green-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="flex-1 min-w-0 flex flex-col justify-center">
+        <div id="spotify-mobile-track" class="font-bold text-white text-base truncate"></div>
+        <div id="spotify-mobile-artist" class="text-gray-300 text-sm truncate"></div>
+
+        <div id="spotify-mobile-progress-container" class="mt-2 w-full hidden">
+          <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+            <div id="spotify-mobile-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-400 mt-1">
+            <span id="spotify-mobile-current-time">0:00</span>
+            <span id="spotify-mobile-total-time">0:00</span>
+          </div>
+        </div>
+
+        <div id="spotify-mobile-recent-label" class="mt-1 text-xs text-gray-400 italic hidden">Recently Played</div>
+      </div>
+    </div>
+
+    <div id="spotify-mobile-idle" class="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 shadow-xl">
+      <div class="flex items-center gap-3">
+        <i class="ph ph-spotify-logo text-green-500 text-xl"></i>
+        <div id="spotify-mobile-status-text" class="text-gray-400 text-sm">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Mobile Playlists -->
+    <div id="spotify-mobile-playlists" class="grid grid-cols-2 gap-3">
+       <!-- Filled by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple version without SDK for now, relying on Lanyard if available or static placeholders
+  // The original used a custom API or SDK. Since we don't have the backend, we will try to use Lanyard's Spotify data if available
+  // or show a placeholder state.
+
+  // NOTE: Lanyard provides Spotify status! We can reuse the connection from DiscordStatus if we want,
+  // but to keep components independent, let's fetch Lanyard here too.
+
+  const USER_ID = "727012870683885578";
+
+  const els = {
+    desktopPlaying: document.getElementById('spotify-desktop-playing'),
+    desktopIdle: document.getElementById('spotify-desktop-idle'),
+    desktopCover: document.getElementById('spotify-desktop-cover'),
+    desktopTrack: document.getElementById('spotify-desktop-track'),
+    desktopArtist: document.getElementById('spotify-desktop-artist'),
+    desktopProgressContainer: document.getElementById('spotify-desktop-progress-container'),
+    desktopProgressBar: document.getElementById('spotify-desktop-progress-bar'),
+    desktopCurrentTime: document.getElementById('spotify-desktop-current-time'),
+    desktopTotalTime: document.getElementById('spotify-desktop-total-time'),
+    desktopRecentLabel: document.getElementById('spotify-desktop-recent-label'),
+    desktopStatusText: document.getElementById('spotify-desktop-status-text'),
+    desktopPlaylists: document.getElementById('spotify-desktop-playlists'),
+
+    mobilePlaying: document.getElementById('spotify-mobile-playing'),
+    mobileIdle: document.getElementById('spotify-mobile-idle'),
+    mobileCover: document.getElementById('spotify-mobile-cover'),
+    mobileNoCover: document.getElementById('spotify-mobile-no-cover'),
+    mobileTrack: document.getElementById('spotify-mobile-track'),
+    mobileArtist: document.getElementById('spotify-mobile-artist'),
+    mobileProgressContainer: document.getElementById('spotify-mobile-progress-container'),
+    mobileProgressBar: document.getElementById('spotify-mobile-progress-bar'),
+    mobileCurrentTime: document.getElementById('spotify-mobile-current-time'),
+    mobileTotalTime: document.getElementById('spotify-mobile-total-time'),
+    mobileRecentLabel: document.getElementById('spotify-mobile-recent-label'),
+    mobileStatusText: document.getElementById('spotify-mobile-status-text'),
+    mobilePlaylists: document.getElementById('spotify-mobile-playlists'),
+  };
+
+  let progressInterval;
+  let currentProgress = 0;
+  let currentDuration = 0;
+
+  async function init() {
+    await fetchSpotifyData();
+    setInterval(fetchSpotifyData, 5000); // Poll every 5s
+  }
+
+  async function fetchSpotifyData() {
+    try {
+      const response = await fetch(`https://api.lanyard.rest/v1/users/${USER_ID}`);
+      const data = await response.json();
+
+      if (data.success && data.data.spotify) {
+        updateUI(data.data.spotify);
+      } else {
+        showIdle();
+      }
+    } catch (error) {
+      showIdle("Failed to load Spotify status");
+    }
+  }
+
+  function updateUI(spotify) {
+    // Show playing state
+    els.desktopPlaying.classList.remove('hidden');
+    els.desktopIdle.classList.add('hidden');
+    els.mobilePlaying.classList.remove('hidden');
+    els.mobileIdle.classList.add('hidden');
+
+    // Update track info
+    const track = spotify.song;
+    const artist = spotify.artist;
+    const cover = spotify.album_art_url;
+    const duration = spotify.timestamps.end - spotify.timestamps.start;
+    const start = spotify.timestamps.start;
+
+    // Desktop
+    els.desktopTrack.textContent = track;
+    els.desktopArtist.textContent = artist;
+    els.desktopCover.src = cover;
+
+    // Mobile
+    els.mobileTrack.textContent = track;
+    els.mobileArtist.textContent = artist;
+    els.mobileCover.src = cover;
+
+    // Progress
+    currentDuration = duration;
+    currentProgress = Date.now() - start;
+
+    startProgressTimer(start, duration);
+
+    // Show progress bars
+    els.desktopProgressContainer.classList.remove('hidden');
+    els.mobileProgressContainer.classList.remove('hidden');
+  }
+
+  function showIdle(message = "Not currently playing anything.") {
+    els.desktopPlaying.classList.add('hidden');
+    els.desktopIdle.classList.remove('hidden');
+    els.mobilePlaying.classList.add('hidden');
+    els.mobileIdle.classList.remove('hidden');
+
+    if (els.desktopStatusText) els.desktopStatusText.textContent = message;
+    if (els.mobileStatusText) els.mobileStatusText.textContent = message;
+
+    clearInterval(progressInterval);
+  }
+
+  function startProgressTimer(start, duration) {
+    clearInterval(progressInterval);
+
+    const update = () => {
+      const now = Date.now();
+      let progress = now - start;
+      if (progress > duration) progress = duration;
+
+      const percent = (progress / duration) * 100;
+
+      els.desktopProgressBar.style.width = `${percent}%`;
+      els.mobileProgressBar.style.width = `${percent}%`;
+
+      els.desktopCurrentTime.textContent = formatTime(progress);
+      els.mobileCurrentTime.textContent = formatTime(progress);
+
+      els.desktopTotalTime.textContent = formatTime(duration);
+      els.mobileTotalTime.textContent = formatTime(duration);
+    };
+
+    update();
+    progressInterval = setInterval(update, 1000);
+  }
+
+  function formatTime(ms) {
+    if (!ms) return "0:00";
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  // Initial call
+  init();
+</script>

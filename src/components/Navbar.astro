@@ -1,0 +1,148 @@
+---
+const { pathname } = Astro.url;
+
+const isActive = (path: string) => {
+  if (path === '/') {
+    return pathname === '/';
+  }
+  return pathname.startsWith(path);
+};
+
+const navLinks = [
+  { name: 'Home', path: '/' },
+  { name: 'Projects', path: '/projects' },
+  { name: 'Connect', path: '/connect' },
+  { name: 'Tools', path: '/tools' },
+];
+---
+
+<nav class="sticky top-0 z-50 border-b border-white/10 bg-black/30 backdrop-blur-xl">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <a href="/" class="text-lg font-semibold tracking-wide">
+        <span class="bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text text-transparent">
+          SpreadSheets600
+        </span>
+      </a>
+
+      <!-- Desktop Menu -->
+      <ul class="hidden gap-8 md:flex">
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.path}
+              class:list={['nav-link', { active: isActive(link.path) }]}
+            >
+              {link.name}
+            </a>
+          </li>
+        ))}
+        <li>
+          <a
+            href="/terminal"
+            class:list={['nav-link terminal-link inline-flex items-center', { active: isActive('/terminal') }]}
+          >
+            <i class="ph ph-terminal mr-1 text-base"></i>
+            <span>Terminal</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:text-white hover:bg-white/10 transition"
+        aria-label="Toggle Menu"
+      >
+        <i id="menu-icon-list" class="ph ph-list text-xl"></i>
+        <i id="menu-icon-x" class="ph ph-x text-xl hidden"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden border-t border-white/10 bg-black/40 backdrop-blur-xl md:hidden">
+    <div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+      <ul class="grid gap-2">
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.path}
+              class:list={['mobile-nav-link', { active: isActive(link.path) }]}
+            >
+              {link.name}
+            </a>
+          </li>
+        ))}
+        <li>
+          <a
+            href="/terminal"
+            class:list={['mobile-nav-link inline-flex items-center !text-green-400', { active: isActive('/terminal') }]}
+          >
+            <span>Terminal</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIconList = document.getElementById('menu-icon-list');
+  const menuIconX = document.getElementById('menu-icon-x');
+
+  if (mobileMenuBtn && mobileMenu && menuIconList && menuIconX) {
+    mobileMenuBtn.addEventListener('click', () => {
+      const isExpanded = !mobileMenu.classList.contains('hidden');
+
+      if (isExpanded) {
+        mobileMenu.classList.add('hidden');
+        menuIconList.classList.remove('hidden');
+        menuIconX.classList.add('hidden');
+      } else {
+        mobileMenu.classList.remove('hidden');
+        menuIconList.classList.add('hidden');
+        menuIconX.classList.remove('hidden');
+      }
+    });
+
+    // Close menu when clicking a link
+    const mobileLinks = mobileMenu.querySelectorAll('a');
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        menuIconList.classList.remove('hidden');
+        menuIconX.classList.add('hidden');
+      });
+    });
+  }
+</script>
+
+<style>
+  .nav-link {
+    @apply text-sm font-semibold text-white/70 hover:text-white transition-all duration-200 relative;
+  }
+
+  .nav-link.active {
+    @apply text-white;
+  }
+
+  .nav-link.active::after {
+    content: "";
+    @apply absolute -bottom-4 left-0 right-0 h-0.5 bg-gradient-to-r from-white/60 to-white/30 rounded-full;
+  }
+
+  .terminal-link {
+    @apply bg-gradient-to-r from-green-500/20 to-green-400/20 px-3 py-1.5 rounded-lg border border-green-400/30 hover:border-green-400/50;
+  }
+
+  .mobile-nav-link {
+    @apply block rounded-md px-3 py-2 text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200;
+  }
+
+  .mobile-nav-link.active {
+    @apply text-white bg-white/10;
+  }
+</style>

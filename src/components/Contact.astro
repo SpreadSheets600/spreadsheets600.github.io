@@ -1,0 +1,130 @@
+---
+
+---
+
+<section id="contact" class="scroll-mt-24 mt-8 sm:mt-12">
+	<div class="mb-8 flex items-center gap-3">
+		<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+			<i class="ph-light ph-paper-plane-tilt text-2xl"></i>
+		</div>
+		<h2 class="text-2xl font-bold text-white">Get in Touch</h2>
+	</div>
+
+	<article class="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-primary/5">
+		{/* Form Section */}
+		<section class="p-5">
+			<form id="contact-form" class="grid gap-4">
+				{/* Row 1: Name & Email */}
+				<div class="grid gap-4 sm:grid-cols-2">
+					<div class="grid gap-2">
+						<label for="name" class="text-xs font-medium text-white/80 uppercase tracking-wider">Name</label>
+						<input type="text" id="name" name="name" placeholder="Your Name" class="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all" />
+					</div>
+
+					<div class="grid gap-2">
+						<label for="email" class="text-xs font-medium text-white/80 uppercase tracking-wider">Email</label>
+						<input type="email" id="email" name="email" required placeholder="name@example.com" class="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all" />
+					</div>
+				</div>
+
+				{/* Row 2: Message */}
+				<div class="grid gap-2">
+					<label for="message" class="text-xs font-medium text-white/80 uppercase tracking-wider">Message</label>
+					<textarea id="message" name="message" rows="4" required placeholder="Tell me about your project..." class="flex min-h-[100px] w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all resize-y"></textarea>
+				</div>
+
+				{/* Submit Button */}
+				<button type="submit" id="submit-btn" class="mt-2 inline-flex h-10 items-center justify-center rounded-lg bg-white px-6 text-sm font-medium text-black transition-all hover:bg-white/90 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+					<span id="btn-text">Send Message</span>
+				</button>
+
+				{/* Status Message */}
+				<p id="status-message" class="text-xs text-center hidden"></p>
+			</form>
+		</section>
+	</article>
+</section>
+
+<script>
+	// @ts-nocheck
+	const form = document.getElementById("contact-form");
+	const submitBtn = document.getElementById("submit-btn");
+	const btnText = document.getElementById("btn-text");
+	const statusMessage = document.getElementById("status-message");
+
+	if (form) {
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+
+			const formData = new FormData(form);
+			const name = formData.get("name");
+			const email = formData.get("email");
+			const message = formData.get("message");
+
+			const showStatus = (text, success) => {
+				if (!statusMessage) return;
+				statusMessage.textContent = text;
+				statusMessage.className = `text-xs text-center mt-2 ${success ? "text-green-400" : "text-red-400"}`;
+				statusMessage.classList.remove("hidden");
+				setTimeout(() => {
+					statusMessage.classList.add("hidden");
+				}, 5000);
+			};
+
+			if (!message?.trim()) {
+				showStatus("Please enter a message.", false);
+				return;
+			}
+			if (!email?.trim()) {
+				showStatus("Please enter a valid email.", false);
+				return;
+			}
+
+			// Loading State
+			if (submitBtn && btnText) {
+				submitBtn.disabled = true;
+				btnText.textContent = "Sending...";
+			}
+
+			// YOUR DISCORD WEBHOOK URL
+			const webhookUrl = "https://discord.com/api/webhooks/1403400949078167633/cZXHdZmraxI7sHa5gdIpGL-_8ensis45KtEJy8y8SLIDN2d2WV03jZQY7OnCuiT-5ly1";
+
+			const payload = {
+				content: `New Contact From **${name || "Anonymous"}**`,
+				embeds: [
+					{
+						title: "Portfolio Contact",
+						color: 0xffffff,
+						fields: [
+							{ name: "Name", value: name || "Anonymous", inline: true },
+							{ name: "Email", value: email, inline: true },
+							{ name: "Message", value: message },
+						],
+						timestamp: new Date().toISOString(),
+					},
+				],
+			};
+
+			try {
+				const response = await fetch(webhookUrl, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload),
+				});
+
+				if (!response.ok) throw new Error("Request Failed");
+
+				form.reset();
+				showStatus("Message sent successfully!", true);
+			} catch (error) {
+				console.error(error);
+				showStatus("Failed to send message. Please try again.", false);
+			} finally {
+				if (submitBtn && btnText) {
+					submitBtn.disabled = false;
+					btnText.textContent = "Send Message";
+				}
+			}
+		});
+	}
+</script>

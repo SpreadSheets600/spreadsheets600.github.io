@@ -1,0 +1,709 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+import { SignIn, SignOut } from "auth-astro/components";
+import { getSession } from "auth-astro/server";
+
+const session = await getSession(Astro.request);
+const isAuthorized = !!session;
+---
+
+<Layout title="Admin - CMS">
+	<section class="max-w-7xl mx-auto px-4 py-20 min-h-screen">
+		<div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+			<div>
+				<h1 class="text-4xl font-bold bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text text-transparent">Content Manager</h1>
+				<p class="text-white/50 mt-2 text-sm">Manage your portfolio content securely.</p>
+			</div>
+			{
+				session && (
+					<div class="flex items-center gap-4 bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl">
+						<div class="flex items-center gap-2">
+							{session.user?.image && <img src={session.user.image} alt="User" class="w-6 h-6 rounded-full border border-white/20" />}
+							<span class="text-xs font-medium text-white/80">{session.user?.name}</span>
+						</div>
+						<div class="h-4 w-px bg-white/10" />
+						<SignOut class="text-xs text-red-400 hover:text-red-300 transition-colors font-medium">Sign Out</SignOut>
+					</div>
+				)
+			}
+		</div>
+
+		{
+			!session ? (
+				<div class="flex flex-col items-center justify-center py-32 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl max-w-md mx-auto">
+					<div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+						<i class="ph-fill ph-lock-key text-2xl text-white/70"></i>
+					</div>
+					<h2 class="text-2xl font-bold text-white mb-2">Restricted Access</h2>
+					<p class="mb-8 text-white/50 text-sm text-center px-8">This area is reserved for the administrator. Please identify yourself to continue.</p>
+					<SignIn provider="github" class="bg-white text-black px-6 py-2.5 rounded-lg font-semibold hover:bg-white/90 transition-all flex items-center gap-2 text-sm">
+						<i class="ph-github-logo text-lg"></i> Authenticate
+					</SignIn>
+				</div>
+			) : (
+				<div class="tabs w-full space-y-8" id="admin-tabs">
+					<!-- Tab Navigation -->
+					<nav role="tablist" aria-orientation="horizontal" class="w-full flex gap-2 border-b border-white/10 pb-1 overflow-x-auto">
+						<button type="button" role="tab" id="tab-blogs" aria-controls="panel-blogs" aria-selected="true" tabindex="0" class="tab-btn active" data-type="blogs">
+							<i class="ph ph-article"></i> Blogs
+						</button>
+						<button type="button" role="tab" id="tab-bookmarks" aria-controls="panel-bookmarks" aria-selected="false" tabindex="-1" class="tab-btn" data-type="bookmarks">
+							<i class="ph ph-bookmarks"></i> Bookmarks
+						</button>
+						<button type="button" role="tab" id="tab-prompts" aria-controls="panel-prompts" aria-selected="false" tabindex="-1" class="tab-btn" data-type="prompts">
+							<i class="ph ph-terminal-window"></i> Prompts
+						</button>
+						<button type="button" role="tab" id="tab-projects" aria-controls="panel-projects" aria-selected="false" tabindex="-1" class="tab-btn" data-type="projects">
+							<i class="ph ph-kanban"></i> Projects
+						</button>
+					</nav>
+
+					<!-- Panels Container -->
+					<div class="panels-container">
+						<!-- Blogs Panel -->
+						<div role="tabpanel" id="panel-blogs" aria-labelledby="tab-blogs" tabindex="0" class="grid lg:grid-cols-3 gap-8">
+							<!-- List View -->
+							<div class="lg:col-span-1 space-y-4">
+								<div class="flex justify-between items-center">
+									<h3 class="text-sm font-semibold text-white/70 uppercase tracking-wider">Existing Posts</h3>
+									<button class="text-xs text-primary hover:text-white transition-colors refresh-btn" data-type="blogs">
+										<i class="ph ph-arrows-clockwise"></i> Refresh
+									</button>
+								</div>
+								<div id="list-blogs" class="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+									<div class="p-4 rounded-lg bg-white/5 border border-white/5 text-center text-sm text-white/40">Loading...</div>
+								</div>
+							</div>
+
+							<!-- Form View -->
+							<div class="lg:col-span-2">
+								<div class="card bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden sticky top-24">
+									<header class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+										<div>
+											<h2 class="text-lg font-semibold text-white form-title">Create Blog Post</h2>
+											<p class="text-white/50 text-xs mt-1">Write and publish new articles.</p>
+										</div>
+										<button type="button" class="btn-secondary text-xs py-1.5 px-3 create-new-btn hidden">
+											<i class="ph ph-plus"></i> New Post
+										</button>
+									</header>
+									<section class="p-6">
+										<form id="blog-form" class="grid gap-6">
+											<input type="hidden" name="sha" />
+											<input type="hidden" name="filename" />
+
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Title</label>
+												<input type="text" name="title" required class="form-input" />
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Description</label>
+												<input type="text" name="description" required class="form-input" />
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Tags</label>
+												<input type="text" name="tags" class="form-input" placeholder="comma separated" />
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Content (Markdown)</label>
+												<textarea name="content" rows="15" required class="form-input font-mono text-sm leading-relaxed"></textarea>
+											</div>
+											<div class="flex gap-4 pt-2 border-t border-white/5 mt-2">
+												<button type="submit" class="btn-primary flex-1 justify-center">
+													<i class="ph ph-floppy-disk"></i> <span class="submit-text">Save Post</span>
+												</button>
+												<button type="button" class="btn-danger hidden delete-btn">
+													<i class="ph ph-trash"></i>
+												</button>
+											</div>
+										</form>
+									</section>
+								</div>
+							</div>
+						</div>
+
+						<!-- Bookmarks Panel -->
+						<div role="tabpanel" id="panel-bookmarks" aria-labelledby="tab-bookmarks" tabindex="0" hidden class="grid lg:grid-cols-3 gap-8">
+							<div class="lg:col-span-1 space-y-4">
+								<div class="flex justify-between items-center">
+									<h3 class="text-sm font-semibold text-white/70 uppercase tracking-wider">Bookmarks</h3>
+									<button class="text-xs text-primary hover:text-white transition-colors refresh-btn" data-type="bookmarks">Refresh</button>
+								</div>
+								<div id="list-bookmarks" class="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+									<div class="p-4 rounded-lg bg-white/5 text-center text-sm text-white/40">Loading...</div>
+								</div>
+							</div>
+							<div class="lg:col-span-2">
+								<div class="card bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden sticky top-24">
+									<header class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+										<div>
+											<h2 class="text-lg font-semibold text-white form-title">Add Bookmark</h2>
+										</div>
+										<button type="button" class="btn-secondary text-xs py-1.5 px-3 create-new-btn hidden"><i class="ph ph-plus"></i> New</button>
+									</header>
+									<section class="p-6">
+										<form id="bookmark-form" class="grid gap-6">
+											<input type="hidden" name="sha" />
+											<input type="hidden" name="filename" />
+
+											<div class="grid md:grid-cols-2 gap-6">
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Title</label>
+													<input type="text" name="title" required class="form-input" />
+												</div>
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">URL</label>
+													<input type="url" name="url" required class="form-input" />
+												</div>
+											</div>
+											<div class="grid md:grid-cols-2 gap-6">
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Category</label>
+													<input type="text" name="category" required class="form-input" />
+												</div>
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Tags</label>
+													<input type="text" name="tags" class="form-input" />
+												</div>
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Description</label>
+												<textarea name="description" rows="3" required class="form-input"></textarea>
+											</div>
+											<div class="flex gap-4 pt-2 border-t border-white/5 mt-2">
+												<button type="submit" class="btn-primary flex-1 justify-center">
+													<i class="ph ph-floppy-disk"></i> <span class="submit-text">Save Bookmark</span>
+												</button>
+												<button type="button" class="btn-danger hidden delete-btn"><i class="ph ph-trash"></i></button>
+											</div>
+										</form>
+									</section>
+								</div>
+							</div>
+						</div>
+
+						<!-- Prompts Panel -->
+						<div role="tabpanel" id="panel-prompts" aria-labelledby="tab-prompts" tabindex="0" hidden class="grid lg:grid-cols-3 gap-8">
+							<div class="lg:col-span-1 space-y-4">
+								<div class="flex justify-between items-center">
+									<h3 class="text-sm font-semibold text-white/70 uppercase tracking-wider">Prompts</h3>
+									<button class="text-xs text-primary hover:text-white transition-colors refresh-btn" data-type="prompts">Refresh</button>
+								</div>
+								<div id="list-prompts" class="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+									<div class="p-4 rounded-lg bg-white/5 text-center text-sm text-white/40">Loading...</div>
+								</div>
+							</div>
+							<div class="lg:col-span-2">
+								<div class="card bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden sticky top-24">
+									<header class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+										<div>
+											<h2 class="text-lg font-semibold text-white form-title">Create Prompt</h2>
+										</div>
+										<button type="button" class="btn-secondary text-xs py-1.5 px-3 create-new-btn hidden"><i class="ph ph-plus"></i> New</button>
+									</header>
+									<section class="p-6">
+										<form id="prompt-form" class="grid gap-6">
+											<input type="hidden" name="sha" />
+											<input type="hidden" name="filename" />
+
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Title</label>
+												<input type="text" name="title" required class="form-input" />
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Description</label>
+												<input type="text" name="description" required class="form-input" />
+											</div>
+											<div class="grid md:grid-cols-2 gap-6">
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Category</label>
+													<input type="text" name="category" required class="form-input" />
+												</div>
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Tags</label>
+													<input type="text" name="tags" class="form-input" />
+												</div>
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Prompt Content</label>
+												<textarea name="content" rows="10" required class="form-input font-mono text-sm leading-relaxed"></textarea>
+											</div>
+											<div class="flex gap-4 pt-2 border-t border-white/5 mt-2">
+												<button type="submit" class="btn-primary flex-1 justify-center">
+													<i class="ph ph-floppy-disk"></i> <span class="submit-text">Save Prompt</span>
+												</button>
+												<button type="button" class="btn-danger hidden delete-btn"><i class="ph ph-trash"></i></button>
+											</div>
+										</form>
+									</section>
+								</div>
+							</div>
+						</div>
+
+						<!-- Projects Panel -->
+						<div role="tabpanel" id="panel-projects" aria-labelledby="tab-projects" tabindex="0" hidden class="grid lg:grid-cols-3 gap-8">
+							<div class="lg:col-span-1 space-y-4">
+								<div class="flex justify-between items-center">
+									<h3 class="text-sm font-semibold text-white/70 uppercase tracking-wider">Projects</h3>
+									<button class="text-xs text-primary hover:text-white transition-colors refresh-btn" data-type="projects">Refresh</button>
+								</div>
+								<div id="list-projects" class="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+									<div class="p-4 rounded-lg bg-white/5 text-center text-sm text-white/40">Loading...</div>
+								</div>
+							</div>
+							<div class="lg:col-span-2">
+								<div class="card bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden sticky top-24">
+									<header class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+										<div>
+											<h2 class="text-lg font-semibold text-white form-title">Add Project</h2>
+										</div>
+										<button type="button" class="btn-secondary text-xs py-1.5 px-3 create-new-btn hidden"><i class="ph ph-plus"></i> New</button>
+									</header>
+									<section class="p-6">
+										<form id="project-form" class="grid gap-6">
+											<input type="hidden" name="sha" />
+											<input type="hidden" name="filename" />
+
+											<div class="grid md:grid-cols-2 gap-6">
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Project Name</label>
+													<input type="text" name="title" required class="form-input" />
+												</div>
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Status</label>
+													<div class="relative">
+														<select name="status" required class="form-input appearance-none">
+															<option value="Live">Live</option>
+															<option value="Published">Published</option>
+															<option value="Active">Active</option>
+															<option value="Beta">Beta</option>
+															<option value="Archived">Archived</option>
+														</select>
+														<i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-white/50 pointer-events-none"></i>
+													</div>
+												</div>
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Description</label>
+												<input type="text" name="description" required class="form-input" />
+											</div>
+											<div class="grid md:grid-cols-2 gap-6">
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">GitHub URL</label>
+													<input type="url" name="githubUrl" required class="form-input" />
+												</div>
+												<div class="grid gap-2">
+													<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Website URL (Optional)</label>
+													<input type="url" name="websiteUrl" class="form-input" />
+												</div>
+											</div>
+											<div class="grid gap-2">
+												<label class="text-xs font-medium text-white/70 uppercase tracking-wider">Tech Stack</label>
+												<input type="text" name="tech" required class="form-input" placeholder="React, Astro, Tailwind" />
+											</div>
+											<div class="flex items-center gap-2 py-2">
+												<input type="checkbox" id="proj-featured" name="featured" value="true" checked class="w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-0" />
+												<label for="proj-featured" class="text-sm font-medium text-white/80 cursor-pointer select-none">Feature this project</label>
+											</div>
+											<div class="flex gap-4 pt-2 border-t border-white/5 mt-2">
+												<button type="submit" class="btn-primary flex-1 justify-center">
+													<i class="ph ph-floppy-disk"></i> <span class="submit-text">Save Project</span>
+												</button>
+												<button type="button" class="btn-danger hidden delete-btn"><i class="ph ph-trash"></i></button>
+											</div>
+										</form>
+									</section>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			)
+		}
+
+		<!-- Toast -->
+		<div id="status-toast" class="fixed bottom-6 right-6 translate-y-24 opacity-0 transition-all duration-300 z-50">
+			<div class="bg-zinc-900 border border-white/10 shadow-2xl rounded-xl p-4 flex items-center gap-4 min-w-[300px]">
+				<div id="status-icon" class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+					<i class="ph ph-check text-xl"></i>
+				</div>
+				<div>
+					<h4 id="status-title" class="font-semibold text-white text-sm">Success</h4>
+					<p id="status-message" class="text-xs text-white/60">Changes saved successfully.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.tab-btn {
+		@apply flex items-center gap-2 px-5 py-3 text-sm font-medium text-white/50 hover:text-white/80 transition-colors border-b-2 border-transparent outline-none whitespace-nowrap;
+	}
+	.tab-btn.active {
+		@apply text-white border-white;
+	}
+	.form-input {
+		@apply w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all;
+	}
+	.btn-primary {
+		@apply inline-flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-lg font-semibold text-sm hover:bg-white/90 transition-colors shadow-lg shadow-white/5;
+	}
+	.btn-secondary {
+		@apply inline-flex items-center gap-2 bg-transparent text-white/70 border border-white/10 px-6 py-2.5 rounded-lg font-medium text-sm hover:text-white hover:bg-white/5 transition-colors;
+	}
+	.btn-danger {
+		@apply inline-flex items-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2.5 rounded-lg font-medium text-sm hover:bg-red-500/20 transition-colors;
+	}
+	.custom-scrollbar::-webkit-scrollbar {
+		width: 4px;
+	}
+	.custom-scrollbar::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.02);
+	}
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 4px;
+	}
+</style>
+
+<script>
+	// --- CONSTANTS ---
+	const DIRECTORIES = {
+		blogs: "src/content/blogs",
+		bookmarks: "src/content/bookmarks",
+		prompts: "src/content/prompts",
+		projects: "src/content/projects",
+	};
+
+	// --- TAB LOGIC ---
+	const tabs = document.querySelectorAll('[role="tab"]');
+	const panels = document.querySelectorAll('[role="tabpanel"]');
+
+	tabs.forEach((tab) => {
+		tab.addEventListener("click", (e) => {
+			const targetTab = e.currentTarget as HTMLElement;
+			const type = targetTab.getAttribute('data-type');
+
+			// Switch visual
+			tabs.forEach((t) => {
+				t.setAttribute("aria-selected", "false");
+				t.classList.remove("active");
+			});
+			panels.forEach((p) => p.hidden = true);
+
+			targetTab.setAttribute("aria-selected", "true");
+			targetTab.classList.add("active");
+			document.getElementById(targetTab.getAttribute("aria-controls")!).hidden = false;
+
+			// Load content
+			if(type) fetchList(type);
+		});
+	});
+
+	// --- DATA FETCHING & PARSING ---
+
+	async function fetchList(type) {
+		const listContainer = document.getElementById(`list-${type}`);
+		if (!listContainer) return;
+
+		listContainer.innerHTML = '<div class="p-4 text-center text-sm text-white/40"><i class="ph ph-spinner animate-spin text-lg"></i></div>';
+
+		try {
+			const path = DIRECTORIES[type];
+			const res = await fetch(`/api/cms?action=list&path=${path}`);
+			if (!res.ok) throw new Error('Failed to fetch');
+
+			const files = await res.json();
+			renderList(type, files);
+		} catch (e) {
+			listContainer.innerHTML = '<div class="p-4 text-center text-sm text-red-400">Failed to load content</div>';
+		}
+	}
+
+	function renderList(type, files) {
+		const container = document.getElementById(`list-${type}`);
+		if (!container) return;
+
+		if (files.length === 0) {
+			container.innerHTML = '<div class="p-4 text-center text-sm text-white/30">No items found</div>';
+			return;
+		}
+
+		container.innerHTML = files.map(file => `
+			<button class="w-full text-left p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 transition-all group flex items-center justify-between" onclick="window.editItem('${type}', '${file.path}')">
+				<span class="text-sm font-medium text-white/80 truncate pr-2">${file.name.replace('.md', '')}</span>
+				<i class="ph ph-caret-right text-white/20 group-hover:text-white/50"></i>
+			</button>
+		`).join('');
+	}
+
+	// Make accessible globally for onclick
+	window.editItem = async (type, path) => {
+		showToast('Loading...', 'Fetching file details...', 'success');
+		try {
+			const res = await fetch(`/api/cms?action=get&path=${path}`);
+			if (!res.ok) throw new Error('Fetch failed');
+			const file = await res.json();
+
+			const frontmatter = parseFrontmatter(file.content);
+			populateForm(type, frontmatter, file.content, file.sha, file.path);
+
+			// Update UI state
+			const form = document.getElementById(`${type.slice(0, -1)}-form`); // blog-form, bookmark-form etc
+			const container = form.closest('.card');
+			container.querySelector('.form-title').textContent = `Edit ${type.slice(0, -1)}`;
+			container.querySelector('.submit-text').textContent = 'Update';
+			container.querySelector('.create-new-btn').classList.remove('hidden');
+			form.querySelector('.delete-btn').classList.remove('hidden');
+
+			showToast('Ready', 'File loaded for editing', 'success');
+		} catch (e) {
+			showToast('Error', 'Could not load file', 'error');
+		}
+	};
+
+	function parseFrontmatter(content) {
+		const match = content.match(/^---\n([\s\S]*?)\n---/);
+		if (!match) return {};
+
+		const fm = {};
+		match[1].split('\n').forEach(line => {
+			const [key, ...val] = line.split(':');
+			if (key && val) {
+				let value = val.join(':').trim();
+				// Basic cleaning
+				if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+				if (value.startsWith('[') && value.endsWith(']')) {
+					// Remove brackets and quotes from array strings
+					value = value.slice(1, -1).replace(/"/g, '');
+				}
+				fm[key.trim()] = value;
+			}
+		});
+
+		// Body content
+		fm.body = content.replace(match[0], '').trim();
+		return fm;
+	}
+
+	function populateForm(type, data, rawContent, sha, path) {
+		// Determine form id (blog-form, etc.)
+		const formId = `${type.slice(0, -1)}-form`;
+		const form = document.getElementById(formId);
+		if (!form) return;
+
+		// Set hidden fields
+		form.querySelector('[name="sha"]').value = sha;
+		form.querySelector('[name="filename"]').value = path;
+
+		// Set common fields
+		if(form.elements['title']) form.elements['title'].value = data.title || '';
+		if(form.elements['description']) form.elements['description'].value = data.description || '';
+		if(form.elements['tags']) form.elements['tags'].value = data.tags || '';
+
+		// Type specific
+		if (type === 'blogs' || type === 'prompts') {
+			if(form.elements['content']) form.elements['content'].value = data.body || '';
+			if(form.elements['category']) form.elements['category'].value = data.category || '';
+		}
+
+		if (type === 'bookmarks') {
+			if(form.elements['url']) form.elements['url'].value = data.url || '';
+			if(form.elements['category']) form.elements['category'].value = data.category || '';
+			if(form.elements['description']) form.elements['description'].value = data.body || data.description || '';
+		}
+
+		if (type === 'projects') {
+			if(form.elements['githubUrl']) form.elements['githubUrl'].value = data.githubUrl || '';
+			if(form.elements['websiteUrl']) form.elements['websiteUrl'].value = data.websiteUrl || '';
+			if(form.elements['tech']) form.elements['tech'].value = data.tech || '';
+			if(form.elements['status']) form.elements['status'].value = data.status || 'Live';
+			if(form.elements['featured']) form.elements['featured'].checked = data.featured === 'true';
+		}
+	}
+
+	// --- FORM SUBMISSION ---
+	const forms = document.querySelectorAll('form');
+	forms.forEach(form => {
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const formData = new FormData(form);
+			const data = Object.fromEntries(formData);
+
+			// Determine type from form id
+			const type = form.id.split('-')[0]; // blog, bookmark...
+
+			const isUpdate = !!data.sha;
+
+			// Generate filename if new
+			let filename = data.filename;
+			if (!filename) {
+				const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+				filename = `src/content/${type}s/${slug}.md`;
+			}
+
+			// Generate content
+			const frontmatter = generateFrontmatter(type, data);
+			let content = frontmatter;
+
+			// Add body for types that have it separately or mixed
+			if (type === 'blog' || type === 'prompt') {
+				content += (data.content || '');
+			} else if (type === 'bookmark') {
+				// Bookmark usually keeps desc in frontmatter, but we can append if needed.
+				// Our parsing logic put body into desc for bookmarks, so let's stick to frontmatter only for bookmark desc if schema allows
+				// or append. Let's append to body to match populate logic.
+				// content += (data.description || '');
+			}
+
+			const payload = {
+				type,
+				data,
+				content,
+				filename,
+				sha: data.sha || undefined
+			};
+
+			if (await saveToAPI('POST', payload)) {
+				// Refresh list
+				fetchList(`${type}s`);
+				// Reset form if create, keep if edit? Let's reset to allow new creation
+				if (!isUpdate) resetForm(form);
+			}
+		});
+
+		// Delete Button
+		const deleteBtn = form.querySelector('.delete-btn');
+		if (deleteBtn) {
+			deleteBtn.addEventListener('click', async () => {
+				if (!confirm('Are you sure you want to delete this item?')) return;
+
+				const sha = form.querySelector('[name="sha"]').value;
+				const path = form.querySelector('[name="filename"]').value;
+				const type = form.id.split('-')[0];
+
+				if (await saveToAPI('DELETE', { path, sha })) {
+					fetchList(`${type}s`);
+					resetForm(form);
+				}
+			});
+		}
+	});
+
+	// Create New Button logic
+	document.querySelectorAll('.create-new-btn').forEach(btn => {
+		btn.addEventListener('click', (e) => {
+			const card = e.target.closest('.card');
+			const form = card.querySelector('form');
+			resetForm(form);
+		});
+	});
+
+	function resetForm(form) {
+		form.reset();
+		form.querySelector('[name="sha"]').value = '';
+		form.querySelector('[name="filename"]').value = '';
+
+		const container = form.closest('.card');
+		container.querySelector('.form-title').textContent = container.querySelector('.form-title').textContent.replace('Edit', 'Create').replace('Add', 'Add'); // simplistic
+		if (container.querySelector('.submit-text')) container.querySelector('.submit-text').textContent = `Save ${form.id.split('-')[0].charAt(0).toUpperCase() + form.id.split('-')[0].slice(1)}`;
+		container.querySelector('.create-new-btn').classList.add('hidden');
+		form.querySelector('.delete-btn').classList.add('hidden');
+	}
+
+	// --- HELPERS ---
+	async function saveToAPI(method, body) {
+		showToast('Processing...', 'Please wait', 'success');
+		try {
+			const res = await fetch('/api/cms', {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body)
+			});
+			const result = await res.json();
+			if (res.ok) {
+				showToast('Success', result.message || 'Operation successful', 'success');
+				return true;
+			} else {
+				showToast('Error', result.error || 'Failed', 'error');
+				return false;
+			}
+		} catch (e) {
+			showToast('Error', 'Network error', 'error');
+			return false;
+		}
+	}
+
+	function generateFrontmatter(type, data) {
+		const date = new Date().toISOString();
+		let fm = "---\n";
+
+		if (type === 'blog') {
+			fm += `title: "${data.title}"\n`;
+			fm += `description: "${data.description}"\n`;
+			fm += `date: ${date}\n`;
+			if (data.tags) fm += `tags: [${data.tags.split(',').map(t => `"${t.trim()}"`).join(', ')}]\n`;
+		} else if (type === 'bookmark') {
+			fm += `title: "${data.title}"\n`;
+			fm += `url: "${data.url}"\n`;
+			fm += `description: "${data.description}"\n`; // We store description in FM for bookmarks usually
+			fm += `category: "${data.category}"\n`;
+			if (data.tags) fm += `tags: [${data.tags.split(',').map(t => `"${t.trim()}"`).join(', ')}]\n`;
+			fm += `date: ${date}\n`;
+		} else if (type === 'prompt') {
+			fm += `title: "${data.title}"\n`;
+			fm += `description: "${data.description}"\n`;
+			fm += `category: "${data.category}"\n`;
+			if (data.tags) fm += `tags: [${data.tags.split(',').map(t => `"${t.trim()}"`).join(', ')}]\n`;
+			fm += `date: ${date}\n`;
+		} else if (type === 'project') {
+			fm += `title: "${data.title}"\n`;
+			fm += `githubUrl: "${data.githubUrl}"\n`;
+			if (data.websiteUrl) fm += `websiteUrl: "${data.websiteUrl}"\n`;
+			fm += `description: "${data.description}"\n`;
+			fm += `tech: [${data.tech.split(',').map(t => `"${t.trim()}"`).join(', ')}]\n`;
+			fm += `status: "${data.status}"\n`;
+			fm += `featured: ${data.featured ? 'true' : 'false'}\n`;
+			fm += `date: ${date}\n`;
+		}
+
+		fm += "---\n\n";
+		return fm;
+	}
+
+	function showToast(title, message, type) {
+		const toast = document.getElementById("status-toast");
+		const titleEl = document.getElementById("status-title");
+		const msgEl = document.getElementById("status-message");
+		const iconEl = document.getElementById("status-icon");
+
+		if (!toast || !titleEl || !msgEl || !iconEl) return;
+
+		titleEl.textContent = title;
+		msgEl.textContent = message;
+
+		if (type === "success") {
+			iconEl.className = "w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400";
+			iconEl.innerHTML = '<i class="ph ph-check text-xl"></i>';
+		} else {
+			iconEl.className = "w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400";
+			iconEl.innerHTML = '<i class="ph ph-warning text-xl"></i>';
+		}
+
+		toast.classList.remove("translate-y-24", "opacity-0");
+		setTimeout(() => toast.classList.add("translate-y-24", "opacity-0"), 3000);
+	}
+
+	// Initial Load
+	fetchList('blogs');
+	// Refresh buttons
+	document.querySelectorAll('.refresh-btn').forEach(btn => {
+		btn.addEventListener('click', (e) => {
+			const type = e.currentTarget.dataset.type;
+			fetchList(type);
+		});
+	});
+
+</script>

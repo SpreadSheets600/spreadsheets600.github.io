@@ -1,0 +1,74 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const blogs = await getCollection('blogs');
+  return blogs.map((blog) => ({
+    params: { slug: blog.slug },
+    props: { blog },
+  }));
+}
+
+const { blog } = Astro.props;
+const { Content } = await blog.render();
+---
+
+<Layout title={blog.data.title}>
+  <article class="max-w-4xl mx-auto px-4 py-20">
+    <div class="mb-8">
+      <h1 class="text-5xl font-bold mb-4 gradient-text">{blog.data.title}</h1>
+      <p class="text-xl text-muted-foreground mb-4">{blog.data.description}</p>
+      <div class="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+        <time datetime={blog.data.date.toISOString()}>
+          {blog.data.date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </time>
+      </div>
+      {blog.data.tags && (
+        <div class="flex flex-wrap gap-2">
+          {blog.data.tags.map((tag) => (
+            <span class="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="prose prose-invert prose-lg max-w-none">
+      <Content />
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-border">
+      <a href="/blogs" class="text-primary hover:underline">← Back to all posts</a>
+    </div>
+  </article>
+</Layout>
+
+<style is:global>
+  .prose {
+    @apply text-foreground;
+  }
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    @apply text-foreground font-bold;
+  }
+  .prose a {
+    @apply text-primary hover:underline;
+  }
+  .prose code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm;
+  }
+  .prose pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto;
+  }
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic;
+  }
+</style>
