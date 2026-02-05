@@ -12,7 +12,7 @@ const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Projects', path: '/projects' },
   { name: 'Connect', path: '/connect' },
-  { name: 'Tools', path: '/tools' },
+  { name: 'Bookmarks', path: '/bookmarks' },
 ];
 ---
 
@@ -37,15 +37,6 @@ const navLinks = [
             </a>
           </li>
         ))}
-        <li>
-          <a
-            href="/terminal"
-            class:list={['nav-link terminal-link inline-flex items-center', { active: isActive('/terminal') }]}
-          >
-            <i class="ph ph-terminal mr-1 text-base"></i>
-            <span>Terminal</span>
-          </a>
-        </li>
       </ul>
 
       <!-- Mobile Menu Button -->

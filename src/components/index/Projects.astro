@@ -1,0 +1,80 @@
+---
+import ProjectCard from "../ProjectCard.astro";
+
+interface GitHubRepo {
+	name: string;
+	description: string | null;
+	html_url: string;
+	homepage: string | null;
+	language: string | null;
+	topics: string[];
+	stargazers_count: number;
+	forks_count: number;
+}
+
+const GITHUB_USERNAME = "SpreadSheets600";
+
+let projects: GitHubRepo[] = [];
+let error = false;
+
+try {
+	const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=6&type=owner`, {
+		headers: {
+			Accept: "application/vnd.github+json",
+			"User-Agent": "Astro-Portfolio",
+		},
+	});
+
+	if (response.ok) {
+		const data = await response.json();
+		projects = data
+			.filter((repo: any) => !repo.fork && !repo.archived)
+			.slice(0, 6)
+			.map((repo: any) => ({
+				name: repo.name,
+				description: repo.description,
+				html_url: repo.html_url,
+				homepage: repo.homepage,
+				language: repo.language,
+				topics: repo.topics || [],
+				stargazers_count: repo.stargazers_count,
+				forks_count: repo.forks_count,
+			}));
+	} else {
+		error = true;
+	}
+} catch (e) {
+	error = true;
+}
+---
+
+<section id="projects" class="scroll-mt-24 mt-8 sm:mt-12">
+	<div class="mb-8 flex items-center justify-between">
+		<div class="flex items-center gap-3">
+			<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+				<i class="ph-light ph-code text-2xl"></i>
+			</div>
+			<h2 class="text-2xl font-bold text-white">Featured Projects</h2>
+		</div>
+	</div>
+
+	{
+		error ? <div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0" />
+		: projects.length === 0 ?
+			<div class="rounded-2xl border border-white/10 bg-black/40 p-8 text-center backdrop-blur-xl">
+				<p class="text-white/60">No Projects Found</p>
+			</div>
+		:	<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{projects.map((project) => (
+					<ProjectCard project={project} />
+				))}
+			</div>
+	}
+
+	<div class="mt-6 flex justify-center">
+		<a href="/projects" class="btn-outline">
+			View All
+			<i class="ph ph-arrow-right"></i>
+		</a>
+	</div>
+</section>

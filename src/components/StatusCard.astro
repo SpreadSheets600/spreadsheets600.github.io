@@ -1,29 +1,29 @@
 ---
-import DiscordStatus from './status/DiscordStatus.astro';
-import SpotifyStatus from './status/SpotifyStatus.astro';
-import AniListStatus from './status/AniListStatus.astro';
-import SteamStatus from './status/SteamStatus.astro';
+import DiscordStatus from "./status/DiscordStatus.astro";
+import SpotifyStatus from "./status/SpotifyStatus.astro";
+import AniListStatus from "./status/AniListStatus.astro";
+import SteamStatus from "./status/SteamStatus.astro";
 
 interface Props {
-  title: string;
-  icon: string;
-  iconColor: string;
-  type: 'discord' | 'spotify' | 'anilist' | 'steam';
+	title: string;
+	icon: string;
+	iconColor: string;
+	type: "discord" | "spotify" | "anilist" | "steam";
 }
 
 const { title, icon, iconColor, type } = Astro.props;
 ---
 
-<div class="rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-6 backdrop-blur-xl">
-  <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-    <i class={`ph ${icon} ${iconColor} text-xl sm:text-2xl`}></i>
-    <h2 class="text-lg sm:text-xl font-semibold">{title}</h2>
-  </div>
+<div class="rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 py-3 px-4 sm:py-4 sm:px-6 backdrop-blur-xl">
+	<div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+		<i class={`ph ${icon} ${iconColor} text-xl sm:text-2xl`}></i>
+		<h2 class="text-lg sm:text-xl font-semibold">{title}</h2>
+	</div>
 
-  <div>
-    {type === 'discord' && <DiscordStatus />}
-    {type === 'spotify' && <SpotifyStatus />}
-    {type === 'anilist' && <AniListStatus />}
-    {type === 'steam' && <SteamStatus />}
-  </div>
+	<div>
+		{type === "discord" && <DiscordStatus />}
+		{type === "spotify" && <SpotifyStatus />}
+		{type === "anilist" && <AniListStatus />}
+		{type === "steam" && <SteamStatus />}
+	</div>
 </div>

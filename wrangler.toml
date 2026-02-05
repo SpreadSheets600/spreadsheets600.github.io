@@ -1,0 +1,11 @@
+name = "spreadsheets600-portfolio"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Add your environment variables here or in Cloudflare dashboard
+
+# Required for session support (optional - remove if not using sessions)
+# [[kv_namespaces]]
+# binding = "SESSION"
+# id = "your-kv-namespace-id"

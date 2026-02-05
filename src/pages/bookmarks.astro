@@ -1,77 +1,243 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import Layout from "../layouts/Layout.astro";
+import ToolCard from "../components/ToolCard.astro";
+import { getCollection } from "astro:content";
 
-const bookmarks = await getCollection('bookmarks');
-const sortedBookmarks = bookmarks.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const sections = (await getCollection("bookmarks"))
+	.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0))
+	.map((entry) => ({
+		id: entry.slug,
+		...entry.data,
+	}));
 
-// Group by category
-const categories = [...new Set(bookmarks.map((b) => b.data.category))];
+const totalItems = sections.reduce((sum, section) => sum + section.items.length, 0);
+const totalCategories = sections.length;
+const openSourceCount = sections.reduce(
+	(sum, section) =>
+		sum +
+		section.items.filter((item) =>
+			(item.links ?? []).some((link) => link.label.toLowerCase().includes("github")),
+		).length,
+	0,
+);
+const liveSitesCount = sections.reduce(
+	(sum, section) =>
+		sum +
+		section.items.filter((item) =>
+			(item.links ?? []).some((link) => link.label.toLowerCase().includes("visit")),
+		).length,
+	0,
+);
 ---
 
-<Layout title="Bookmarks - Soham Maity">
-  <section class="max-w-7xl mx-auto px-4 py-20">
-    <h1 class="text-5xl font-bold mb-4 text-center gradient-text">Bookmarks</h1>
-    <p class="text-center text-muted-foreground mb-16">Useful resources I've collected</p>
+<Layout title="Bookmarks | SpreadSheets600">
+	<main class="py-8 sm:py-16 flex-1">
+		<header class="mb-8 sm:mb-12">
+			<div class="hero-shell">
+				<div class="hero-decoration"></div>
+				<div class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+					<div class="max-w-2xl">
+						<div class="flex items-center gap-3 mb-4">
+							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+								<i class="ph ph-bookmark-simple text-2xl"></i>
+							</div>
+							<p class="text-xs uppercase tracking-[0.35em] text-white/60">Bookmarks</p>
+						</div>
+						<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
+							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">Prompts, Tools, Resources</span>
+						</h1>
+						<p class="mt-3 text-sm sm:text-base text-white/75">
+							A curated index of prompts, resources, and automation projects I keep shipping.
+						</p>
+					</div>
 
-    {categories.map((category) => {
-      const categoryBookmarks = sortedBookmarks.filter((b) => b.data.category === category);
-      return (
-        <div class="mb-12">
-          <h2 class="text-3xl font-bold mb-6">{category}</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categoryBookmarks.map((bookmark) => (
-              <a
-                href={bookmark.data.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="bookmark-card group"
-              >
-                <div class="flex items-start justify-between mb-3">
-                  <h3 class="text-xl font-semibold group-hover:text-primary transition-colors flex-1">
-                    {bookmark.data.title}
-                  </h3>
-                  <svg
-                    class="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 ml-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                </div>
-                <p class="text-sm text-muted-foreground mb-3">{bookmark.data.description}</p>
-                {bookmark.data.tags && (
-                  <div class="flex flex-wrap gap-2">
-                    {bookmark.data.tags.map((tag) => (
-                      <span class="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </a>
-            ))}
-          </div>
-        </div>
-      );
-    })}
+					<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+						<div class="stat-card">
+							<p class="text-xs uppercase tracking-wide text-white/50">Items</p>
+							<p class="text-lg font-semibold text-white">{totalItems}</p>
+						</div>
+						<div class="stat-card">
+							<p class="text-xs uppercase tracking-wide text-white/50">Categories</p>
+							<p class="text-lg font-semibold text-white">{totalCategories}</p>
+						</div>
+						<div class="stat-card">
+							<p class="text-xs uppercase tracking-wide text-white/50">Open Source</p>
+							<p class="text-lg font-semibold text-white">{openSourceCount}</p>
+						</div>
+						<div class="stat-card">
+							<p class="text-xs uppercase tracking-wide text-white/50">Live Demos</p>
+							<p class="text-lg font-semibold text-white">{liveSitesCount}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
 
-    {sortedBookmarks.length === 0 && (
-      <div class="text-center text-muted-foreground py-20">
-        <p>No bookmarks yet. Check back soon!</p>
-      </div>
-    )}
-  </section>
+		<nav class="mb-10">
+			<div class="toc-shell">
+				<p class="text-xs uppercase tracking-[0.3em] text-white/60 mb-4">Jump To</p>
+				<div class="flex flex-wrap gap-2">
+					{sections.map((section) => (
+						<a
+							href={`#${section.id}`}
+							class="toc-chip"
+							style={`--accent:${section.accent}; --accent-soft:${section.accentSoft};`}
+						>
+							<i class={`ph ${section.icon}`}></i>
+							{section.title}
+						</a>
+					))}
+				</div>
+			</div>
+		</nav>
+
+		{sections.map((section) => (
+			<section id={section.id} class="scroll-mt-24 mb-12 sm:mb-16">
+				<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6">
+					<div class="flex items-start gap-4">
+						<div
+							class="section-icon"
+							style={`--accent:${section.accent}; --accent-soft:${section.accentSoft}; --accent-faint:${section.accentFaint};`}
+						>
+							<i class={`ph ${section.icon} text-2xl`}></i>
+						</div>
+						<div>
+							<h2 class="text-2xl font-bold text-white">{section.title}</h2>
+							<p class="text-sm text-white/60">{section.description}</p>
+						</div>
+					</div>
+					<span
+						class="section-count"
+						style={`--accent:${section.accent}; --accent-soft:${section.accentSoft}; --accent-faint:${section.accentFaint};`}
+					>
+						{section.items.length} items
+					</span>
+				</div>
+
+				<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{section.items.map((item) => (
+						<ToolCard
+							tool={item}
+							accent={section.accent}
+							accentSoft={section.accentSoft}
+							accentFaint={section.accentFaint}
+						/>
+					))}
+				</div>
+			</section>
+		))}
+	</main>
 </Layout>
 
+<script>
+	const copyButtons = Array.from(document.querySelectorAll("[data-copy-prompt]"));
+
+	copyButtons.forEach((button) => {
+		button.addEventListener("click", async () => {
+			const prompt = button.getAttribute("data-copy-prompt") || "";
+			if (!prompt) return;
+			try {
+				await navigator.clipboard.writeText(prompt);
+				button.textContent = "Copied";
+				setTimeout(() => (button.textContent = "Copy Prompt"), 1400);
+			} catch (error) {
+				button.textContent = "Copy failed";
+				setTimeout(() => (button.textContent = "Copy Prompt"), 1400);
+			}
+		});
+	});
+</script>
+
 <style>
-  .bookmark-card {
-    @apply bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 block;
-  }
+	.hero-shell {
+		position: relative;
+		overflow: hidden;
+		border-radius: 28px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(0, 0, 0, 0.45);
+		padding: 24px;
+		backdrop-filter: blur(18px);
+	}
+
+	.hero-decoration {
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(400px 200px at 15% 0%, rgba(255, 255, 255, 0.08), transparent 70%),
+			radial-gradient(320px 180px at 90% 10%, rgba(96, 165, 250, 0.12), transparent 70%),
+			linear-gradient(130deg, rgba(255, 255, 255, 0.04), transparent 50%);
+		pointer-events: none;
+	}
+
+	.stat-card {
+		border-radius: 16px;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: rgba(0, 0, 0, 0.4);
+		padding: 12px 14px;
+		backdrop-filter: blur(12px);
+	}
+
+	.toc-shell {
+		border-radius: 22px;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: rgba(0, 0, 0, 0.35);
+		padding: 18px 20px;
+		backdrop-filter: blur(16px);
+	}
+
+	.toc-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		border-radius: 999px;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		padding: 8px 14px;
+		font-size: 12px;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.75);
+		transition: transform 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+	}
+
+	.toc-chip i {
+		color: var(--accent);
+	}
+
+	.toc-chip:hover {
+		transform: translateY(-1px);
+		border-color: var(--accent-soft);
+		color: #fff;
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.section-icon {
+		width: 48px;
+		height: 48px;
+		border-radius: 16px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(140deg, var(--accent-faint), rgba(255, 255, 255, 0.02));
+		border: 1px solid var(--accent-soft);
+		color: var(--accent);
+	}
+
+	.section-count {
+		border-radius: 999px;
+		border: 1px solid var(--accent-soft);
+		background: linear-gradient(135deg, var(--accent-faint), rgba(255, 255, 255, 0.04));
+		color: #fff;
+		font-size: 12px;
+		font-weight: 600;
+		padding: 6px 14px;
+	}
+
+	@media (min-width: 640px) {
+		.hero-shell {
+			padding: 32px;
+		}
+
+		.toc-shell {
+			padding: 22px 24px;
+		}
+	}
 </style>

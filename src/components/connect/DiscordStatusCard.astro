@@ -1,0 +1,169 @@
+---
+import discordStatusLoader from "../../lib/status/discord-loader.js?url";
+export let userId = "727012870683885578";
+---
+
+<div
+    id="discord-status-container"
+    data-user-id={userId}
+    class="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-6 backdrop-blur-xl"
+>
+    <div
+        class="pointer-events-none absolute -top-24 -right-16 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl"
+    >
+    </div>
+    <div
+        class="pointer-events-none absolute -bottom-24 -left-10 h-48 w-48 rounded-full bg-indigo-500/10 blur-3xl"
+    >
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+        <div class="flex items-center gap-3">
+            <div
+                class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white"
+            >
+                <i class="ph ph-discord-logo text-2xl"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-white">
+                    Discord Presence
+                </h3>
+                <p class="text-xs text-white/60">Live via Lanyard WebSocket</p>
+            </div>
+        </div>
+        <span
+            id="discord-status-pill"
+            class="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-white/70"
+        >
+            Offline
+        </span>
+    </div>
+
+    <!-- Loading State -->
+    <div
+        id="discord-loading"
+        class="flex items-center justify-center space-x-3 py-10 bg-black/30 rounded-2xl border border-white/10"
+    >
+        <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"
+        >
+        </div>
+        <span class="text-white/80 text-sm sm:text-base"
+            >Connecting to Discord...</span
+        >
+    </div>
+
+    <!-- Error State -->
+    <div
+        id="discord-error"
+        class="hidden text-center py-10 bg-black/30 rounded-2xl border border-white/10"
+    >
+        <div
+            class="text-red-400 flex flex-col items-center justify-center space-y-3"
+        >
+            <i class="ph ph-warning-circle text-4xl"></i>
+            <span class="text-lg font-semibold">Discord unavailable</span>
+            <p class="text-white/60 text-sm">
+                Could not connect to Lanyard API.
+            </p>
+        </div>
+        <button
+            id="discord-retry-btn"
+            class="mt-5 text-blue-300 hover:text-blue-200 text-sm underline transition-colors"
+            >Try again</button
+        >
+    </div>
+
+    <!-- Content State -->
+    <div id="discord-content" class="hidden space-y-5">
+        <div class="rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5">
+            <div class="flex items-center gap-4">
+                <div class="relative flex-shrink-0">
+                    <div class="relative w-16 h-16 sm:w-20 sm:h-20">
+                        <img
+                            id="discord-avatar-decoration"
+                            class="absolute inset-0 w-full h-full pointer-events-none z-10 scale-[1.25] hidden"
+                            alt="Avatar decoration"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                        <img
+                            id="discord-avatar"
+                            class="absolute inset-0 w-full h-full rounded-full object-cover"
+                            alt="Discord avatar"
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    </div>
+                    <div
+                        id="discord-status-indicator"
+                        class="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-4 border-black z-30"
+                        aria-hidden="true"
+                    >
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0 space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3
+                            id="discord-name"
+                            class="text-white font-bold text-xl sm:text-2xl truncate"
+                        >
+                        </h3>
+                        <div
+                            id="discord-clan-tag"
+                            class="hidden flex items-center space-x-1 bg-purple-600/40 text-white text-xs px-2 py-1 rounded-full border border-purple-500/60"
+                        >
+                            <img
+                                id="discord-clan-badge"
+                                class="w-4 h-4 hidden"
+                                alt="Clan badge"
+                            />
+                            <span id="discord-clan-text"></span>
+                        </div>
+                        <div
+                            id="discord-badges"
+                            class="flex items-center gap-2 flex-wrap"
+                        >
+                        </div>
+                    </div>
+                    <p
+                        id="discord-username"
+                        class="text-white/60 text-sm sm:text-base truncate"
+                    >
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="discord-custom-status"
+            class="hidden bg-black/30 rounded-xl p-3 border border-white/10 text-center"
+        >
+            <p
+                class="text-white/80 text-sm flex items-center justify-center gap-2"
+            >
+                <img
+                    id="discord-custom-emoji-img"
+                    class="w-5 h-5 hidden"
+                    alt="Status emoji"
+                    loading="lazy"
+                    decoding="async"
+                />
+                <span id="discord-custom-emoji" class="text-lg hidden"></span>
+                <span id="discord-custom-text" class="truncate"></span>
+            </p>
+        </div>
+
+        <div id="discord-activities-list" class="space-y-3">
+            <!-- Filled by JS -->
+        </div>
+
+        <div
+            id="discord-no-activity"
+            class="hidden text-white/60 text-sm bg-black/30 border border-white/10 rounded-xl p-4 text-center"
+        >
+            No active sessions.
+        </div>
+    </div>
+</div>
+
+<script type="module" src={discordStatusLoader}></script>

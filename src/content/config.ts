@@ -1,51 +1,49 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, z } from "astro:content";
 
-const blogs = defineCollection({
-  type: 'content',
+const blog = defineCollection({
+  type: "content",
   schema: z.object({
     title: z.string(),
     description: z.string(),
     date: z.date(),
     tags: z.array(z.string()).optional(),
-    draft: z.boolean().optional(),
+    heroImage: z.string().optional(),
+    author: z.string().optional(),
+    authorRole: z.string().optional(),
+    draft: z.boolean().optional().default(false),
   }),
 });
 
 const bookmarks = defineCollection({
-  type: 'content',
-  schema: z.object({
-    title: z.string(),
-    url: z.string().url(),
-    description: z.string(),
-    category: z.string(),
-    tags: z.array(z.string()).optional(),
-    date: z.date(),
-  }),
-});
-
-const prompts = defineCollection({
-  type: 'content',
+  type: "data",
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    category: z.string(),
-    tags: z.array(z.string()).optional(),
-    date: z.date(),
+    icon: z.string(),
+    accent: z.string(),
+    accentSoft: z.string(),
+    accentFaint: z.string(),
+    order: z.number().optional().default(0),
+    items: z.array(
+      z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        icon: z.string(),
+        text: z.string().optional(),
+        prompt: z.string().optional(),
+        note: z.string().optional(),
+        links: z
+          .array(
+            z.object({
+              label: z.string(),
+              url: z.string(),
+              primary: z.boolean().optional().default(false),
+            }),
+          )
+          .optional(),
+      }),
+    ),
   }),
 });
 
-const projects = defineCollection({
-  type: 'content',
-  schema: z.object({
-    title: z.string(), // Maps to 'name'
-    websiteUrl: z.string().url().nullable().optional(),
-    githubUrl: z.string().url(),
-    description: z.string(),
-    tech: z.array(z.string()),
-    status: z.enum(['Live', 'Published', 'Active', 'Beta', 'Archived']),
-    featured: z.boolean().default(false),
-    date: z.date().default(() => new Date()), // Added for sorting if needed
-  }),
-});
-
-export const collections = { blogs, bookmarks, prompts, projects };
+export const collections = { blog, bookmarks };

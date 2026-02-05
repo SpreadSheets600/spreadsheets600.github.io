@@ -1,17 +1,24 @@
 {
-  "name": "galactic-group",
+  "name": "spreadsheets600-portfolio",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler pages deploy dist",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/vercel": "^9.0.3",
-    "@auth/core": "^0.37.4",
-    "astro": "^5.16.9",
-    "auth-astro": "^4.2.0"
+    "@astrojs/cloudflare": "^12.6.12",
+    "@astrojs/mdx": "^4.0.6",
+    "astro": "^5.17.1",
+    "gray-matter": "^4.0.3",
+    "marked": "^17.0.1",
+    "phosphor-astro": "^2.1.0",
+    "phosphor-icons-astro": "^2.1.1-17042025"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9"
   }
 }

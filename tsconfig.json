@@ -9,6 +9,8 @@
   ],
   "compilerOptions": {
     "moduleResolution": "NodeNext",
-    "module": "NodeNext"
+    "module": "NodeNext",
+    "types": ["node"],
+    "allowImportingTsExtensions": true
   }
 }

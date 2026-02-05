@@ -1,236 +1,170 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { getCollection } from "astro:content";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getLanguageColor, DEFAULT_LANGUAGE_COLOR } from "../lib/languageColors.js";
 
-const projects = await getCollection("projects");
-const pinnedProjects = projects
-	.filter((project) => project.data.featured)
-	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+interface GitHubRepo {
+	name: string;
+	description: string | null;
 
-const repoSkeletons = Array(6).fill(0);
+	html_url: string;
+	homepage: string | null;
+	language: string | null;
 
-function getStatusStyle(status: string) {
-	const styles: Record<string, string> = {
-		Live: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-		Published: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-		Active: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-		Beta: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-	};
-	return styles[status] || "bg-white/10 text-white/60 border-white/10";
+	topics: string[];
+
+	stargazers_count: number;
+	forks_count: number;
+	updated_at: string;
 }
+
+const GITHUB_USERNAME = "SpreadSheets600";
+
+let allProjects: GitHubRepo[] = [];
+let error = false;
+
+try {
+	const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100&type=owner`, {
+		headers: {
+			Accept: "application/vnd.github+json",
+			"User-Agent": "Astro-Portfolio",
+		},
+	});
+
+	if (response.ok) {
+		const data = await response.json();
+		allProjects = data
+			.filter((repo: any) => !repo.fork && !repo.archived)
+			.map((repo: any) => ({
+				name: repo.name,
+				description: repo.description,
+				html_url: repo.html_url,
+				homepage: repo.homepage,
+				language: repo.language,
+				topics: repo.topics || [],
+				stargazers_count: repo.stargazers_count,
+				forks_count: repo.forks_count,
+				updated_at: repo.updated_at,
+			}));
+	} else {
+		error = true;
+	}
+} catch (e) {
+	error = true;
+}
+
+const totalStars = allProjects.reduce((sum, project) => sum + (project.stargazers_count || 0), 0);
+
+const languageCounts = allProjects.reduce(
+	(acc, project) => {
+		if (!project.language) return acc;
+		acc[project.language] = (acc[project.language] || 0) + 1;
+		return acc;
+	},
+	{} as Record<string, number>,
+);
+
+const totalLangCount = Object.values(languageCounts).reduce((sum, count) => sum + count, 0);
+const sortedLanguageStats = Object.entries(languageCounts)
+	.map(([language, count]) => ({
+		language,
+		count,
+		percent: totalLangCount ? (count / totalLangCount) * 100 : 0,
+	}))
+	.sort((a, b) => b.count - a.count);
+
+const topLanguageStats = sortedLanguageStats.slice(0, 5).map((stat) => ({
+	...stat,
+	color: getLanguageColor(stat.language),
+}));
+
+const topLanguageTotal = topLanguageStats.reduce((sum, stat) => sum + stat.count, 0);
+const otherCount = totalLangCount - topLanguageTotal;
+
+const languageSegments =
+	otherCount > 0 ?
+		[
+			...topLanguageStats,
+			{
+				language: "Other",
+				count: otherCount,
+				percent: totalLangCount ? (otherCount / totalLangCount) * 100 : 0,
+				color: DEFAULT_LANGUAGE_COLOR,
+			},
+		]
+	:	topLanguageStats;
 ---
 
 <Layout title="Projects | SpreadSheets600">
-	<section id="projects" class="scroll-mt-24 mt-8 sm:mt-12 space-y-12">
-		<div>
-			<div class="mb-8 flex items-center gap-3">
-				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
-					<i class="ph-push-pin text-2xl text-yellow-400"></i>
-				</div>
-				<h2 class="text-2xl font-bold text-white">Featured Work</h2>
-			</div>
+	<main class="py-8 sm:py-16 flex-1">
+		<header class="mb-8 sm:mb-12">
+			<div class="rounded-3xl border border-white/10 bg-black/40 p-6 sm:p-8 backdrop-blur-xl">
+				<div class="flex flex-col gap-6">
+					<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+						<div class="max-w-2xl">
+							<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
+								<span class="bg-linear-to-b from-white to-white/70 bg-clip-text text-transparent"> My Projects </span>
+							</h1>
+						</div>
 
-			<div id="pinned-projects-list" class="grid gap-4 sm:gap-6 lg:grid-cols-2">
-				{
-					pinnedProjects.map((project) => (
-						<article class="flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 h-full min-h-[220px]">
-							<header class="border-b border-white/5 px-5 py-3 flex items-center justify-between">
-								<div class="flex items-center gap-2">
-									<h3 class="text-sm font-semibold text-white/90 tracking-wide">{project.data.title}</h3>
-									<i class="ph-fill ph-star text-yellow-400 text-xs" />
+						<div class="grid grid-cols-2 gap-3 w-full lg:w-auto">
+							<div class="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md">
+								<p class="text-xs uppercase tracking-wide text-white/50">Repositories</p>
+								<p class="text-lg font-semibold text-white">
+									{allProjects.length}
+								</p>
+							</div>
+							<div class="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md">
+								<p class="text-xs uppercase tracking-wide text-white/50">Total Stars</p>
+								<p class="text-lg font-semibold text-white">
+									{totalStars}
+								</p>
+							</div>
+						</div>
+					</div>
+
+					{
+						totalLangCount === 0 ?
+							<p class="text-sm text-white/50">No language data yet.</p>
+						:	<div class="rounded-2xl">
+								<div class="relative flex h-4 overflow-hidden rounded-full border border-white/10 bg-white/5">
+									{languageSegments.map((segment) => (
+										<div class="h-full" style={`flex: 0 0 ${segment.percent.toFixed(2)}%; background: ${segment.color}; min-width: 2px;`} title={`${segment.language} · ${Math.round(segment.percent)}%`} />
+									))}
+									<div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10" />
 								</div>
-								<span class={`px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusStyle(project.data.status)}`}>{project.data.status}</span>
-							</header>
 
-							<section class="flex-1 p-5 flex flex-col gap-4">
-								<div class="flex flex-wrap gap-1.5">
-									{project.data.tech.map((t) => (
-										<span class="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-[10px] text-white/60">{t}</span>
+								<div class="mt-4 flex flex-wrap gap-2">
+									{languageSegments.map((segment) => (
+										<div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-white/70">
+											<span class="h-2 w-2 rounded-full" style={`background: ${segment.color};`} />
+											<span class="font-semibold text-white">{segment.language}</span>
+											<span>{Math.round(segment.percent)}%</span>
+										</div>
 									))}
 								</div>
-								<p class="text-xs text-white/60 leading-relaxed line-clamp-3">{project.data.description}</p>
-							</section>
-
-							<footer class="p-5 pt-0 flex gap-2">
-								<a href={project.data.githubUrl} target="_blank" class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/5 py-2 text-xs font-medium text-white transition-all hover:bg-white/10 hover:border-white/20">
-									<i class="ph-github-logo text-sm" /> Code
-								</a>
-								{project.data.websiteUrl && (
-									<a href={project.data.websiteUrl} target="_blank" class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-white text-black py-2 text-xs font-bold transition-all hover:bg-white/90">
-										<i class="ph-arrow-square-out text-sm" /> Live
-									</a>
-								)}
-							</footer>
-						</article>
-					))
-				}
-			</div>
-		</div>
-
-		<div>
-			<div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div class="flex items-center gap-3">
-					<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
-						<i class="ph-folder-notch text-2xl text-blue-400"></i>
-					</div>
-					<h2 class="text-2xl font-bold text-white">All Repositories</h2>
+							</div>
+					}
 				</div>
-
-				<a href="https://github.com/SpreadSheets600?tab=repositories" target="_blank" class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 hover:border-white/20">
-					<span>View on GitHub</span>
-					<i class="ph-arrow-right"></i>
-				</a>
 			</div>
+		</header>
 
-			<div id="all-repos-list" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{
-					repoSkeletons.map(() => (
-						<article class="flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md h-[180px]">
-							<header class="border-b border-white/5 px-5 py-3 flex justify-between items-center">
-								<div class="h-4 w-24 animate-pulse rounded bg-white/10" />
-							</header>
-							<section class="flex-1 p-5">
-								<div class="h-3 w-full animate-pulse rounded bg-white/5 mb-2" />
-								<div class="h-3 w-2/3 animate-pulse rounded bg-white/5" />
-							</section>
-						</article>
-					))
-				}
-			</div>
-		</div>
-	</section>
+		{
+			error ?
+				<div class="rounded-2xl border border-white/10 bg-black/40 p-8 text-center backdrop-blur-xl">
+					<i class="ph ph-warning text-4xl text-white/40 mb-4" />
+					<p class="text-white/60">Unable to load projects from GitHub. Please try again later.</p>
+				</div>
+			: allProjects.length === 0 ?
+				<div class="rounded-2xl border border-white/10 bg-black/40 p-8 text-center backdrop-blur-xl">
+					<i class="ph ph-folder-open text-4xl text-white/40 mb-4" />
+					<p class="text-white/60">No projects found.</p>
+				</div>
+			:	<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{allProjects.map((project) => (
+						<ProjectCard project={project} />
+					))}
+				</div>
+		}
+	</main>
 </Layout>
-<script>
-	const CONFIG = {
-		username: "SpreadSheets600",
-		cacheKey: "github_repositories",
-		cacheExpiry: 6 * 60 * 60 * 1000, // 6 Hours
-		blacklist: ["spreadsheets600", "uptime-monitor", "status-page", "dashboard-designs"],
-	};
-
-	function getLangColor(lang: string) {
-		const colors: Record<string, string> = {
-			JavaScript: "#f1e05a",
-			TypeScript: "#2b7489",
-			Python: "#3572A5",
-			Java: "#b07219",
-			HTML: "#e34c26",
-			CSS: "#563d7c",
-			Vue: "#4FC08D",
-			React: "#61dafb",
-			Go: "#00ADD8",
-			Rust: "#dea584",
-			PHP: "#4F5D95",
-			C: "#555555",
-			"C++": "#f34b7d",
-		};
-		return colors[lang] || "#8b949e";
-	}
-
-	function renderRepos(repos: any[]) {
-		const container = document.getElementById("all-repos-list");
-		if (!container) return;
-
-		container.innerHTML = repos
-			.map(
-				(repo) => `
-      <article class="group flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-primary/5">
-
-        <header class="border-b border-white/5 px-5 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-2 min-w-0">
-            <i class="ph-folder text-blue-400/80"></i>
-            <h3 class="text-sm font-semibold text-white/90 truncate">${repo.name}</h3>
-          </div>
-          ${
-				repo.language
-					? `
-            <div class="flex items-center gap-1.5">
-              <span class="h-2 w-2 rounded-full" style="background-color: ${getLangColor(repo.language)}"></span>
-              <span class="text-[10px] text-white/40">${repo.language}</span>
-            </div>
-          `
-					: ""
-			}
-        </header>
-
-        <section class="flex-1 p-5 flex flex-col justify-between gap-4">
-          <p class="text-xs text-white/50 leading-relaxed line-clamp-3">
-            ${repo.description || "No description available."}
-          </p>
-
-          <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-auto">
-             <div class="flex gap-3 text-[10px] text-white/40">
-               ${repo.stargazers_count > 0 ? `<span class="flex items-center gap-1"><i class="ph-star"></i> ${repo.stargazers_count}</span>` : ""}
-               ${repo.forks_count > 0 ? `<span class="flex items-center gap-1"><i class="ph-git-fork"></i> ${repo.forks_count}</span>` : ""}
-             </div>
-
-             <a href="${repo.html_url}" target="_blank" class="text-xs text-white/80 hover:text-white flex items-center gap-1 transition-colors">
-               View <i class="ph-arrow-right"></i>
-             </a>
-          </div>
-        </section>
-
-      </article>
-    `
-			)
-			.join("");
-	}
-
-	// --- MAIN FETCH LOGIC ---
-	async function initProjects() {
-		// Note: Pinned projects are now server-rendered via Astro Content Collections.
-        // We only fetch "All Repositories" on the client.
-
-		// 2. Check Cache for Repos
-		const cached = localStorage.getItem(CONFIG.cacheKey);
-		if (cached) {
-			const { data, timestamp } = JSON.parse(cached);
-			if (Date.now() - timestamp < CONFIG.cacheExpiry) {
-				renderRepos(data);
-				return;
-			}
-		}
-
-		// 3. Fetch if no cache
-		try {
-			const headers = { Accept: "application/vnd.github+json" };
-			const [userRepos, orgs] = await Promise.all([fetch(`https://api.github.com/users/${CONFIG.username}/repos?sort=updated&per_page=50`, { headers }).then((r) => r.json()), fetch(`https://api.github.com/users/${CONFIG.username}/orgs`, { headers }).then((r) => r.json())]);
-
-			if (!Array.isArray(userRepos)) throw new Error("API Limit or Error");
-
-			let allRepos = [...userRepos];
-
-			// Optional: Fetch Org Repos if needed
-			// (Simplified to avoid too many requests on client load, uncomment if critical)
-			/* if (Array.isArray(orgs)) {
-         for (const org of orgs) {
-           const orgR = await fetch(`https://api.github.com/orgs/${org.login}/repos`, { headers }).then(r=>r.json());
-           if(Array.isArray(orgR)) allRepos.push(...orgR);
-         }
-      }
-      */
-
-			const filtered = allRepos
-				.filter((r) => !r.private && !r.archived && !CONFIG.blacklist.includes(r.name.toLowerCase()))
-				.sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-				.slice(0, 9); // Limit to 9 cards
-
-			localStorage.setItem(CONFIG.cacheKey, JSON.stringify({ data: filtered, timestamp: Date.now() }));
-			renderRepos(filtered);
-		} catch (e) {
-			console.warn("GitHub Fetch failed", e);
-			// Optional: Render an error state in the repos container
-			const container = document.getElementById("all-repos-list");
-            if (container) {
-                container.innerHTML = `
-                    <div class="col-span-full py-8 text-center text-sm text-white/40">
-                    Failed to load repositories. <a href="https://github.com/SpreadSheets600" class="underline hover:text-white">View on GitHub</a>
-                    </div>
-                `;
-            }
-		}
-	}
-
-	// Run
-	initProjects();
-</script>

@@ -1,0 +1,35 @@
+title: Programming Resources
+description: Templates, code references, and practical program sets.
+icon: ph-code
+accent: "#fbbf24"
+accentSoft: "rgba(251, 191, 36, 0.35)"
+accentFaint: "rgba(251, 191, 36, 0.12)"
+order: 4
+items:
+  - title: Pterodactyl Multiprocess Template
+    description: Drop-in template turning one server into a tiny process host.
+    icon: ph-cpu
+    links:
+      - label: GitHub
+        url: https://github.com/SpreadSheets600/Pterodactyl-Multiprocess-Template
+        primary: true
+  - title: Python Programs
+    description: Python practical program list for learning.
+    icon: ph-file-py
+    links:
+      - label: GitHub
+        url: https://github.com/SpreadSheets600/Python-Programs
+        primary: true
+      - label: Visit Site
+        url: https://spreadsheets600.is-a.dev/Python-Programs/
+        primary: false
+  - title: C DSA Programs
+    description: C program list for data structures and algorithms.
+    icon: ph-file-c
+    links:
+      - label: GitHub
+        url: https://github.com/SpreadSheets600/C-DSA-Programs
+        primary: true
+      - label: Visit Site
+        url: https://spreadsheets600.is-a.dev/C-DSA-Programs
+        primary: false

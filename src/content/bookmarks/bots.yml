@@ -1,0 +1,26 @@
+title: Bots & Automation
+description: Discord utilities, automation workflows, and release tracking.
+icon: ph-robot
+accent: "#a78bfa"
+accentSoft: "rgba(167, 139, 250, 0.35)"
+accentFaint: "rgba(167, 139, 250, 0.12)"
+order: 2
+items:
+  - title: Dependency Tracker
+    description: Tracks dependency releases and posts curated changelog links.
+    icon: ph-git-branch
+    links:
+      - label: GitHub
+        url: https://github.com/NovatraX/dependency-tracker
+        primary: true
+  - title: Astrum V2
+    description: Multipurpose Discord bot built with py-cord.
+    icon: ph-discord-logo
+    links:
+      - label: GitHub
+        url: https://github.com/Sheets-Astrum-BOT/Astrum-V2
+        primary: true
+  - title: FreeGames Bot
+    description: Discord bot for GamerPower giveaways with slash commands.
+    icon: ph-game-controller
+    note: Private repo

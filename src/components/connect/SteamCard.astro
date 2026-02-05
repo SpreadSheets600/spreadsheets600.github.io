@@ -1,0 +1,96 @@
+---
+import steamStatusLoader from "../../lib/status/steam-loader.js?url";
+
+interface Props {
+  steamId?: string;
+  vanity?: string;
+}
+
+const { steamId, vanity } = Astro.props;
+---
+
+<div
+	id="steam-status-container"
+	data-steam-id={steamId}
+	data-vanity={vanity}
+	class="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-6 backdrop-blur-xl"
+>
+	<div class="pointer-events-none absolute -top-24 -left-10 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl"></div>
+	<div class="pointer-events-none absolute -bottom-28 -right-8 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl"></div>
+	<div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+		<div class="flex items-center gap-3">
+			<div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white">
+				<i class="ph ph-steam-logo text-2xl"></i>
+			</div>
+			<div>
+				<h3 class="text-lg font-semibold text-white">Steam Status</h3>
+				<p class="text-xs text-white/60">Powered by Steam Web API</p>
+			</div>
+		</div>
+		<a id="steam-profile-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-outline hidden">
+			View Profile <i class="ph ph-arrow-square-out"></i>
+		</a>
+	</div>
+
+	<div id="steam-loading" class="flex items-center justify-center space-x-3 py-10 bg-black/30 rounded-2xl border border-white/10">
+		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+		<span class="text-white/80 text-sm sm:text-base">Connecting to Steam...</span>
+	</div>
+
+	<div id="steam-error" class="hidden text-center py-10 bg-black/30 rounded-2xl border border-white/10">
+		<div class="text-red-400 flex flex-col items-center justify-center space-y-3">
+			<i class="ph ph-warning-circle text-4xl"></i>
+			<span class="text-lg font-semibold">Steam unavailable</span>
+			<p id="steam-error-message" class="text-white/60 text-sm">Missing Steam API configuration.</p>
+		</div>
+		<button id="steam-retry-btn" class="mt-5 text-blue-300 hover:text-blue-200 text-sm underline transition-colors">Try again</button>
+	</div>
+
+	<div id="steam-content" class="hidden space-y-5">
+		<div class="rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5">
+			<div class="flex items-center gap-4">
+				<div class="relative flex-shrink-0">
+					<img id="steam-avatar" src="" alt="Steam avatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border border-white/20" />
+					<span id="steam-status-indicator" class="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full border-4 border-black"></span>
+				</div>
+				<div class="flex-1 min-w-0">
+					<p id="steam-name" class="text-white font-bold text-lg sm:text-xl truncate"></p>
+					<div class="flex flex-wrap items-center gap-2 text-xs text-white/60">
+						<span id="steam-status-pill" class="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-white/70">
+							Offline
+						</span>
+						<span id="steam-last-seen"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="steam-currently-playing" class="hidden bg-black/30 rounded-2xl border border-white/10 p-4 flex items-center gap-4">
+			<img id="steam-currently-image" class="w-16 h-10 sm:w-20 sm:h-12 rounded-lg object-cover" alt="Currently playing" />
+			<div class="flex-1 min-w-0">
+				<p class="text-xs uppercase tracking-[0.3em] text-white/50">Now Playing</p>
+				<p id="steam-currently-name" class="text-white font-semibold truncate"></p>
+			</div>
+			<span class="rounded-full bg-green-500/20 text-green-200 text-xs px-2.5 py-1 border border-green-500/40">Live</span>
+		</div>
+
+		<div class="grid grid-cols-2 gap-3">
+			<div class="rounded-2xl border border-white/10 bg-black/30 p-3 text-center">
+				<p id="steam-total-games" class="text-lg font-semibold text-white">0</p>
+				<p class="text-xs uppercase tracking-wide text-white/50">Games Owned</p>
+			</div>
+			<div class="rounded-2xl border border-white/10 bg-black/30 p-3 text-center">
+				<p id="steam-total-hours" class="text-lg font-semibold text-white">0</p>
+				<p class="text-xs uppercase tracking-wide text-white/50">Hours Played</p>
+			</div>
+		</div>
+
+		<div>
+			<p class="text-sm font-semibold text-white mb-3">Recent Sessions</p>
+			<div id="steam-recent-list" class="space-y-3"></div>
+			<div id="steam-no-activity" class="hidden text-white/60 text-sm bg-black/30 border border-white/10 rounded-lg p-4 text-center">No recent activity.</div>
+		</div>
+	</div>
+</div>
+
+<script type="module" src={steamStatusLoader}></script>

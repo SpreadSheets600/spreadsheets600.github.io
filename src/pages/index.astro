@@ -1,38 +1,43 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-import Hero from "../components/Hero.astro";
-import About from "../components/About.astro";
+import Hero from "../components/index/Hero.astro";
+import About from "../components/index/About.astro";
 
-import Skills from "../components/Skills.astro";
-import GitHub from "../components/GitHub.astro";
-import WakaTime from "../components/WakaTime.astro";
+import Skills from "../components/index/Skills.astro";
+import Projects from "../components/index/Projects.astro";
+import GitHub from "../components/index/GitHub.astro";
+import WakaTime from "../components/index/WakaTime.astro";
 
-import Contact from "../components/Contact.astro";
+import Contact from "../components/index/Contact.astro";
 ---
 
 <Layout title="Home | SpreadSheets600">
-	<section>
-		<Hero />
-	</section>
+    <section>
+        <Hero />
+    </section>
 
-	<section>
-		<About />
-	</section>
+    <section>
+        <About />
+    </section>
 
-	<section>
-		<Skills />
-	</section>
+    <section>
+        <Skills />
+    </section>
 
-	<section>
-		<WakaTime />
-	</section>
+    <section>
+        <Projects />
+    </section>
 
-	<section>
-		<GitHub />
-	</section>
+    <section>
+        <WakaTime />
+    </section>
 
-	<section>
-		<Contact />
-	</section>
+    <section>
+        <GitHub />
+    </section>
+
+    <section>
+        <Contact />
+    </section>
 </Layout>

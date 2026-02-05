@@ -1,332 +1,90 @@
 ---
+import anilistStatusLoader from "../../lib/status/anilist-loader.js?url";
+const username = import.meta.env.ANILIST_USERNAME || "SpreadSheeets";
 ---
 
-<div id="anilist-container" class="space-y-4">
-  <div id="anilist-content" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-4">
-    <!-- Stats Column -->
-    <div class="lg:col-span-2 space-y-4">
-      <div class="flex items-center justify-between p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
-        <h2 id="anilist-username" class="text-xl sm:text-2xl font-extrabold text-white"></h2>
-        <a id="anilist-profile-link" href="#" target="_blank" rel="noopener noreferrer" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-blue-200 bg-blue-500/20 border border-blue-400/50 rounded-lg sm:rounded-xl hover:bg-blue-500/30 transition"> View Profile </a>
-      </div>
-      <div class="bg-white/5 rounded-xl border border-white/10 p-2 sm:p-3 backdrop-blur">
-        <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
-          <i class="ph ph-television text-blue-400 text-lg"></i>
-          Anime Stats
-        </h3>
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Anime</div>
-            <div id="anilist-anime-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Episodes</div>
-            <div id="anilist-episodes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
-            <div id="anilist-anime-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Time Watched</div>
-            <div id="anilist-watch-time" class="text-xl sm:text-2xl font-semibold text-white">0 Days</div>
-          </div>
-        </div>
-      </div>
+<div id="anilist-status-container" class="space-y-4" data-anilist data-username={username}>
+	<div id="anilist-content" class="hidden space-y-4">
+		<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+			<!-- Stats Column -->
+			<div class="lg:col-span-2 space-y-4">
+				<div class="flex items-center justify-between p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur">
+					<h2 id="anilist-username" class="text-xl sm:text-2xl font-extrabold text-white"></h2>
+					<a id="anilist-profile-link" href="#" target="_blank" rel="noopener noreferrer" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-blue-200 bg-blue-500/20 border border-blue-400/50 rounded-lg sm:rounded-xl hover:bg-blue-500/30 transition"> View Profile </a>
+				</div>
+				<div class="bg-black/30 rounded-xl border border-white/10 p-2 sm:p-3 backdrop-blur">
+					<h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
+						<i class="ph ph-television text-blue-400 text-lg"></i>
+						Anime Stats
+					</h3>
+					<div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Anime</div>
+							<div id="anilist-anime-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Episodes</div>
+							<div id="anilist-episodes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
+							<div id="anilist-anime-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Time Watched</div>
+							<div id="anilist-watch-time" class="text-xl sm:text-2xl font-semibold text-white">0 Days</div>
+						</div>
+					</div>
+				</div>
 
-      <div class="bg-white/5 rounded-xl border border-white/10 p-2 sm:p-3 backdrop-blur">
-        <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
-          <i class="ph ph-book text-pink-400 text-lg"></i>
-          Manga Stats
-        </h3>
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Manga</div>
-            <div id="anilist-manga-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Volumes</div>
-            <div id="anilist-volumes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Chapters</div>
-            <div id="anilist-chapters-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-          <div>
-            <div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
-            <div id="anilist-manga-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-          </div>
-        </div>
-      </div>
-    </div>
+				<div class="bg-black/30 rounded-xl border border-white/10 p-2 sm:p-3 backdrop-blur">
+					<h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
+						<i class="ph ph-book text-pink-400 text-lg"></i>
+						Manga Stats
+					</h3>
+					<div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Manga</div>
+							<div id="anilist-manga-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Volumes</div>
+							<div id="anilist-volumes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Chapters</div>
+							<div id="anilist-chapters-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+						<div>
+							<div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
+							<div id="anilist-manga-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-    <!-- Latest Anime -->
-    <div class="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-3 sm:p-4">
-      <h3 class="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">Latest Anime</h3>
-      <div id="anilist-latest-anime">
-        <!-- Filled by JS -->
-      </div>
-    </div>
+			<!-- Latest Anime -->
+			<div class="rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-3 sm:p-4">
+				<h3 class="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">Latest Anime</h3>
+				<div id="anilist-latest-anime"></div>
+			</div>
 
-    <!-- Latest Manga -->
-    <div class="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-3 sm:p-4">
-      <h3 class="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">Latest Manga</h3>
-      <div id="anilist-latest-manga">
-        <!-- Filled by JS -->
-      </div>
-    </div>
-  </div>
+			<!-- Latest Manga -->
+			<div class="rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-3 sm:p-4">
+				<h3 class="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">Latest Manga</h3>
+				<div id="anilist-latest-manga"></div>
+			</div>
+		</div>
+	</div>
 
-  <div id="anilist-error" class="hidden flex items-center justify-between p-4 sm:p-5 bg-gray-800 rounded-xl sm:rounded-2xl border border-gray-700">
-    <div class="text-gray-400 text-sm sm:text-base">AniList stats unavailable.</div>
-    <i class="ph ph-television text-pink-400/50 text-2xl"></i>
-  </div>
+	<div id="anilist-error" class="hidden flex items-center justify-between p-4 sm:p-5 bg-black/30 rounded-xl sm:rounded-2xl border border-white/10">
+		<div class="text-white/60 text-sm sm:text-base">AniList stats unavailable.</div>
+		<i class="ph ph-television text-pink-400/50 text-2xl"></i>
+	</div>
 
-  <div id="anilist-loading" class="flex items-center justify-center p-8 bg-gray-800/50 rounded-xl border border-gray-700">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-  </div>
+	<div id="anilist-loading" class="flex items-center justify-center p-8 bg-black/30 rounded-xl border border-white/10">
+		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+	</div>
 </div>
 
-<script>
-  // Since we don't have the backend API, we'll fetch directly from AniList GraphQL API
-  const username = "SpreadSheeets";
-
-  const query = `
-    query ($name: String) {
-      User(name: $name) {
-        name
-        siteUrl
-        statistics {
-          anime {
-            count
-            episodesWatched
-            minutesWatched
-            meanScore
-          }
-          manga {
-            count
-            volumesRead
-            chaptersRead
-            meanScore
-          }
-        }
-      }
-      latestAnime: Page(page: 1, perPage: 1) {
-        activities(userId: 423855, type: ANIME_LIST, sort: ID_DESC) {
-          ... on ListActivity {
-            status
-            progress
-            media {
-              title {
-                english
-                romaji
-              }
-              coverImage {
-                large
-              }
-              siteUrl
-              format
-            }
-          }
-        }
-      }
-      latestManga: Page(page: 1, perPage: 1) {
-        activities(userId: 423855, type: MANGA_LIST, sort: ID_DESC) {
-          ... on ListActivity {
-            status
-            progress
-            media {
-              title {
-                english
-                romaji
-              }
-              coverImage {
-                large
-              }
-              siteUrl
-              format
-            }
-          }
-        }
-      }
-    }
-  `;
-
-  // Note: userId 423855 is hardcoded in the query above. We should fetch User ID first or assume we know it.
-  // Actually, searching by name "SpreadSheeets" returns the User object which contains ID.
-  // But Activity queries require ID or we can filter by userId if we know it.
-  // Let's assume the ID 423855 is correct for SpreadSheeets from the previous code context or just fetch User first then fetch activity.
-  // However, GraphQL allows multiple queries. Let's try to search User first.
-
-  async function fetchAniListData() {
-    const loading = document.getElementById('anilist-loading');
-    const content = document.getElementById('anilist-content');
-    const error = document.getElementById('anilist-error');
-
-    try {
-      // First fetch user to get ID
-      const userResponse = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `
-            query ($name: String) {
-              User(name: $name) {
-                id
-                name
-                siteUrl
-                statistics {
-                  anime {
-                    count
-                    episodesWatched
-                    minutesWatched
-                    meanScore
-                  }
-                  manga {
-                    count
-                    volumesRead
-                    chaptersRead
-                    meanScore
-                  }
-                }
-              }
-            }
-          `,
-          variables: { name: username }
-        })
-      });
-
-      const userData = await userResponse.json();
-      const user = userData.data.User;
-
-      if (!user) throw new Error("User not found");
-
-      // Now fetch activities using the ID
-      const activityResponse = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `
-            query ($userId: Int) {
-              latestAnime: Page(page: 1, perPage: 1) {
-                activities(userId: $userId, type: ANIME_LIST, sort: ID_DESC) {
-                  ... on ListActivity {
-                    status
-                    progress
-                    media {
-                      title {
-                        english
-                        romaji
-                      }
-                      coverImage {
-                        large
-                      }
-                      siteUrl
-                      format
-                    }
-                  }
-                }
-              }
-              latestManga: Page(page: 1, perPage: 1) {
-                activities(userId: $userId, type: MANGA_LIST, sort: ID_DESC) {
-                  ... on ListActivity {
-                    status
-                    progress
-                    media {
-                      title {
-                        english
-                        romaji
-                      }
-                      coverImage {
-                        large
-                      }
-                      siteUrl
-                      format
-                    }
-                  }
-                }
-              }
-            }
-          `,
-          variables: { userId: user.id }
-        })
-      });
-
-      const activityData = await activityResponse.json();
-      const combinedData = {
-        User: user,
-        latestAnime: activityData.data.latestAnime,
-        latestManga: activityData.data.latestManga
-      };
-
-      updateUI(combinedData);
-
-      if (loading) loading.classList.add('hidden');
-      if (content) content.classList.remove('hidden');
-
-    } catch (err) {
-      console.error(err);
-      if (loading) loading.classList.add('hidden');
-      if (error) error.classList.remove('hidden');
-    }
-  }
-
-  function updateUI(data) {
-    document.getElementById('anilist-username').textContent = data.User.name;
-    document.getElementById('anilist-profile-link').href = data.User.siteUrl;
-
-    // Anime Stats
-    document.getElementById('anilist-anime-count').textContent = data.User.statistics.anime.count || 0;
-    document.getElementById('anilist-episodes-count').textContent = data.User.statistics.anime.episodesWatched || 0;
-    document.getElementById('anilist-anime-score').textContent = data.User.statistics.anime.meanScore || 0;
-    document.getElementById('anilist-watch-time').textContent = Math.round((data.User.statistics.anime.minutesWatched || 0) / 60 / 24) + " Days";
-
-    // Manga Stats
-    document.getElementById('anilist-manga-count').textContent = data.User.statistics.manga.count || 0;
-    document.getElementById('anilist-volumes-count').textContent = data.User.statistics.manga.volumesRead || 0;
-    document.getElementById('anilist-chapters-count').textContent = data.User.statistics.manga.chaptersRead || 0;
-    document.getElementById('anilist-manga-score').textContent = data.User.statistics.manga.meanScore || 0;
-
-    // Latest Anime
-    const animeActivity = data.latestAnime?.activities?.[0];
-    const animeContainer = document.getElementById('anilist-latest-anime');
-    if (animeActivity) {
-      animeContainer.innerHTML = `
-        <a href="${animeActivity.media.siteUrl}" target="_blank" rel="noopener noreferrer" class="block group">
-          <div class="aspect-[2/3] w-full mb-2 sm:mb-3 overflow-hidden rounded-lg sm:rounded-xl border border-white/10">
-            <img src="${animeActivity.media.coverImage.large}" alt="${animeActivity.media.title.english || animeActivity.media.title.romaji}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
-          </div>
-          <div class="font-semibold text-white text-sm sm:text-base truncate">${animeActivity.media.title.english || animeActivity.media.title.romaji || "-"}</div>
-          <div class="text-xs text-white/60 mt-1">${animeActivity.status || "Watched"} • ${animeActivity.media.format}</div>
-        </a>
-      `;
-    } else {
-      animeContainer.innerHTML = '<div class="text-sm text-white/60">No Recent Anime Activity</div>';
-    }
-
-    // Latest Manga
-    const mangaActivity = data.latestManga?.activities?.[0];
-    const mangaContainer = document.getElementById('anilist-latest-manga');
-    if (mangaActivity) {
-      mangaContainer.innerHTML = `
-        <a href="${mangaActivity.media.siteUrl}" target="_blank" rel="noopener noreferrer" class="block group">
-          <div class="aspect-[2/3] w-full mb-2 sm:mb-3 overflow-hidden rounded-lg sm:rounded-xl border border-white/10">
-            <img src="${mangaActivity.media.coverImage.large}" alt="${mangaActivity.media.title.english || mangaActivity.media.title.romaji}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
-          </div>
-          <div class="font-semibold text-white text-sm sm:text-base truncate">${mangaActivity.media.title.english || mangaActivity.media.title.romaji || "-"}</div>
-          <div class="text-xs text-white/60 mt-1">${mangaActivity.status || "Read"} • ${mangaActivity.media.format}</div>
-        </a>
-      `;
-    } else {
-      mangaContainer.innerHTML = '<div class="text-sm text-white/60">No Recent Manga Activity</div>';
-    }
-  }
-
-  fetchAniListData();
-</script>
+<script type="module" src={anilistStatusLoader}></script>
