@@ -1,4 +1,5 @@
 ---
+import discordModuleUrl from "../../lib/status/discord.js?url";
 const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 ---
 
@@ -69,7 +70,7 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 </div>
 
 <script type="module">
-	import { init } from "/src/lib/status/discord.js";
+	import { init } from "../../lib/status/discord.js";
 
 	const container = document.getElementById("discord-status-container");
 	if (container) init(container);

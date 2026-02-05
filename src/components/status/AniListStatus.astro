@@ -86,8 +86,8 @@ const username = import.meta.env.ANILIST_USERNAME || "SpreadSheeets";
 	</div>
 </div>
 
-<script type="module">
-	import { init } from "/src/lib/status/anilist.js";
+<script>
+	import { init } from "../../lib/status/anilist.js";
 
 	document.querySelectorAll("[data-anilist]").forEach((container) => init(container));
 </script>

@@ -91,8 +91,8 @@ const { steamId, vanity } = Astro.props;
 	</div>
 </div>
 
-<script type="module">
-	import { init } from "/src/lib/status/steam.js";
+<script>
+	import { init } from "../../lib/status/steam.js";
 
 	const container = document.getElementById("steam-status-container");
 	if (container) init(container);

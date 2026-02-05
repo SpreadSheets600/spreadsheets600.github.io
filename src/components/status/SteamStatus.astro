@@ -1,4 +1,5 @@
 ---
+import steamModuleUrl from "../../lib/status/steam.js?url";
 const steamId = import.meta.env.STEAM_ID;
 const vanity = import.meta.env.STEAM_VANITY;
 ---
@@ -78,7 +79,7 @@ const vanity = import.meta.env.STEAM_VANITY;
 </div>
 
 <script type="module">
-	import { init } from "/src/lib/status/steam.js";
+	import { init } from "../../lib/status/steam.js";
 
 	const container = document.getElementById("steam-status-container");
 	if (container) init(container);
