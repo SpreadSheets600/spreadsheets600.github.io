@@ -3,15 +3,20 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "predev": "node scripts/sync-repos.mjs",
+    "prebuild": "node scripts/sync-repos.mjs",
+    "prepreview": "node scripts/sync-repos.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "deploy": "astro build && wrangler pages deploy dist",
-    "astro": "astro"
+    "astro": "astro",
+    "sync-repos": "node scripts/sync-repos.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/mdx": "^4.0.6",
+    "@astrojs/tailwind": "^6.0.0",
     "astro": "^5.17.1",
     "gray-matter": "^4.0.3",
     "marked": "^17.0.1",
@@ -19,6 +24,7 @@
     "phosphor-icons-astro": "^2.1.1-17042025"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/node": "^25.0.9"
   }
 }
