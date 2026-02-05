@@ -1,0 +1,13 @@
+{
+  "links": [
+    {
+      "title": "GitHub",
+      "description": "",
+      "url": "https://github.com/spreadsheets600/",
+      "icon": "github",
+      "color": "",
+      "order": 1,
+      "enabled": true
+    }
+  ]
+}
