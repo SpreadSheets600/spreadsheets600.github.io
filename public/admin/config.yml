@@ -88,6 +88,42 @@ collections:
                   required: false,
                 }
 
+  - name: "connect_settings"
+    label: "Connect"
+    files:
+      - name: "social_links"
+        label: "Social Links"
+        file: "src/data/social-links.json"
+        format: "json"
+        fields:
+          - label: "Links"
+            name: "links"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Title", name: "title", widget: "string" }
+              - {
+                  label: "Description",
+                  name: "description",
+                  widget: "string",
+                  required: false,
+                }
+              - { label: "URL", name: "url", widget: "string" }
+              - {
+                  label: "Icon",
+                  name: "icon",
+                  widget: "select",
+                  options: ["github", "twitter", "linkedin", "email", "linktree", "instagram", "youtube", "tiktok", "discord", "website"],
+                }
+              - {
+                  label: "Color Class",
+                  name: "color",
+                  widget: "string",
+                  required: false,
+                }
+              - { label: "Order", name: "order", widget: "number", default: 0 }
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: true }
+
   - name: "blog"
     label: "Blog"
     folder: "src/content/blog"

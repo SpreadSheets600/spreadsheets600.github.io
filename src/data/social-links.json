@@ -2,11 +2,38 @@
   "links": [
     {
       "title": "GitHub",
-      "description": "",
-      "url": "https://github.com/spreadsheets600/",
+      "description": "Personal projects & code",
+      "url": "https://github.com/SpreadSheets600",
       "icon": "github",
-      "color": "",
+      "color": "text-pink-400",
       "order": 1,
+      "enabled": true
+    },
+    {
+      "title": "Twitter",
+      "description": "Short updates & threads",
+      "url": "https://twitter.com/SpreadSheets600",
+      "icon": "twitter",
+      "color": "text-sky-400",
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "title": "LinkedIn",
+      "description": "Professional profile",
+      "url": "https://linkedin.com/in/SpreadSheets600",
+      "icon": "linkedin",
+      "color": "text-blue-400",
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "title": "Email",
+      "description": "Get in touch",
+      "url": "mailto:soham@example.com",
+      "icon": "email",
+      "color": "text-green-400",
+      "order": 4,
       "enabled": true
     }
   ]
