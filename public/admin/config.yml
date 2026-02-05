@@ -1,7 +1,7 @@
 backend:
   name: github
-  repo: YOUR_GITHUB_ORG/YOUR_REPO
-  branch: main
+  repo: SpreadSheets600/spreadsheets600.github.io
+  branch: jam-stack
   # Optional: OAuth authenticator URL (recommended for multi-user).
   # base_url: https://YOUR_AUTH_DOMAIN
 
