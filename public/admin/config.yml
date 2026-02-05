@@ -19,9 +19,19 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "Name", name: "name", widget: "string" }
-      - { label: "Description", name: "description", widget: "text", required: false }
+      - {
+          label: "Description",
+          name: "description",
+          widget: "text",
+          required: false,
+        }
       - { label: "HTML URL", name: "html_url", widget: "string" }
-      - { label: "Homepage", name: "homepage", widget: "string", required: false }
+      - {
+          label: "Homepage",
+          name: "homepage",
+          widget: "string",
+          required: false,
+        }
       - { label: "Topics", name: "topics", widget: "list", required: false }
 
   - name: "project_settings"
@@ -43,15 +53,40 @@ collections:
                   widget: "relation",
                   collection: "repositories",
                   search_fields: ["name"],
-                  display_fields: ["name", "description"],
+                  display_fields: ["name"],
                   value_field: "name",
                 }
-              - { label: "Enabled", name: "enabled", widget: "boolean", default: true }
+              - {
+                  label: "Enabled",
+                  name: "enabled",
+                  widget: "boolean",
+                  default: true,
+                }
               - { label: "Order", name: "order", widget: "number", default: 0 }
-              - { label: "Image", name: "image", widget: "image", required: false }
-              - { label: "Title Override", name: "title", widget: "string", required: false }
-              - { label: "Description Override", name: "description", widget: "text", required: false }
-              - { label: "Homepage Override", name: "homepage", widget: "string", required: false }
+              - {
+                  label: "Image",
+                  name: "image",
+                  widget: "image",
+                  required: false,
+                }
+              - {
+                  label: "Title Override",
+                  name: "title",
+                  widget: "string",
+                  required: false,
+                }
+              - {
+                  label: "Description Override",
+                  name: "description",
+                  widget: "text",
+                  required: false,
+                }
+              - {
+                  label: "Homepage Override",
+                  name: "homepage",
+                  widget: "string",
+                  required: false,
+                }
 
   - name: "blog"
     label: "Blog"
@@ -72,7 +107,12 @@ collections:
           required: false,
         }
       - { label: "Author", name: "author", widget: "string", required: false }
-      - { label: "Author Role", name: "authorRole", widget: "string", required: false }
+      - {
+          label: "Author Role",
+          name: "authorRole",
+          widget: "string",
+          required: false,
+        }
       - { label: "Draft", name: "draft", widget: "boolean", default: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -96,7 +136,12 @@ collections:
         widget: "list"
         fields:
           - { label: "Title", name: "title", widget: "string" }
-          - { label: "Description", name: "description", widget: "text", required: false }
+          - {
+              label: "Description",
+              name: "description",
+              widget: "text",
+              required: false,
+            }
           - { label: "Icon", name: "icon", widget: "string" }
           - { label: "Text", name: "text", widget: "text", required: false }
           - { label: "Prompt", name: "prompt", widget: "text", required: false }
@@ -108,4 +153,9 @@ collections:
             fields:
               - { label: "Label", name: "label", widget: "string" }
               - { label: "URL", name: "url", widget: "string" }
-              - { label: "Primary", name: "primary", widget: "boolean", default: false }
+              - {
+                  label: "Primary",
+                  name: "primary",
+                  widget: "boolean",
+                  default: false,
+                }
