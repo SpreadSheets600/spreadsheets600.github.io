@@ -4,82 +4,89 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 
 <div class="mb-12">
 	<!-- Desktop: Now Playing + Playlists side by side -->
-	<div class="hidden lg:grid lg:grid-cols-4 gap-4 mb-6">
+	<div class="hidden lg:grid lg:grid-cols-4 gap-4 mb-6 items-stretch">
 		<!-- Now Playing Card -->
-		<div id="spotify-now-playing-container" data-user-id={userId} class="rounded-2xl border border-white/10 bg-black/40 py-4 px-5 backdrop-blur-xl lg:col-span-2">
-			<h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-				<i class="ph ph-spotify-logo text-green-400"></i>
-				Now Playing
-			</h3>
-
+		<div id="spotify-now-playing-container" data-user-id={userId} class="card-shell card-pad lg:col-span-2 h-full min-h-full flex flex-col">
 			<!-- Loading State -->
-			<div id="snp-loading" class="flex items-center gap-3">
+			<div id="snp-loading" class="flex-1 flex items-center justify-center gap-3">
 				<div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-400"></div>
 				<p class="text-white/60 text-sm">Connecting...</p>
 			</div>
 
 			<!-- Error State -->
-			<div id="snp-error" class="hidden flex items-center gap-3">
-				<i class="ph ph-warning-circle text-red-400 text-2xl"></i>
-				<div>
-					<p class="text-red-400 text-sm">Connection failed</p>
-					<button id="snp-retry-btn" class="text-xs text-green-400 hover:text-green-300 underline">Retry</button>
+			<div id="snp-error" class="card-empty hidden flex-1 flex items-center justify-center">
+				<div class="flex items-center gap-3">
+					<i class="ph ph-warning-circle text-red-400 text-2xl"></i>
+					<div>
+						<p class="text-red-400 text-sm">Connection failed</p>
+						<button id="snp-retry-btn" class="text-xs text-green-400 hover:text-green-300 underline">Retry</button>
+					</div>
 				</div>
 			</div>
 
 			<!-- Idle State -->
-			<div id="snp-idle" class="hidden flex items-center gap-3">
-				<div class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-					<i class="ph ph-pause text-white/40 text-xl"></i>
-				</div>
-				<div>
-					<p class="text-white/60 text-sm">Not playing</p>
-					<p class="text-xs text-white/40">Spotify is idle</p>
+			<div id="snp-idle" class="hidden flex-1 flex">
+				<div class="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-green-400/10 blur-3xl"></div>
+				<div class="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl"></div>
+				<div class="relative h-full w-full flex items-center justify-center">
+					<div class="flex items-center gap-5 rounded-2xl border border-white/10 bg-black/40 px-6 py-5">
+						<div class="relative h-16 w-16 flex-shrink-0">
+							<div class="absolute inset-4 rounded-full bg-black/70 flex items-center justify-center">
+								<i class="ph ph-moon-stars text-green-300 text-4xl"></i>
+							</div>
+						</div>
+						<div class="min-w-0">
+							<p class="text-white/80 text-sm font-medium">Not Playing Any Song!</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
 			<!-- Playing State -->
-			<div id="snp-playing" class="hidden">
-				<div class="flex items-center gap-3">
-					<div class="relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-						<img id="snp-cover" src="" alt="Album" class="w-full h-full object-cover" />
-						<div id="snp-no-cover" class="hidden absolute inset-0 bg-black/60 flex items-center justify-center">
-							<i class="ph ph-music-note text-green-400 text-xl"></i>
+			<div id="snp-playing" class="hidden flex-1 flex">
+				<div class="relative flex-1 rounded-2xl p-5 overflow-hidden">
+					<div class="relative h-full w-full flex flex-col gap-4">
+						<div class="flex-1 flex items-center gap-5">
+							<div class="relative w-28 h-28 flex-shrink-0 rounded-2xl overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)]">
+								<img id="snp-cover" src="" alt="Album" class="w-full h-full object-cover" />
+								<div id="snp-no-cover" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+									<i class="ph ph-music-note text-green-400 text-2xl"></i>
+								</div>
+							</div>
+							<div class="flex-1 min-w-0">
+								<p id="snp-track" class="font-semibold text-white text-lg truncate"></p>
+								<p id="snp-artist" class="text-sm text-white/60 truncate"></p>
+							</div>
 						</div>
-					</div>
-					<div class="flex-1 min-w-0">
-						<p id="snp-track" class="font-semibold text-white text-sm truncate"></p>
-						<p id="snp-artist" class="text-xs text-white/60 truncate"></p>
-					</div>
-				</div>
-				<div id="snp-progress-container" class="mt-3">
-					<div class="h-1 bg-white/10 rounded-full overflow-hidden">
-						<div id="snp-progress-bar" class="h-full bg-green-400 transition-all" style="width: 0%"></div>
-					</div>
-					<div class="flex justify-between text-xs text-white/40 mt-1">
-						<span id="snp-current-time">0:00</span>
-						<span id="snp-total-time">0:00</span>
+						<div id="snp-progress-container" class="mt-auto">
+							<div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+								<div id="snp-progress-bar" class="h-full bg-green-400 transition-all" style="width: 0%"></div>
+							</div>
+							<div class="flex justify-between text-xs text-white/40 mt-2">
+								<span id="snp-current-time">0:00</span>
+								<span id="snp-total-time">0:00</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Playlists (Desktop) -->
-		<div id="playlists-desktop" class="lg:col-span-2 grid grid-cols-3 gap-2">
-			<!-- Loading skeleton -->
-			<div class="playlist-skeleton rounded-xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl animate-pulse">
+		<!-- Playlists -->
+		<div id="playlists-desktop" class="lg:col-span-2 grid grid-cols-3 gap-2 h-full">
+			<div class="card-skeleton p-2">
 				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-3/4 mb-1"></div>
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
 				<div class="h-2.5 bg-white/10 rounded w-1/2"></div>
 			</div>
-			<div class="playlist-skeleton rounded-xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl animate-pulse">
+			<div class="card-skeleton p-2">
 				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-3/4 mb-1"></div>
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
 				<div class="h-2.5 bg-white/10 rounded w-1/2"></div>
 			</div>
-			<div class="playlist-skeleton rounded-xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl animate-pulse">
+			<div class="card-skeleton p-2">
 				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-3/4 mb-1"></div>
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
 				<div class="h-2.5 bg-white/10 rounded w-1/2"></div>
 			</div>
 		</div>
@@ -87,8 +94,8 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 
 	<!-- Mobile: Stack vertically -->
 	<div class="lg:hidden space-y-4 mb-6">
-		<!-- Now Playing Card (Mobile) -->
-		<div id="spotify-now-playing-mobile" data-user-id={userId} class="rounded-2xl border border-white/10 bg-black/40 py-3 px-4 backdrop-blur-xl">
+		<!-- Now Playing Card -->
+		<div id="spotify-now-playing-mobile" data-user-id={userId} class="card-shell card-pad">
 			<h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
 				<i class="ph ph-spotify-logo text-green-400"></i>
 				Now Playing
@@ -99,21 +106,32 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 				<p class="text-white/60 text-sm">Connecting...</p>
 			</div>
 
-			<div id="snp-mobile-error" class="hidden flex items-center gap-3">
-				<i class="ph ph-warning-circle text-red-400 text-2xl"></i>
-				<p class="text-red-400 text-sm">Connection failed</p>
+			<div id="snp-mobile-error" class="card-empty hidden">
+				<div class="flex items-center gap-3 justify-center">
+					<i class="ph ph-warning-circle text-red-400 text-2xl"></i>
+					<p class="text-red-400 text-sm">Connection failed</p>
+				</div>
 			</div>
 
-			<div id="snp-mobile-idle" class="hidden flex items-center gap-3">
-				<div class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-					<i class="ph ph-pause text-white/40 text-xl"></i>
+			<div id="snp-mobile-idle" class="hidden">
+				<div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
+					<div class="relative h-12 w-12 flex-shrink-0">
+						<div class="absolute inset-0 rounded-full bg-gradient-to-br from-green-400/30 to-emerald-500/10 blur-[1px]"></div>
+						<div class="absolute inset-1 rounded-full border border-white/10 bg-black/30"></div>
+						<div class="absolute inset-4 rounded-full bg-black/60 flex items-center justify-center">
+							<i class="ph ph-moon-stars text-green-300 text-lg"></i>
+						</div>
+					</div>
+					<div class="min-w-0">
+						<p class="text-white/80 text-sm font-medium">Spotify idle</p>
+						<p class="text-xs text-white/50">No track playing.</p>
+					</div>
 				</div>
-				<p class="text-white/60 text-sm">Not playing</p>
 			</div>
 
 			<div id="snp-mobile-playing" class="hidden">
 				<div class="flex items-center gap-3">
-					<div class="relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden">
+					<div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
 						<img id="snp-mobile-cover" src="" alt="Album" class="w-full h-full object-cover" />
 					</div>
 					<div class="flex-1 min-w-0">
@@ -140,17 +158,25 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 		</h3>
 		<div id="playlists-mobile" class="grid grid-cols-2 gap-2">
 			<!-- Loading skeleton -->
-			<div class="playlist-skeleton rounded-xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-xl animate-pulse">
-				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-3/4"></div>
+			<div class="card-skeleton p-1.5">
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
+				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
+				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
 			</div>
-			<div class="playlist-skeleton rounded-xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-xl animate-pulse">
-				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-3/4"></div>
+			<div class="card-skeleton p-1.5">
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
+				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
+				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
 			</div>
-			<div class="playlist-skeleton rounded-xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-xl animate-pulse">
-				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-3/4"></div>
+			<div class="card-skeleton p-1.5">
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
+				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
+				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
+			</div>
+			<div class="card-skeleton p-1.5">
+				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
+				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
+				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
 			</div>
 		</div>
 	</div>
@@ -167,9 +193,7 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	}
 
-	// Desktop elements
 	const container = document.getElementById("spotify-now-playing-container");
-	// Mobile elements
 	const mobileContainer = document.getElementById("spotify-now-playing-mobile");
 
 	let progressInterval: ReturnType<typeof setInterval> | null = null;
@@ -303,7 +327,7 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 		const mobileContainer = document.getElementById("playlists-mobile");
 
 		try {
-			const res = await fetch("/api/spotify-playlists?count=3");
+			const res = await fetch("/api/spotify-playlists?count=4");
 			const data = await res.json();
 
 			if (data.error || !data.playlists) {
@@ -312,15 +336,15 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 
 			const playlists = data.playlists;
 
-			// Render desktop playlists
 			if (desktopContainer) {
 				desktopContainer.innerHTML = playlists
+					.slice(0, 3)
 					.map(
 						(p: any) => `
 					<a href="${p.url}" target="_blank" rel="noopener noreferrer" 
-					   class="rounded-xl border border-white/10 bg-black/40 p-2 backdrop-blur-xl hover:bg-black/50 transition-colors group">
-						<div class="w-full aspect-square rounded-lg overflow-hidden mb-2 bg-white/10">
-							${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-4xl text-white/40"></i></div>`}
+					   class="card-shell p-2 hover:bg-black/50 transition-colors group">
+						<div class="w-full aspect-square rounded-lg overflow-hidden bg-white/10 mb-2">
+							${p.image ? `<img src="${p.image}" alt="${p.name}" class="block w-full h-full object-cover group-hover:scale-105 transition-transform" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-xl text-white/40"></i></div>`}
 						</div>
 						<p class="font-semibold text-white text-xs truncate">${p.name}</p>
 						<p class="text-[11px] text-white/60">${p.tracks} tracks</p>
@@ -330,27 +354,25 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 					.join("");
 			}
 
-			// Render mobile playlists
 			if (mobileContainer) {
 				mobileContainer.innerHTML = playlists
 					.map(
 						(p: any) => `
 					<a href="${p.url}" target="_blank" rel="noopener noreferrer" 
-					   class="rounded-xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-xl hover:bg-black/50 transition-colors">
-						<div class="w-full aspect-square rounded-lg overflow-hidden mb-2 bg-white/10">
-							${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-3xl text-white/40"></i></div>`}
-						</div>
+					   class="card-shell p-1.5 hover:bg-black/50 transition-colors">
 						<p class="font-medium text-white text-[11px] truncate">${p.name}</p>
-						<p class="text-[10px] text-white/60">${p.tracks} tracks</p>
+						<p class="text-[10px] text-white/60 mb-2">${p.tracks} tracks</p>
+						<div class="h-[24px] w-[24px] rounded-md overflow-hidden bg-white/10">
+							${p.image ? `<img src="${p.image}" alt="${p.name}" class="block w-full h-full object-cover" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-[12px] text-white/40"></i></div>`}
+						</div>
 					</a>
 				`,
 					)
 					.join("");
 			}
 		} catch (err) {
-			// Show error state for playlists
 			const errorHtml = `
-				<div class="col-span-full text-center py-4">
+				<div class="col-span-full card-empty">
 					<i class="ph ph-warning-circle text-white/40 text-2xl mb-2"></i>
 					<p class="text-white/60 text-sm">Could not load playlists</p>
 				</div>

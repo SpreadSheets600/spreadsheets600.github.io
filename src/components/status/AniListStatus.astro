@@ -6,82 +6,86 @@ const username = import.meta.env.ANILIST_USERNAME || "SpreadSheeets";
 	<div id="anilist-content" class="hidden space-y-4">
 		<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
 			<!-- Stats Column -->
-			<div class="lg:col-span-2 space-y-4">
-				<div class="flex items-center justify-between p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur">
+			<div class="lg:col-span-2 flex flex-col gap-4 h-full">
+				<div class="card-shell p-4 sm:p-5 flex items-center justify-between">
 					<h2 id="anilist-username" class="text-xl sm:text-2xl font-extrabold text-white"></h2>
-					<a id="anilist-profile-link" href="#" target="_blank" rel="noopener noreferrer" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-blue-200 bg-blue-500/20 border border-blue-400/50 rounded-lg sm:rounded-xl hover:bg-blue-500/30 transition"> View Profile </a>
+					<a id="anilist-profile-link" href={`https://anilist.co/user/${username}/`} target="_blank" rel="noopener noreferrer" class="btn-outline">
+						View Profile <i class="ph ph-arrow-square-out"></i>
+					</a>
 				</div>
-				<div class="bg-black/30 rounded-xl border border-white/10 p-2 sm:p-3 backdrop-blur">
-					<h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
-						<i class="ph ph-television text-blue-400 text-lg"></i>
-						Anime Stats
-					</h3>
-					<div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Anime</div>
-							<div id="anilist-anime-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-						</div>
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Episodes</div>
-							<div id="anilist-episodes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-						</div>
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
-							<div id="anilist-anime-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-						</div>
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Time Watched</div>
-							<div id="anilist-watch-time" class="text-xl sm:text-2xl font-semibold text-white">0 Days</div>
+				<div class="grid grid-rows-2 gap-4 flex-1">
+					<div class="card-shell p-2 sm:p-3 h-full flex flex-col">
+						<h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
+							<i class="ph ph-television text-blue-400 text-lg"></i>
+							Anime Stats
+						</h3>
+						<div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Anime</div>
+								<div id="anilist-anime-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Episodes</div>
+								<div id="anilist-episodes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
+								<div id="anilist-anime-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Time Watched</div>
+								<div id="anilist-watch-time" class="text-xl sm:text-2xl font-semibold text-white">0 Days</div>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="bg-black/30 rounded-xl border border-white/10 p-2 sm:p-3 backdrop-blur">
-					<h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
-						<i class="ph ph-book text-pink-400 text-lg"></i>
-						Manga Stats
-					</h3>
-					<div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Manga</div>
-							<div id="anilist-manga-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-						</div>
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Volumes</div>
-							<div id="anilist-volumes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-						</div>
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Chapters</div>
-							<div id="anilist-chapters-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
-						</div>
-						<div>
-							<div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
-							<div id="anilist-manga-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+					<div class="card-shell p-2 sm:p-3 h-full flex flex-col">
+						<h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 mb-3 sm:mb-4">
+							<i class="ph ph-book text-pink-400 text-lg"></i>
+							Manga Stats
+						</h3>
+						<div class="grid grid-cols-2 gap-3 sm:gap-4 text-sm text-center">
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Manga</div>
+								<div id="anilist-manga-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Volumes</div>
+								<div id="anilist-volumes-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Chapters</div>
+								<div id="anilist-chapters-count" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
+							<div>
+								<div class="text-white/50 text-xs sm:text-sm">Mean Score</div>
+								<div id="anilist-manga-score" class="text-xl sm:text-2xl font-semibold text-white">0</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Latest Anime -->
-			<div class="rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-3 sm:p-4">
+			<div class="card-shell p-3 sm:p-4">
 				<h3 class="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">Latest Anime</h3>
 				<div id="anilist-latest-anime"></div>
 			</div>
 
 			<!-- Latest Manga -->
-			<div class="rounded-xl sm:rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-3 sm:p-4">
+			<div class="card-shell p-3 sm:p-4">
 				<h3 class="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">Latest Manga</h3>
 				<div id="anilist-latest-manga"></div>
 			</div>
 		</div>
 	</div>
 
-	<div id="anilist-error" class="hidden flex items-center justify-between p-4 sm:p-5 bg-black/30 rounded-xl sm:rounded-2xl border border-white/10">
+	<div id="anilist-error" class="card-empty hidden flex items-center justify-between p-4 sm:p-5">
 		<div class="text-white/60 text-sm sm:text-base">AniList stats unavailable.</div>
 		<i class="ph ph-television text-pink-400/50 text-2xl"></i>
 	</div>
 
-	<div id="anilist-loading" class="flex items-center justify-center p-8 bg-black/30 rounded-xl border border-white/10">
+	<div id="anilist-loading" class="card-skeleton flex items-center justify-center p-8">
 		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
 	</div>
 </div>

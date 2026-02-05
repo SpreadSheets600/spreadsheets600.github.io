@@ -1,0 +1,111 @@
+---
+const city = "Kolkata";
+const country = "India";
+---
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<div class="card-shell-lg card-pad location-card">
+	<header class="flex items-center justify-between">
+		<h2 class="text-xl font-bold">Based Out Of</h2>
+		<span class="location-pill">IST · GMT+5:30</span>
+	</header>
+	<div class="mt-4 grid gap-4">
+		<div class="location-map" id="location-map" role="img" aria-label="Map showing Kolkata, India"></div>
+		<div>
+			<p class="text-2xl font-semibold text-white">{city}</p>
+			<p class="text-sm uppercase tracking-[0.3em] text-white/60">{country}</p>
+		</div>
+	</div>
+</div>
+
+<script is:inline>
+	const mapTarget = document.getElementById("location-map");
+	if (mapTarget && !mapTarget.dataset.ready) {
+		mapTarget.dataset.ready = "true";
+		const map = L.map(mapTarget, {
+			zoomControl: false,
+			attributionControl: true,
+			scrollWheelZoom: false,
+			dragging: false,
+			doubleClickZoom: false,
+			boxZoom: false,
+			keyboard: false,
+			tap: false,
+			touchZoom: false,
+		}).setView([22.5726, 88.3639], 11);
+
+		L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+			subdomains: "abcd",
+			maxZoom: 19,
+		}).addTo(map);
+
+		L.circleMarker([22.5726, 88.3639], {
+			radius: 6,
+			color: "rgba(255,255,255,0.9)",
+			weight: 2,
+			fillColor: "rgba(255,255,255,0.35)",
+			fillOpacity: 0.9,
+		}).addTo(map);
+	}
+</script>
+
+<style>
+	.location-card {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.location-card::after {
+		content: "";
+		position: absolute;
+		inset: -40% 40% auto auto;
+		width: 220px;
+		height: 220px;
+		background: radial-gradient(circle, rgba(255, 255, 255, 0.25), transparent 65%);
+		opacity: 0.4;
+		pointer-events: none;
+	}
+
+	.location-pill {
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 999px;
+		padding: 0.35rem 0.75rem;
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		letter-spacing: 0.2em;
+		color: rgba(255, 255, 255, 0.6);
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.location-map {
+		border-radius: 1.25rem;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: linear-gradient(140deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+		padding: 0.5rem;
+		height: 200px;
+	}
+
+	.location-map :global(.leaflet-container) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border-radius: 1rem;
+		background: #0b0b0f;
+		filter: saturate(0.6) contrast(1.1) brightness(0.9);
+	}
+
+	.location-map :global(.leaflet-control-attribution) {
+		background: transparent;
+		color: rgba(255, 255, 255, 0.45);
+		font-size: 0.55rem;
+	}
+
+	.location-map :global(.leaflet-control-attribution a) {
+		color: rgba(255, 255, 255, 0.6);
+		text-decoration: none;
+	}
+</style>

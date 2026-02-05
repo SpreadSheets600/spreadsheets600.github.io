@@ -23,4 +23,3 @@ items:
   - title: FreeGames Bot
     description: Discord bot for GamerPower giveaways with slash commands.
     icon: ph-game-controller
-    note: Private repo

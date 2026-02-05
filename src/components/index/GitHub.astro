@@ -1,5 +1,70 @@
 ---
+const username = "spreadsheets600";
+const today = new Date();
+const endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+const startDate = new Date(endDate);
+startDate.setUTCDate(endDate.getUTCDate() - 364);
+const apiUrl = `https://github-contributions-api.jogruber.de/v4/${username}?y=all`;
 
+let contributions = [];
+let totals = {};
+let loadError = false;
+
+try {
+	const response = await fetch(apiUrl);
+	if (response.ok) {
+		const data = await response.json();
+		contributions = Array.isArray(data?.contributions) ? data.contributions : [];
+		totals = data?.total ?? {};
+	} else {
+		loadError = true;
+	}
+} catch {
+	loadError = true;
+}
+
+const contributionMap = new Map();
+for (const entry of contributions) {
+	contributionMap.set(entry.date, entry);
+}
+
+const lastYearContribs = [];
+const cursor = new Date(startDate);
+while (cursor <= endDate) {
+	const key = cursor.toISOString().slice(0, 10);
+	const entry = contributionMap.get(key) ?? { date: key, count: 0, level: 0 };
+	lastYearContribs.push(entry);
+	cursor.setUTCDate(cursor.getUTCDate() + 1);
+}
+
+const weeks = [];
+let currentWeek = [];
+const startDay = startDate.getUTCDay();
+for (let i = 0; i < startDay; i += 1) currentWeek.push(null);
+
+for (const entry of lastYearContribs) {
+	currentWeek.push(entry);
+	if (currentWeek.length === 7) {
+		weeks.push(currentWeek);
+		currentWeek = [];
+	}
+}
+if (currentWeek.length) {
+	while (currentWeek.length < 7) currentWeek.push(null);
+	weeks.push(currentWeek);
+}
+
+const totalLastYear = lastYearContribs.reduce((sum, entry) => sum + Number(entry?.count ?? 0), 0);
+const rangeLabel = `${startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${endDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+
+const levelClass = (level) => {
+	if (level === 0) return "bg-white/5 ring-white/5";
+	if (level === 1) return "bg-emerald-400/30 ring-emerald-400/40";
+	if (level === 2) return "bg-emerald-400/60 ring-emerald-400/70";
+	if (level === 3) return "bg-emerald-300 ring-emerald-300/90";
+	if (level >= 4) return "bg-emerald-200 ring-emerald-200/90";
+	return "bg-white/5 ring-white/5";
+};
 ---
 
 <section id="github" class="scroll-mt-24 mt-8 sm:mt-12">
@@ -12,12 +77,19 @@
 
 	<div class="grid gap-4 sm:gap-6">
 		<div class="grid gap-4 sm:gap-6 lg:grid-cols-2">
-			<div class="github-card group relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-4 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-primary/5">
+			<div class="card-shell-lg group relative p-4">
 				<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-				<img class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500" src="https://github-readme-stats.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000" alt="GitHub stats" loading="lazy" onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';" />
+				<img
+					class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
+					src="https://github-readme-stats.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000"
+					alt="GitHub stats"
+					loading="lazy"
+					onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
+					onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='GitHub stats unavailable';"
+				/>
 			</div>
 
-			<div class="github-card group relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-4 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-primary/5">
+			<div class="card-shell-lg group relative p-4">
 				<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
 				<img
 					class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
@@ -25,18 +97,72 @@
 					alt="GitHub streak"
 					loading="lazy"
 					onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
+					onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='Streak stats unavailable';"
 				/>
 			</div>
 		</div>
 
-		<div class="github-card group relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-4 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-primary/5">
+		<div class="card-shell-lg group relative p-4">
 			<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-			<img class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500" src="https://github-readme-activity-graph.vercel.app/graph?username=SpreadSheets600&theme=react-dark&hide_border=true&bg_color=151515&color=FFFFFF&line=FFFFFF&point=FFFFFF" alt="GitHub activity graph" loading="lazy" onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';" />
+			<img
+				class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
+				src="https://github-readme-activity-graph.vercel.app/graph?username=SpreadSheets600&theme=react-dark&hide_border=true&bg_color=151515&color=FFFFFF&line=FFFFFF&point=FFFFFF"
+				alt="GitHub activity graph"
+				loading="lazy"
+				onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
+				onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='Activity graph unavailable';"
+			/>
 		</div>
 
-		<div class="github-card group relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 p-4 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-primary/5">
+		<div class="card-shell-lg relative w-full p-6">
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+				<div>
+					<p class="text-sm font-semibold text-white">Contribution Heatmap</p>
+					<p class="text-xs text-white/60">Last 365 days ({rangeLabel}) • {totalLastYear} total</p>
+				</div>
+				<div class="flex items-center gap-2 text-[11px] text-white/60">
+					<span>Less</span>
+					<div class="flex items-center gap-1">
+						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-white/10 bg-white/5"></span>
+						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-400/40 bg-emerald-400/30"></span>
+						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-400/70 bg-emerald-400/60"></span>
+						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-300/90 bg-emerald-300"></span>
+						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-200/90 bg-emerald-200"></span>
+					</div>
+					<span>More</span>
+				</div>
+			</div>
+
+			{
+				loadError ?
+					<div class="card-empty text-sm">Contribution data unavailable.</div>
+				:	<div class="w-full">
+						<div class="grid w-full grid-flow-col auto-cols-fr gap-1.5">
+							{weeks.map((week) => (
+								<div class="grid grid-rows-7 gap-1.5">
+									{week.map((entry) => (
+										<div
+											class={`aspect-square w-full rounded-sm ring-1 ${levelClass(entry?.level ?? 0)}`}
+											title={entry ? `${entry.date} • ${entry.count} contributions` : "No data"}
+										/>
+									))}
+								</div>
+							))}
+						</div>
+					</div>
+			}
+		</div>
+
+		<div class="card-shell-lg group relative p-4">
 			<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-			<img class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500" src="https://holopin.me/spreadsheets600" alt="Holopin badges" loading="lazy" onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';" />
+			<img
+				class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
+				src="https://holopin.me/spreadsheets600"
+				alt="Holopin badges"
+				loading="lazy"
+				onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
+				onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='Holopin unavailable';"
+			/>
 		</div>
 	</div>
 </section>

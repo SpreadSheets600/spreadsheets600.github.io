@@ -2,32 +2,23 @@
 import Layout from "../layouts/Layout.astro";
 
 import LinksCard from "../components/connect/LinksCard.astro";
-import DiscordStatusCard from "../components/connect/DiscordStatusCard.astro";
 import SteamCard from "../components/connect/SteamCard.astro";
-import SpotifyNowPlaying from "../components/connect/SpotifyNowPlaying.astro";
 import AniListStats from "../components/connect/AniListStats.astro";
+import DiscordStatusCard from "../components/connect/DiscordStatusCard.astro";
+import SpotifyNowPlaying from "../components/connect/SpotifyNowPlaying.astro";
+
+const steamVanity = import.meta.env.STEAM_VANITY;
 ---
 
 <Layout title="Connect | SpreadSheets600">
 	<main class="py-8 sm:py-16 flex-1">
 		<header class="mb-8 sm:mb-12">
-			<div class="rounded-3xl border border-white/10 bg-black/40 p-6 sm:p-8 backdrop-blur-xl">
-				<div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+			<div class="card-shell-lg p-6 sm:p-8">
+				<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 					<div class="max-w-2xl">
-						<div class="flex items-center gap-3 mb-4">
-							<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
-								<i class="ph ph-broadcast text-2xl"></i>
-							</div>
-							<p class="text-xs uppercase tracking-[0.25em] text-white/60">Connect</p>
-						</div>
 						<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
-							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text ">Connect</span>
+							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text">Connections</span>
 						</h1>
-						<p class="mt-3 text-sm sm:text-base text-white/80">Real-time activity and stats from the platforms I spend time on.</p>
-					</div>
-					<div class="flex flex-wrap gap-3">
-						<a href="#live-status" class="btn-outline">Live Status <i class="ph ph-wave-sine"></i></a>
-						<a href="#social-links" class="btn-outline">Social Links <i class="ph ph-link-simple"></i></a>
 					</div>
 				</div>
 			</div>
@@ -44,13 +35,12 @@ import AniListStats from "../components/connect/AniListStats.astro";
 				</div>
 				<div>
 					<h2 class="text-2xl font-bold text-white">Live Status</h2>
-					<p class="text-sm text-white/60">Live presence from Discord and Steam.</p>
 				</div>
 			</div>
 
 			<div class="grid gap-6 lg:grid-cols-2">
 				<DiscordStatusCard userId="727012870683885578" />
-				<SteamCard />
+				<SteamCard vanity={steamVanity} />
 			</div>
 		</section>
 
@@ -61,7 +51,6 @@ import AniListStats from "../components/connect/AniListStats.astro";
 				</div>
 				<div>
 					<h2 class="text-2xl font-bold text-white">Now Playing</h2>
-					<p class="text-sm text-white/60">Spotify status and playlists.</p>
 				</div>
 			</div>
 
@@ -75,7 +64,6 @@ import AniListStats from "../components/connect/AniListStats.astro";
 				</div>
 				<div>
 					<h2 class="text-2xl font-bold text-white">AniList</h2>
-					<p class="text-sm text-white/60">Anime and manga stats.</p>
 				</div>
 			</div>
 

@@ -38,8 +38,8 @@ const stripForSearch = (input: string) =>
 ---
 
 <Layout title={`Blog · Page ${pageNumber}`} description="Posts and notes from SpreadSheets600.">
-	<section class="mx-auto max-w-5xl py-10 sm:py-14">
-		<header class="rounded-3xl border border-white/10 bg-black/40 p-6 sm:p-10 backdrop-blur-xl">
+	<section class="mx-auto max-w-7xl py-10 sm:py-14">
+		<header class="card-shell-lg p-6 sm:p-10">
 			<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 				<div class="max-w-2xl">
 					<p class="text-xs uppercase tracking-[0.2em] text-white/50">Field Notes</p>
@@ -47,12 +47,12 @@ const stripForSearch = (input: string) =>
 					<p class="mt-3 text-base sm:text-lg text-white/70">Experiments, project updates, and short essays. Search by keyword or tag.</p>
 				</div>
 				<div class="grid grid-cols-2 gap-3 w-full lg:w-auto">
-					<div class="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md">
+					<div class="card-shell px-4 py-3">
 						<p class="text-xs uppercase tracking-wide text-white/50">Showing</p>
 						<p id="postCount" class="text-lg font-semibold text-white">{pagePosts.length}</p>
-						<p class="text-xs text-white/40">of {totalCount}</p>
+						<p id="postTotal" class="text-xs text-white/40">of {totalCount}</p>
 					</div>
-					<div class="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md">
+					<div class="card-shell px-4 py-3">
 						<p class="text-xs uppercase tracking-wide text-white/50">Latest</p>
 						<p class="text-lg font-semibold text-white">
 							{posts[0] ? posts[0].data.date.toLocaleDateString("en-US", { dateStyle: "medium" }) : "—"}
@@ -71,11 +71,11 @@ const stripForSearch = (input: string) =>
 			</div>
 		</header>
 
-		<div class="mt-8 grid gap-5 sm:gap-6">
+<div id="postGrid" class="mt-8 grid gap-5 sm:gap-6">
 			{
 				pagePosts.map((post) => (
 					<article
-						class="group rounded-3xl border border-white/10 bg-black/35 p-5 sm:p-7 backdrop-blur-xl transition hover:border-white/30 hover:bg-black/45"
+						class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45"
 						data-title={post.data.title.toLowerCase()}
 						data-description={post.data.description.toLowerCase()}
 						data-tags={(post.data.tags || []).join(" ").toLowerCase()}
@@ -110,14 +110,14 @@ const stripForSearch = (input: string) =>
 				))
 			}
 
-			{posts.length === 0 && <div class="rounded-2xl border border-white/10 bg-black/40 p-8 text-center text-white/60 backdrop-blur-xl">No published posts yet.</div>}
+			{posts.length === 0 && <div class="card-empty">No published posts yet.</div>}
 
-			<div id="noResults" class="hidden rounded-2xl border border-white/10 bg-black/40 p-8 text-center text-white/60 backdrop-blur-xl">No posts match your search.</div>
+			<div id="noResults" class="hidden card-empty">No posts match your search.</div>
 		</div>
 
 		{
 			totalPages > 1 && (
-				<nav class="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm text-white/70">
+<nav id="paginationNav" class="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm text-white/70">
 					<a
 						href={pageNumber <= 2 ? `/blog/` : `/blog/page/${pageNumber - 1}/`}
 						class={`rounded-full border border-white/15 px-4 py-2 transition ${pageNumber === 1 ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"}`}
@@ -148,49 +148,140 @@ const stripForSearch = (input: string) =>
 	</section>
 </Layout>
 
-<script>
-	const searchInput = document.getElementById("searchInput");
-	const clearSearch = document.getElementById("clearSearch");
-	const postCount = document.getElementById("postCount");
-	const noResults = document.getElementById("noResults");
-	const cards = Array.from(document.querySelectorAll("article[data-title]"));
-	const tagButtons = Array.from(document.querySelectorAll(".tag-pill"));
+	<script>
+		const searchInput = document.getElementById("searchInput");
+		const clearSearch = document.getElementById("clearSearch");
+		const postCount = document.getElementById("postCount");
+		const noResults = document.getElementById("noResults");
+\t\tconst grid = document.getElementById("postGrid");
+\t\tconst pagination = document.getElementById("paginationNav");
+\t\tconst postTotal = document.getElementById("postTotal");
+		const initialCards = Array.from(document.querySelectorAll("article[data-title]"));
+		let cards = initialCards;
+		/** @typedef {{ slug: string; title: string; description: string; date: string; tags: string[]; search: string }} BlogSearchPost */
+		/** @type {Promise<BlogSearchPost[]> | null} */
+		let allPostsPromise = null;
 
-	const updateFilter = () => {
-		const query = (searchInput?.value || "").trim().toLowerCase();
-		let visible = 0;
+		/** @param {unknown} value */
+		const escapeHtml = (value) =>
+			String(value)
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/\"/g, "&quot;")
+				.replace(/'/g, "&#39;");
 
-		cards.forEach((card) => {
-			const haystack = [
-				card.getAttribute("data-title") || "",
-				card.getAttribute("data-description") || "",
-				card.getAttribute("data-tags") || "",
-				card.getAttribute("data-body") || "",
-			].join(" ");
-			const match = query === "" || haystack.includes(query);
-			card.classList.toggle("hidden", !match);
-			if (match) visible += 1;
-		});
+		/** @param {string} value */
+		const formatDate = (value) =>
+			new Date(value).toLocaleDateString("en-US", { dateStyle: "long" });
 
-		if (postCount) postCount.textContent = String(visible);
-		if (noResults) noResults.classList.toggle("hidden", visible !== 0 || cards.length === 0);
-	};
+		const loadAllPosts = async () => {
+			if (!allPostsPromise) {
+				allPostsPromise = fetch("/api/blog-search.json")
+					.then((response) => response.json())
+					.then((data) => data.posts || []);
+			}
+			return allPostsPromise;
+		};
 
-	searchInput?.addEventListener("input", updateFilter);
-	clearSearch?.addEventListener("click", () => {
-		if (!searchInput) return;
-		searchInput.value = "";
-		updateFilter();
-	});
+		/** @param {BlogSearchPost} post */
+		const buildCard = (post) => {
+			const tags = Array.isArray(post.tags) ? post.tags : [];
+			const tagMarkup = tags.length
+				? `<ul class="mt-4 flex flex-wrap gap-2">${tags
+						.map(
+							(tag) =>
+								`<li><button type="button" class="tag-pill text-xs px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/70 hover:border-white/40 hover:text-white transition" data-tag="${escapeHtml(
+									tag,
+								)}">${escapeHtml(tag)}</button></li>`,
+						)
+						.join("")}</ul>`
+				: "";
 
-	tagButtons.forEach((button) => {
-		button.addEventListener("click", () => {
+			return `
+				<article class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45" data-title="${escapeHtml(
+					post.title.toLowerCase(),
+				)}" data-description="${escapeHtml(post.description.toLowerCase())}" data-tags="${escapeHtml(
+					tags.join(" ").toLowerCase(),
+				)}" data-body="${escapeHtml(post.search || "")}">
+					<a href="/blog/${escapeHtml(post.slug)}/" class="block">
+						<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<p class="text-xs uppercase tracking-[0.2em] text-white/50">${formatDate(post.date)}</p>
+								<h2 class="mt-2 text-xl sm:text-2xl font-semibold text-white group-hover:text-white/90">${escapeHtml(
+									post.title,
+								)}</h2>
+								<p class="mt-2 text-sm sm:text-base text-white/70">${escapeHtml(post.description)}</p>
+							</div>
+							<div class="flex items-center gap-2 text-sm text-white/60">
+								<span>Read</span>
+								<i class="ph ph-arrow-up-right"></i>
+							</div>
+						</div>
+					</a>
+					${tagMarkup}
+				</article>
+			`;
+		};
+
+		/** @param {MouseEvent} event */
+		const handleTagClick = (event) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) return;
+			const button = target.closest(".tag-pill");
+			if (!button) return;
 			const tag = button.getAttribute("data-tag") || "";
 			if (searchInput) {
 				searchInput.value = tag;
 				updateFilter();
 				searchInput.focus();
 			}
+		};
+
+		/** @param {BlogSearchPost[]} posts */
+		const renderPosts = (posts) => {
+			if (!grid) return;
+			grid.innerHTML = posts.map(buildCard).join("");
+			cards = Array.from(grid.querySelectorAll("article[data-title]"));
+		};
+
+		const restoreInitial = () => {
+			if (!grid) return;
+			grid.innerHTML = "";
+			initialCards.forEach((card) => grid.appendChild(card));
+			cards = initialCards;
+		};
+
+		/** @param {number} visible @param {boolean} hasQuery */
+		const updateCount = (visible, hasQuery) => {
+			if (postCount) postCount.textContent = String(visible);
+			if (noResults) noResults.classList.toggle("hidden", !hasQuery || visible !== 0);
+		};
+
+		const updateFilter = async () => {
+			const query = (searchInput?.value || "").trim().toLowerCase();
+			if (!query) {
+				restoreInitial();
+				pagination?.classList.remove("hidden");
+				postTotal?.classList.remove("hidden");
+				updateCount(initialCards.length, false);
+				if (noResults) noResults.classList.add("hidden");
+				return;
+			}
+
+			pagination?.classList.add("hidden");
+			postTotal?.classList.add("hidden");
+			const posts = await loadAllPosts();
+			const matches = posts.filter((post) => String(post.search || "").includes(query));
+			renderPosts(matches);
+			updateCount(matches.length, true);
+		};
+
+		grid?.addEventListener("click", handleTagClick);
+		searchInput?.addEventListener("input", updateFilter);
+		clearSearch?.addEventListener("click", () => {
+			if (!searchInput) return;
+			searchInput.value = "";
+			updateFilter();
 		});
-	});
-</script>
+	</script>

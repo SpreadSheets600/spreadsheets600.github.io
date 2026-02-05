@@ -29,7 +29,11 @@ async function getAccessToken(clientId, clientSecret) {
 	});
 
 	if (!res.ok) {
-		throw new Error(`Failed to get Spotify token: ${res.status}`);
+		let detail = "";
+		try {
+			detail = await res.text();
+		} catch {}
+		throw new Error(`Failed to get Spotify token: ${res.status}${detail ? ` - ${detail}` : ""}`);
 	}
 
 	const data = await res.json();
@@ -45,7 +49,11 @@ async function fetchSpotify(endpoint, token) {
 	});
 
 	if (!res.ok) {
-		throw new Error(`Spotify API error: ${res.status}`);
+		let detail = "";
+		try {
+			detail = await res.text();
+		} catch {}
+		throw new Error(`Spotify API error: ${res.status}${detail ? ` - ${detail}` : ""}`);
 	}
 
 	return res.json();

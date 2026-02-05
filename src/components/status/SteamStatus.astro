@@ -4,78 +4,72 @@ const steamId = import.meta.env.STEAM_ID;
 const vanity = import.meta.env.STEAM_VANITY;
 ---
 
-<div
-  id="steam-status-container"
-  class="w-full"
-  data-endpoint="/api/steam-status"
-  data-steam-id={steamId}
-  data-vanity={vanity}
->
-  <div id="steam-content" class="hidden grid grid-cols-1 gap-4">
-    <!-- Profile Card -->
-    <div class="w-full flex flex-col gap-4 p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900/80 rounded-2xl border border-indigo-500/30 shadow-xl">
-      <div class="flex items-center gap-4">
-        <div class="relative flex-shrink-0">
-          <img id="steam-avatar" src="" alt="" class="w-20 h-20 rounded-full border-2" />
-          <div id="steam-status-indicator" class="absolute -bottom-1 -right-0.5 w-5 h-5 rounded-full border-4"></div>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div id="steam-name" class="text-xl font-bold text-white truncate"></div>
-          <div id="steam-last-seen" class="text-sm text-gray-400"></div>
-        </div>
-        <a id="steam-profile-link" href="#" target="_blank" class="px-4 py-2 rounded-full border border-indigo-400/50 bg-indigo-600/40 text-sm text-indigo-100 hover:bg-indigo-600/60 transition"> Profile </a>
-      </div>
+<div id="steam-status-container" class="w-full" data-endpoint="/api/steam-status" data-steam-id={steamId} data-vanity={vanity}>
+	<div id="steam-content" class="hidden grid grid-cols-1 gap-4">
+		<!-- Profile Card -->
+		<div class="w-full flex flex-col gap-4 p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900/80 rounded-2xl border border-indigo-500/30 shadow-xl">
+			<div class="flex items-center gap-4">
+				<div class="relative flex-shrink-0">
+					<img id="steam-avatar" src="" alt="" class="w-20 h-20 rounded-full border-2" />
+					<div id="steam-status-indicator" class="absolute -bottom-1 -right-0.5 w-5 h-5 rounded-full border-4"></div>
+				</div>
+				<div class="flex-1 min-w-0">
+					<div id="steam-name" class="text-xl font-bold text-white truncate"></div>
+					<div id="steam-last-seen" class="text-sm text-gray-400"></div>
+				</div>
+				<a id="steam-profile-link" href="#" target="_blank" class="px-4 py-2 rounded-full border border-indigo-400/50 bg-indigo-600/40 text-sm text-indigo-100 hover:bg-indigo-600/60 transition"> Profile </a>
+			</div>
 
-      <div id="steam-playing-container" class="hidden bg-indigo-900/60 rounded-lg p-4 border border-indigo-500/40">
-        <div class="text-sm text-indigo-200 mb-2 font-semibold">Currently Playing</div>
-        <div class="flex items-center gap-3">
-          <img id="steam-playing-image" class="w-12 h-12 rounded-md object-cover" />
-          <div class="flex-1 min-w-0">
-            <div id="steam-playing-name" class="font-semibold text-white truncate"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+			<div id="steam-playing-container" class="hidden bg-indigo-900/60 rounded-lg p-4 border border-indigo-500/40">
+				<div class="text-sm text-indigo-200 mb-2 font-semibold">Currently Playing</div>
+				<div class="flex items-center gap-3">
+					<img id="steam-playing-image" class="w-12 h-12 rounded-md object-cover" />
+					<div class="flex-1 min-w-0">
+						<div id="steam-playing-name" class="font-semibold text-white truncate"></div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Recent Games Card -->
-    <div class="w-full flex flex-col gap-5 p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900/80 rounded-2xl border border-indigo-500/30 shadow-xl">
-      <div class="grid grid-cols-2 gap-4 text-center">
-        <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/60">
-          <div id="steam-total-games" class="text-2xl font-bold text-white">0</div>
-          <div class="text-xs text-gray-400">Games Owned</div>
-        </div>
-        <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/60">
-          <div id="steam-total-hours" class="text-2xl font-bold text-white">0</div>
-          <div class="text-xs text-gray-400">Hours Played</div>
-        </div>
-      </div>
+		<!-- Recent Games Card -->
+		<div class="w-full flex flex-col gap-5 p-5 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900/80 rounded-2xl border border-indigo-500/30 shadow-xl">
+			<div class="grid grid-cols-2 gap-4 text-center">
+				<div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/60">
+					<div id="steam-total-games" class="text-2xl font-bold text-white">0</div>
+					<div class="text-xs text-gray-400">Games Owned</div>
+				</div>
+				<div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/60">
+					<div id="steam-total-hours" class="text-2xl font-bold text-white">0</div>
+					<div class="text-xs text-gray-400">Hours Played</div>
+				</div>
+			</div>
 
-      <div id="steam-playing-now-card" class="hidden flex items-center gap-4 bg-slate-800/60 p-3 rounded-lg border border-slate-700/60">
-        <img id="steam-playing-now-image" class="w-24 h-12 object-cover rounded-md flex-shrink-0" />
-        <div class="flex-1 min-w-0">
-          <div id="steam-playing-now-name" class="font-semibold text-white truncate"></div>
-        </div>
-        <span class="px-2 py-1 rounded-full bg-green-600/40 text-green-100 text-xs font-semibold">Playing Now</span>
-      </div>
+			<div id="steam-playing-now-card" class="hidden flex items-center gap-4 bg-slate-800/60 p-3 rounded-lg border border-slate-700/60">
+				<img id="steam-playing-now-image" class="w-24 h-12 object-cover rounded-md flex-shrink-0" />
+				<div class="flex-1 min-w-0">
+					<div id="steam-playing-now-name" class="font-semibold text-white truncate"></div>
+				</div>
+				<span class="px-2 py-1 rounded-full bg-green-600/40 text-green-100 text-xs font-semibold">Playing Now</span>
+			</div>
 
-      <div id="steam-recent-games-list" class="space-y-3">
-        <!-- Filled by JS -->
-      </div>
+			<div id="steam-recent-games-list" class="space-y-3">
+				<!-- Filled by JS -->
+			</div>
 
-      <div id="steam-no-activity" class="hidden text-center text-gray-500 py-8">No recent game activity</div>
-    </div>
-  </div>
+			<div id="steam-no-activity" class="hidden text-center text-gray-500 py-8">No recent game activity</div>
+		</div>
+	</div>
 
-  <div id="steam-error" class="hidden flex items-center justify-between p-5 bg-gray-800 rounded-2xl border border-gray-700">
-    <div class="flex items-center gap-4">
-      <i class="ph ph-steam-logo text-indigo-400 text-3xl"></i>
-      <div class="text-gray-400">Steam status unavailable.</div>
-    </div>
-  </div>
+	<div id="steam-error" class="hidden flex items-center justify-between p-5 bg-gray-800 rounded-2xl border border-gray-700">
+		<div class="flex items-center gap-4">
+			<i class="ph ph-steam-logo text-indigo-400 text-3xl"></i>
+			<div class="text-gray-400">Steam status unavailable.</div>
+		</div>
+	</div>
 
-  <div id="steam-loading" class="flex items-center justify-center p-8 bg-gray-800/50 rounded-xl border border-gray-700">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-  </div>
+	<div id="steam-loading" class="flex items-center justify-center p-8 bg-gray-800/50 rounded-xl border border-gray-700">
+		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+	</div>
 </div>
 
 <script type="module">

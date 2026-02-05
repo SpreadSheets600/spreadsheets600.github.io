@@ -113,7 +113,19 @@ collections:
                   label: "Icon",
                   name: "icon",
                   widget: "select",
-                  options: ["github", "twitter", "linkedin", "email", "linktree", "instagram", "youtube", "tiktok", "discord", "website"],
+                  options:
+                    [
+                      "github",
+                      "twitter",
+                      "linkedin",
+                      "email",
+                      "linktree",
+                      "instagram",
+                      "youtube",
+                      "tiktok",
+                      "discord",
+                      "website",
+                    ],
                 }
               - {
                   label: "Color Class",
@@ -122,7 +134,12 @@ collections:
                   required: false,
                 }
               - { label: "Order", name: "order", widget: "number", default: 0 }
-              - { label: "Enabled", name: "enabled", widget: "boolean", default: true }
+              - {
+                  label: "Enabled",
+                  name: "enabled",
+                  widget: "boolean",
+                  default: true,
+                }
 
   - name: "blog"
     label: "Blog"

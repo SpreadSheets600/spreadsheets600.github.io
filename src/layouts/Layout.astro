@@ -34,9 +34,9 @@ const { title, description = "Portfolio Of SpreadSheets600" } = Astro.props;
 	</head>
 	<body class="min-h-screen relative">
 		<Background />
-		<div class="app-container">
+		<div class="app-container min-h-screen flex flex-col">
 			<Navbar />
-			<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<slot />
 			</main>
 			<Footer />

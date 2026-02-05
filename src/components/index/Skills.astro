@@ -49,8 +49,8 @@ const skills = [
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
 		{
 			skills.map((category) => (
-				<article class={`flex flex-col justify-between overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-primary/5 ${category.gridClass}`}>
-					<header class="border-b border-white/5 px-5 py-3">
+				<article class={`card-shell flex flex-col justify-between ${category.gridClass}`}>
+					<header class="card-header">
 						<h3 class="text-sm font-semibold text-white/90 tracking-wide">{category.title}</h3>
 					</header>
 

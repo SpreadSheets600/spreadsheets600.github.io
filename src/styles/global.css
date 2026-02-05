@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .card-shell {
+    @apply overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-lg;
+  }
+
+  .card-shell-lg {
+    @apply overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-lg;
+  }
+
+  .card-pad {
+    @apply p-4 sm:p-5;
+  }
+
+  .card-header {
+    @apply border-b border-white/5 px-5 py-3;
+  }
+
+  .card-empty {
+    @apply rounded-2xl border border-white/10 bg-black/40 p-8 text-center text-white/60 backdrop-blur-xl;
+  }
+
+  .card-skeleton {
+    @apply animate-pulse rounded-xl border border-white/10 bg-black/40 backdrop-blur-md;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

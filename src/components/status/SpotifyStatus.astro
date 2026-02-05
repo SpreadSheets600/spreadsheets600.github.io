@@ -3,116 +3,116 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 ---
 
 <div id="spotify-status-container" class="w-full" data-user-id={userId}>
-  <!-- Loading State -->
-  <div id="spotify-loading" class="flex items-center justify-center space-x-3 py-12 bg-gray-900/60 rounded-2xl border border-gray-800">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
-    <span class="text-gray-300 text-lg">Connecting to Spotify...</span>
-  </div>
+	<!-- Loading State -->
+	<div id="spotify-loading" class="flex items-center justify-center space-x-3 py-12 bg-gray-900/60 rounded-2xl border border-gray-800">
+		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-400"></div>
+		<span class="text-gray-300 text-lg">Connecting to Spotify...</span>
+	</div>
 
-  <!-- Error State -->
-  <div id="spotify-error" class="hidden text-center py-12 bg-gray-900/60 rounded-2xl border border-gray-800">
-    <div class="text-red-400 flex flex-col items-center justify-center space-y-3">
-      <i class="ph ph-warning-circle text-5xl"></i>
-      <span class="text-xl font-semibold">Spotify unavailable</span>
-      <p class="text-gray-400 text-sm">Could not connect to Lanyard API.</p>
-    </div>
-    <button id="spotify-retry-btn" class="mt-6 text-green-400 hover:text-green-300 text-sm underline transition-colors">Try again</button>
-  </div>
+	<!-- Error State -->
+	<div id="spotify-error" class="hidden text-center py-12 bg-gray-900/60 rounded-2xl border border-gray-800">
+		<div class="text-red-400 flex flex-col items-center justify-center space-y-3">
+			<i class="ph ph-warning-circle text-5xl"></i>
+			<span class="text-xl font-semibold">Spotify unavailable</span>
+			<p class="text-gray-400 text-sm">Could not connect to Lanyard API.</p>
+		</div>
+		<button id="spotify-retry-btn" class="mt-6 text-green-400 hover:text-green-300 text-sm underline transition-colors">Try again</button>
+	</div>
 
-  <!-- Content State -->
-  <div id="spotify-content" class="hidden">
-  <!-- Desktop Layout -->
-  <div class="hidden lg:flex gap-4">
-    <!-- Player -->
-    <div class="flex-1">
-      <div id="spotify-desktop-playing" class="hidden flex items-center gap-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-xl h-full">
-        <div class="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-          <img id="spotify-desktop-cover" src="" alt="Album Cover" class="w-full h-full object-cover" />
-          <div id="spotify-desktop-no-cover" class="absolute inset-0 w-full h-full bg-gray-800 flex items-center justify-center hidden">
-            <i class="ph ph-music-note text-green-400 text-2xl"></i>
-          </div>
-        </div>
+	<!-- Content State -->
+	<div id="spotify-content" class="hidden">
+		<!-- Desktop Layout -->
+		<div class="hidden lg:flex gap-4">
+			<!-- Player -->
+			<div class="flex-1">
+				<div id="spotify-desktop-playing" class="hidden flex items-center gap-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-xl h-full">
+					<div class="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
+						<img id="spotify-desktop-cover" src="" alt="Album Cover" class="w-full h-full object-cover" />
+						<div id="spotify-desktop-no-cover" class="absolute inset-0 w-full h-full bg-gray-800 flex items-center justify-center hidden">
+							<i class="ph ph-music-note text-green-400 text-2xl"></i>
+						</div>
+					</div>
 
-        <div class="flex-1 min-w-0 flex flex-col justify-center">
-          <div id="spotify-desktop-track" class="font-bold text-white text-base truncate"></div>
-          <div id="spotify-desktop-artist" class="text-gray-300 text-sm truncate"></div>
+					<div class="flex-1 min-w-0 flex flex-col justify-center">
+						<div id="spotify-desktop-track" class="font-bold text-white text-base truncate"></div>
+						<div id="spotify-desktop-artist" class="text-gray-300 text-sm truncate"></div>
 
-          <div id="spotify-desktop-progress-container" class="mt-2 w-full hidden">
-            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
-              <div id="spotify-desktop-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between text-xs text-gray-400 mt-1">
-              <span id="spotify-desktop-current-time">0:00</span>
-              <span id="spotify-desktop-total-time">0:00</span>
-            </div>
-          </div>
+						<div id="spotify-desktop-progress-container" class="mt-2 w-full hidden">
+							<div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+								<div id="spotify-desktop-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
+							</div>
+							<div class="flex justify-between text-xs text-gray-400 mt-1">
+								<span id="spotify-desktop-current-time">0:00</span>
+								<span id="spotify-desktop-total-time">0:00</span>
+							</div>
+						</div>
 
-          <div id="spotify-desktop-recent-label" class="mt-1 text-xs text-gray-400 italic hidden">Recently Played</div>
-        </div>
-      </div>
+						<div id="spotify-desktop-recent-label" class="mt-1 text-xs text-gray-400 italic hidden">Recently Played</div>
+					</div>
+				</div>
 
-      <div id="spotify-desktop-idle" class="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 shadow-xl h-full">
-        <div class="flex items-center gap-3">
-          <i class="ph ph-spotify-logo text-green-500 text-xl"></i>
-          <div id="spotify-desktop-status-text" class="text-gray-400 text-sm">Loading...</div>
-        </div>
-      </div>
-    </div>
+				<div id="spotify-desktop-idle" class="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 shadow-xl h-full">
+					<div class="flex items-center gap-3">
+						<i class="ph ph-spotify-logo text-green-500 text-xl"></i>
+						<div id="spotify-desktop-status-text" class="text-gray-400 text-sm">Loading...</div>
+					</div>
+				</div>
+			</div>
 
-    <!-- Playlists -->
-    <div id="spotify-desktop-playlists" class="flex gap-2">
-      <!-- Filled by JS -->
-    </div>
-  </div>
+			<!-- Playlists -->
+			<div id="spotify-desktop-playlists" class="flex gap-2">
+				<!-- Filled by JS -->
+			</div>
+		</div>
 
-  <!-- Mobile Layout -->
-  <div class="lg:hidden space-y-4">
-    <div id="spotify-mobile-playing" class="hidden flex items-center gap-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-xl">
-      <div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
-        <img id="spotify-mobile-cover" src="" alt="Album Cover" class="w-full h-full object-cover" />
-        <div id="spotify-mobile-no-cover" class="w-full h-full bg-gray-700 flex items-center justify-center hidden">
-          <i class="ph ph-music-note text-green-400 text-2xl"></i>
-        </div>
-        <div class="absolute bottom-1 right-1 p-0.5 bg-black/50 rounded-full">
-          <i class="ph ph-spotify-logo text-green-400 text-xs"></i>
-        </div>
-      </div>
+		<!-- Mobile Layout -->
+		<div class="lg:hidden space-y-4">
+			<div id="spotify-mobile-playing" class="hidden flex items-center gap-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-xl border border-gray-700 shadow-xl">
+				<div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden shadow-lg">
+					<img id="spotify-mobile-cover" src="" alt="Album Cover" class="w-full h-full object-cover" />
+					<div id="spotify-mobile-no-cover" class="w-full h-full bg-gray-700 flex items-center justify-center hidden">
+						<i class="ph ph-music-note text-green-400 text-2xl"></i>
+					</div>
+					<div class="absolute bottom-1 right-1 p-0.5 bg-black/50 rounded-full">
+						<i class="ph ph-spotify-logo text-green-400 text-xs"></i>
+					</div>
+				</div>
 
-      <div class="flex-1 min-w-0 flex flex-col justify-center">
-        <div id="spotify-mobile-track" class="font-bold text-white text-base truncate"></div>
-        <div id="spotify-mobile-artist" class="text-gray-300 text-sm truncate"></div>
+				<div class="flex-1 min-w-0 flex flex-col justify-center">
+					<div id="spotify-mobile-track" class="font-bold text-white text-base truncate"></div>
+					<div id="spotify-mobile-artist" class="text-gray-300 text-sm truncate"></div>
 
-        <div id="spotify-mobile-progress-container" class="mt-2 w-full hidden">
-          <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
-            <div id="spotify-mobile-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
-          </div>
-          <div class="flex justify-between text-xs text-gray-400 mt-1">
-            <span id="spotify-mobile-current-time">0:00</span>
-            <span id="spotify-mobile-total-time">0:00</span>
-          </div>
-        </div>
+					<div id="spotify-mobile-progress-container" class="mt-2 w-full hidden">
+						<div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+							<div id="spotify-mobile-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
+						</div>
+						<div class="flex justify-between text-xs text-gray-400 mt-1">
+							<span id="spotify-mobile-current-time">0:00</span>
+							<span id="spotify-mobile-total-time">0:00</span>
+						</div>
+					</div>
 
-        <div id="spotify-mobile-recent-label" class="mt-1 text-xs text-gray-400 italic hidden">Recently Played</div>
-      </div>
-    </div>
+					<div id="spotify-mobile-recent-label" class="mt-1 text-xs text-gray-400 italic hidden">Recently Played</div>
+				</div>
+			</div>
 
-    <div id="spotify-mobile-idle" class="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 shadow-xl">
-      <div class="flex items-center gap-3">
-        <i class="ph ph-spotify-logo text-green-500 text-xl"></i>
-        <div id="spotify-mobile-status-text" class="text-gray-400 text-sm">Loading...</div>
-      </div>
-    </div>
+			<div id="spotify-mobile-idle" class="flex items-center justify-between p-3 bg-gray-800 rounded-xl border border-gray-700 shadow-xl">
+				<div class="flex items-center gap-3">
+					<i class="ph ph-spotify-logo text-green-500 text-xl"></i>
+					<div id="spotify-mobile-status-text" class="text-gray-400 text-sm">Loading...</div>
+				</div>
+			</div>
 
-    <!-- Mobile Playlists -->
-    <div id="spotify-mobile-playlists" class="grid grid-cols-2 gap-3">
-       <!-- Filled by JS -->
-    </div>
-  </div>
-  </div>
+			<!-- Mobile Playlists -->
+			<div id="spotify-mobile-playlists" class="grid grid-cols-2 gap-3">
+				<!-- Filled by JS -->
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
-  import { init } from "../../lib/status/spotify.js";
-  const container = document.getElementById("spotify-status-container");
-  if (container) init(container);
+	import { init } from "../../lib/status/spotify.js";
+	const container = document.getElementById("spotify-status-container");
+	if (container) init(container);
 </script>

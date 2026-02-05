@@ -20,17 +20,14 @@ import { getLanguageColor } from "../lib/languageColors.js";
 const langColor = getLanguageColor(project.language);
 ---
 
-<article class="group card bg-black/30 border border-white/10 rounded-2xl backdrop-blur-xl transition-all hover:border-white/20 py-3 px-4 sm:py-4 sm:px-6 hover:-translate-y-1 hover:bg-black/40 flex flex-col">
-	{project.image && (
-		<div class="mb-4 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-			<img
-				src={project.image}
-				alt={`${project.name} preview`}
-				loading="lazy"
-				class="h-36 w-full object-cover"
-			/>
-		</div>
-	)}
+<article class="group card-shell flex flex-col py-3 px-4 sm:py-4 sm:px-6 hover:-translate-y-1 hover:bg-black/50">
+	{
+		project.image && (
+			<div class="mb-4 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+				<img src={project.image} alt={`${project.name} preview`} loading="lazy" class="h-36 w-full object-cover" />
+			</div>
+		)
+	}
 
 	<div class="flex items-center gap-3 mb-3">
 		<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
