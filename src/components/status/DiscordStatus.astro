@@ -1,5 +1,4 @@
 ---
-import discordStatusLoader from "../../lib/status/discord-loader.js?url";
 const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 ---
 
@@ -69,4 +68,9 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 	</div>
 </div>
 
-<script type="module" src={discordStatusLoader}></script>
+<script type="module">
+	import { init } from "/src/lib/status/discord.js";
+
+	const container = document.getElementById("discord-status-container");
+	if (container) init(container);
+</script>
