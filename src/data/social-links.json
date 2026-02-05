@@ -2,7 +2,7 @@
   "links": [
     {
       "title": "GitHub",
-      "description": "Personal projects & code",
+      "description": "Personal Projects & Code",
       "url": "https://github.com/SpreadSheets600",
       "icon": "github",
       "color": "text-pink-400",
@@ -11,8 +11,8 @@
     },
     {
       "title": "Twitter",
-      "description": "Short updates & threads",
-      "url": "https://twitter.com/SpreadSheets600",
+      "description": "Short Updates & Threads",
+      "url": "https://twitter.com/SheetsSpread600",
       "icon": "twitter",
       "color": "text-sky-400",
       "order": 2,
@@ -20,7 +20,7 @@
     },
     {
       "title": "LinkedIn",
-      "description": "Professional profile",
+      "description": "Professional Profile",
       "url": "https://linkedin.com/in/SpreadSheets600",
       "icon": "linkedin",
       "color": "text-blue-400",
@@ -29,8 +29,8 @@
     },
     {
       "title": "Email",
-      "description": "Get in touch",
-      "url": "mailto:soham@example.com",
+      "description": "Get In Touch Via E-Mail",
+      "url": "mailto:sohammaity239@gmail.com",
       "icon": "email",
       "color": "text-green-400",
       "order": 4,
