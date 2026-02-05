@@ -13,9 +13,7 @@ export async function getStaticPaths() {
 	}));
 }
 
-const posts = (await getCollection("blog"))
-	.filter((post) => !post.data.draft)
-	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = (await getCollection("blog")).filter((post) => !post.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const totalCount = posts.length;
 const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
@@ -71,16 +69,10 @@ const stripForSearch = (input: string) =>
 			</div>
 		</header>
 
-<div id="postGrid" class="mt-8 grid gap-5 sm:gap-6">
+		<div id="postGrid" class="mt-8 grid gap-5 sm:gap-6">
 			{
 				pagePosts.map((post) => (
-					<article
-						class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45"
-						data-title={post.data.title.toLowerCase()}
-						data-description={post.data.description.toLowerCase()}
-						data-tags={(post.data.tags || []).join(" ").toLowerCase()}
-						data-body={stripForSearch(post.body ?? "")}
-					>
+					<article class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45" data-title={post.data.title.toLowerCase()} data-description={post.data.description.toLowerCase()} data-tags={(post.data.tags || []).join(" ").toLowerCase()} data-body={stripForSearch(post.body ?? "")}>
 						<a href={`/blog/${post.slug}/`} class="block">
 							<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 								<div>
@@ -117,29 +109,16 @@ const stripForSearch = (input: string) =>
 
 		{
 			totalPages > 1 && (
-<nav id="paginationNav" class="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm text-white/70">
-					<a
-						href={pageNumber <= 2 ? `/blog/` : `/blog/page/${pageNumber - 1}/`}
-						class={`rounded-full border border-white/15 px-4 py-2 transition ${pageNumber === 1 ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"}`}
-					>
+				<nav id="paginationNav" class="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm text-white/70">
+					<a href={pageNumber <= 2 ? `/blog/` : `/blog/page/${pageNumber - 1}/`} class={`rounded-full border border-white/15 px-4 py-2 transition ${pageNumber === 1 ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"}`}>
 						Previous
 					</a>
 					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-						<a
-							href={page === 1 ? `/blog/` : `/blog/page/${page}/`}
-							class={`rounded-full border px-3 py-1.5 transition ${
-								page === pageNumber ? "border-white/60 bg-white/15 text-white" : "border-white/15 hover:border-white/40 hover:text-white"
-							}`}
-						>
+						<a href={page === 1 ? `/blog/` : `/blog/page/${page}/`} class={`rounded-full border px-3 py-1.5 transition ${page === pageNumber ? "border-white/60 bg-white/15 text-white" : "border-white/15 hover:border-white/40 hover:text-white"}`}>
 							{page}
 						</a>
 					))}
-					<a
-						href={pageNumber >= totalPages ? `/blog/page/${totalPages}/` : `/blog/page/${pageNumber + 1}/`}
-						class={`rounded-full border border-white/15 px-4 py-2 transition ${
-							pageNumber === totalPages ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"
-						}`}
-					>
+					<a href={pageNumber >= totalPages ? `/blog/page/${totalPages}/` : `/blog/page/${pageNumber + 1}/`} class={`rounded-full border border-white/15 px-4 py-2 transition ${pageNumber === totalPages ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"}`}>
 						Next
 					</a>
 				</nav>
@@ -148,69 +127,47 @@ const stripForSearch = (input: string) =>
 	</section>
 </Layout>
 
-	<script>
-		const searchInput = document.getElementById("searchInput");
-		const clearSearch = document.getElementById("clearSearch");
-		const postCount = document.getElementById("postCount");
-		const noResults = document.getElementById("noResults");
-\t\tconst grid = document.getElementById("postGrid");
-\t\tconst pagination = document.getElementById("paginationNav");
-\t\tconst postTotal = document.getElementById("postTotal");
-		const initialCards = Array.from(document.querySelectorAll("article[data-title]"));
-		let cards = initialCards;
-		/** @typedef {{ slug: string; title: string; description: string; date: string; tags: string[]; search: string }} BlogSearchPost */
-		/** @type {Promise<BlogSearchPost[]> | null} */
-		let allPostsPromise = null;
+<script>
+	const searchInput = document.getElementById("searchInput");
+	const clearSearch = document.getElementById("clearSearch");
+	const postCount = document.getElementById("postCount");
+	const noResults = document.getElementById("noResults");
+	const grid = document.getElementById("postGrid");
+	const pagination = document.getElementById("paginationNav");
+	const postTotal = document.getElementById("postTotal");
+	const initialCards = Array.from(document.querySelectorAll("article[data-title]"));
+	let cards = initialCards;
+	/** @typedef {{ slug: string; title: string; description: string; date: string; tags: string[]; search: string }} BlogSearchPost */
+	/** @type {Promise<BlogSearchPost[]> | null} */
+	let allPostsPromise = null;
 
-		/** @param {unknown} value */
-		const escapeHtml = (value) =>
-			String(value)
-				.replace(/&/g, "&amp;")
-				.replace(/</g, "&lt;")
-				.replace(/>/g, "&gt;")
-				.replace(/\"/g, "&quot;")
-				.replace(/'/g, "&#39;");
+	/** @param {unknown} value */
+	const escapeHtml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
 
-		/** @param {string} value */
-		const formatDate = (value) =>
-			new Date(value).toLocaleDateString("en-US", { dateStyle: "long" });
+	/** @param {string} value */
+	const formatDate = (value) => new Date(value).toLocaleDateString("en-US", { dateStyle: "long" });
 
-		const loadAllPosts = async () => {
-			if (!allPostsPromise) {
-				allPostsPromise = fetch("/api/blog-search.json")
-					.then((response) => response.json())
-					.then((data) => data.posts || []);
-			}
-			return allPostsPromise;
-		};
+	const loadAllPosts = async () => {
+		if (!allPostsPromise) {
+			allPostsPromise = fetch("/api/blog-search.json")
+				.then((response) => response.json())
+				.then((data) => data.posts || []);
+		}
+		return allPostsPromise;
+	};
 
-		/** @param {BlogSearchPost} post */
-		const buildCard = (post) => {
-			const tags = Array.isArray(post.tags) ? post.tags : [];
-			const tagMarkup = tags.length
-				? `<ul class="mt-4 flex flex-wrap gap-2">${tags
-						.map(
-							(tag) =>
-								`<li><button type="button" class="tag-pill text-xs px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/70 hover:border-white/40 hover:text-white transition" data-tag="${escapeHtml(
-									tag,
-								)}">${escapeHtml(tag)}</button></li>`,
-						)
-						.join("")}</ul>`
-				: "";
+	/** @param {BlogSearchPost} post */
+	const buildCard = (post) => {
+		const tags = Array.isArray(post.tags) ? post.tags : [];
+		const tagMarkup = tags.length ? `<ul class="mt-4 flex flex-wrap gap-2">${tags.map((tag) => `<li><button type="button" class="tag-pill text-xs px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/70 hover:border-white/40 hover:text-white transition" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button></li>`).join("")}</ul>` : "";
 
-			return `
-				<article class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45" data-title="${escapeHtml(
-					post.title.toLowerCase(),
-				)}" data-description="${escapeHtml(post.description.toLowerCase())}" data-tags="${escapeHtml(
-					tags.join(" ").toLowerCase(),
-				)}" data-body="${escapeHtml(post.search || "")}">
+		return `
+				<article class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45" data-title="${escapeHtml(post.title.toLowerCase())}" data-description="${escapeHtml(post.description.toLowerCase())}" data-tags="${escapeHtml(tags.join(" ").toLowerCase())}" data-body="${escapeHtml(post.search || "")}">
 					<a href="/blog/${escapeHtml(post.slug)}/" class="block">
 						<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 							<div>
 								<p class="text-xs uppercase tracking-[0.2em] text-white/50">${formatDate(post.date)}</p>
-								<h2 class="mt-2 text-xl sm:text-2xl font-semibold text-white group-hover:text-white/90">${escapeHtml(
-									post.title,
-								)}</h2>
+								<h2 class="mt-2 text-xl sm:text-2xl font-semibold text-white group-hover:text-white/90">${escapeHtml(post.title)}</h2>
 								<p class="mt-2 text-sm sm:text-base text-white/70">${escapeHtml(post.description)}</p>
 							</div>
 							<div class="flex items-center gap-2 text-sm text-white/60">
@@ -222,66 +179,66 @@ const stripForSearch = (input: string) =>
 					${tagMarkup}
 				</article>
 			`;
-		};
+	};
 
-		/** @param {MouseEvent} event */
-		const handleTagClick = (event) => {
-			const target = event.target;
-			if (!(target instanceof HTMLElement)) return;
-			const button = target.closest(".tag-pill");
-			if (!button) return;
-			const tag = button.getAttribute("data-tag") || "";
-			if (searchInput) {
-				searchInput.value = tag;
-				updateFilter();
-				searchInput.focus();
-			}
-		};
-
-		/** @param {BlogSearchPost[]} posts */
-		const renderPosts = (posts) => {
-			if (!grid) return;
-			grid.innerHTML = posts.map(buildCard).join("");
-			cards = Array.from(grid.querySelectorAll("article[data-title]"));
-		};
-
-		const restoreInitial = () => {
-			if (!grid) return;
-			grid.innerHTML = "";
-			initialCards.forEach((card) => grid.appendChild(card));
-			cards = initialCards;
-		};
-
-		/** @param {number} visible @param {boolean} hasQuery */
-		const updateCount = (visible, hasQuery) => {
-			if (postCount) postCount.textContent = String(visible);
-			if (noResults) noResults.classList.toggle("hidden", !hasQuery || visible !== 0);
-		};
-
-		const updateFilter = async () => {
-			const query = (searchInput?.value || "").trim().toLowerCase();
-			if (!query) {
-				restoreInitial();
-				pagination?.classList.remove("hidden");
-				postTotal?.classList.remove("hidden");
-				updateCount(initialCards.length, false);
-				if (noResults) noResults.classList.add("hidden");
-				return;
-			}
-
-			pagination?.classList.add("hidden");
-			postTotal?.classList.add("hidden");
-			const posts = await loadAllPosts();
-			const matches = posts.filter((post) => String(post.search || "").includes(query));
-			renderPosts(matches);
-			updateCount(matches.length, true);
-		};
-
-		grid?.addEventListener("click", handleTagClick);
-		searchInput?.addEventListener("input", updateFilter);
-		clearSearch?.addEventListener("click", () => {
-			if (!searchInput) return;
-			searchInput.value = "";
+	/** @param {MouseEvent} event */
+	const handleTagClick = (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		const button = target.closest(".tag-pill");
+		if (!button) return;
+		const tag = button.getAttribute("data-tag") || "";
+		if (searchInput) {
+			searchInput.value = tag;
 			updateFilter();
-		});
-	</script>
+			searchInput.focus();
+		}
+	};
+
+	/** @param {BlogSearchPost[]} posts */
+	const renderPosts = (posts) => {
+		if (!grid) return;
+		grid.innerHTML = posts.map(buildCard).join("");
+		cards = Array.from(grid.querySelectorAll("article[data-title]"));
+	};
+
+	const restoreInitial = () => {
+		if (!grid) return;
+		grid.innerHTML = "";
+		initialCards.forEach((card) => grid.appendChild(card));
+		cards = initialCards;
+	};
+
+	/** @param {number} visible @param {boolean} hasQuery */
+	const updateCount = (visible, hasQuery) => {
+		if (postCount) postCount.textContent = String(visible);
+		if (noResults) noResults.classList.toggle("hidden", !hasQuery || visible !== 0);
+	};
+
+	const updateFilter = async () => {
+		const query = (searchInput?.value || "").trim().toLowerCase();
+		if (!query) {
+			restoreInitial();
+			pagination?.classList.remove("hidden");
+			postTotal?.classList.remove("hidden");
+			updateCount(initialCards.length, false);
+			if (noResults) noResults.classList.add("hidden");
+			return;
+		}
+
+		pagination?.classList.add("hidden");
+		postTotal?.classList.add("hidden");
+		const posts = await loadAllPosts();
+		const matches = posts.filter((post) => String(post.search || "").includes(query));
+		renderPosts(matches);
+		updateCount(matches.length, true);
+	};
+
+	grid?.addEventListener("click", handleTagClick);
+	searchInput?.addEventListener("input", updateFilter);
+	clearSearch?.addEventListener("click", () => {
+		if (!searchInput) return;
+		searchInput.value = "";
+		updateFilter();
+	});
+</script>
