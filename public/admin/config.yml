@@ -10,6 +10,49 @@ media_folder: "public/uploads"
 public_folder: "/uploads"
 
 collections:
+  - name: "repositories"
+    label: "Repositories"
+    folder: "src/content/repositories"
+    create: false
+    extension: "yml"
+    format: "yaml"
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "HTML URL", name: "html_url", widget: "string" }
+      - { label: "Homepage", name: "homepage", widget: "string", required: false }
+      - { label: "Topics", name: "topics", widget: "list", required: false }
+
+  - name: "project_settings"
+    label: "Projects"
+    files:
+      - name: "featured_projects"
+        label: "Featured Projects"
+        file: "src/data/featured-projects.json"
+        format: "json"
+        fields:
+          - label: "Projects"
+            name: "projects"
+            widget: "list"
+            summary: "{{fields.repo}}"
+            fields:
+              - {
+                  label: "Repository",
+                  name: "repo",
+                  widget: "relation",
+                  collection: "repositories",
+                  search_fields: ["name"],
+                  display_fields: ["name", "description"],
+                  value_field: "name",
+                }
+              - { label: "Enabled", name: "enabled", widget: "boolean", default: true }
+              - { label: "Order", name: "order", widget: "number", default: 0 }
+              - { label: "Image", name: "image", widget: "image", required: false }
+              - { label: "Title Override", name: "title", widget: "string", required: false }
+              - { label: "Description Override", name: "description", widget: "text", required: false }
+              - { label: "Homepage Override", name: "homepage", widget: "string", required: false }
+
   - name: "blog"
     label: "Blog"
     folder: "src/content/blog"
