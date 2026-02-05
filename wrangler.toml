@@ -1,4 +1,4 @@
-name = "spreadsheets600-portfolio"
+name = "spreadsheets600-github-io"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
