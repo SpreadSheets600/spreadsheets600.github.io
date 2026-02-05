@@ -5,11 +5,13 @@ const GITHUB_USERNAME = process.env.GITHUB_USERNAME || "SpreadSheets600";
 const OUTPUT_DIR = join(process.cwd(), "src/content/repositories");
 const PER_PAGE = 100;
 
+const token = process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || "";
+
 const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=${PER_PAGE}&type=owner`, {
   headers: {
     Accept: "application/vnd.github+json",
     "User-Agent": "Astro-Portfolio",
-    ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   },
 });
 
