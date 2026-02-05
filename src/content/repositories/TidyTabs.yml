@@ -1,0 +1,11 @@
+name: TidyTabs
+description: AI powered browser tab organization by topic, domain, and context using Google's Gemini API
+html_url: "https://github.com/SpreadSheets600/TidyTabs"
+homepage: ""
+topics:
+  - chrome-extension
+  - gemini
+  - gemini-ai
+  - gemini-api
+  - tabs
+  - tabs-management

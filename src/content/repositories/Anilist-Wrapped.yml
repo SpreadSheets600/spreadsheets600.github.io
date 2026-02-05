@@ -1,0 +1,15 @@
+name: Anilist-Wrapped
+description: Generates beautiful visualizations of your anime and manga consumption throughout the year
+html_url: "https://github.com/SpreadSheets600/Anilist-Wrapped"
+homepage: "https://spreadsheets600.github.io/Anilist-Wrapped/"
+topics:
+  - anilist
+  - anilist-api
+  - anilist-rewind
+  - anilist-tracker
+  - anilist-wrapped
+  - anime
+  - mal
+  - mal-wrapped
+  - rewind
+  - wrapped
