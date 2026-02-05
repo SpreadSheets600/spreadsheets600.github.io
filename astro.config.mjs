@@ -5,5 +5,9 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   output: "server",
   integrations: [mdx()],
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
+  }),
 });
