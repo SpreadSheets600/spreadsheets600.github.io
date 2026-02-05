@@ -2,6 +2,7 @@ backend:
   name: github
   repo: SpreadSheets600/spreadsheets600.github.io
   branch: jam-stack
+  skip_ci: false
   # Optional: OAuth authenticator URL (recommended for multi-user).
   # base_url: https://YOUR_AUTH_DOMAIN
 
