@@ -2,8 +2,10 @@ import matter from "gray-matter";
 import { marked } from "marked";
 
 const GITHUB_TOKEN = import.meta.env.GITHUB_PAT || "";
-const GITHUB_REPO = import.meta.env.GITHUB_REPO || "username/repo";
-const GITHUB_BRANCH = import.meta.env.GITHUB_BRANCH || "main";
+
+const GITHUB_REPO = import.meta.env.GITHUB_REPO || "SpreadSheets600/SpreadsSheets600.github.io";
+const GITHUB_BRANCH = import.meta.env.GITHUB_BRANCH || "jam-stack";
+
 const PINNED_PROJECTS_PATH = "src/content/projects.md";
 const DEFAULT_ACCEPT_HEADER = "application/vnd.github+json";
 
@@ -16,10 +18,10 @@ function buildGitHubHeaders(overrides: Record<string, string> = {}) {
 }
 
 export interface GitHubFileContent {
+	content: string;
 	name: string;
 	path: string;
 	sha: string;
-	content: string;
 }
 
 export async function getFileFromGitHub(path: string): Promise<GitHubFileContent | null> {
@@ -31,6 +33,7 @@ export async function getFileFromGitHub(path: string): Promise<GitHubFileContent
 		if (!response.ok) return null;
 
 		const data = await response.json();
+
 		return {
 			name: data.name,
 			path: data.path,
@@ -38,7 +41,7 @@ export async function getFileFromGitHub(path: string): Promise<GitHubFileContent
 			content: Buffer.from(data.content, "base64").toString("utf8"),
 		};
 	} catch (error) {
-		console.error("Error fetching file from GitHub:", error);
+		console.error("Error Fetching From GitHub:", error);
 		return null;
 	}
 }
@@ -47,9 +50,9 @@ export async function saveFileToGitHub(path: string, content: string, message: s
 	try {
 		let currentSha = sha;
 
-		// If SHA isn't provided, try to fetch it to support updates
 		if (!currentSha) {
 			const existingFile = await getFileFromGitHub(path);
+
 			if (existingFile) {
 				currentSha = existingFile.sha;
 			}
@@ -58,6 +61,7 @@ export async function saveFileToGitHub(path: string, content: string, message: s
 		const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
 			method: "PUT",
 			headers: buildGitHubHeaders({ "Content-Type": "application/json" }),
+
 			body: JSON.stringify({
 				message,
 				content: Buffer.from(content).toString("base64"),
@@ -73,7 +77,7 @@ export async function saveFileToGitHub(path: string, content: string, message: s
 
 		return response.ok;
 	} catch (error) {
-		console.error("Error saving file to GitHub:", error);
+		console.error("Error Saving File To GitHub:", error);
 		return false;
 	}
 }
@@ -82,6 +86,7 @@ export async function deleteFileFromGitHub(path: string, sha: string, message: s
 	try {
 		const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
 			method: "DELETE",
+
 			headers: buildGitHubHeaders({ "Content-Type": "application/json" }),
 			body: JSON.stringify({
 				message,
@@ -92,7 +97,7 @@ export async function deleteFileFromGitHub(path: string, sha: string, message: s
 
 		return response.ok;
 	} catch (error) {
-		console.error("Error deleting file from GitHub:", error);
+		console.error("Error Deleting File From GitHub:", error);
 		return false;
 	}
 }
@@ -113,7 +118,7 @@ export async function listFilesFromGitHub(directory: string): Promise<GitHubFile
 			content: "",
 		}));
 	} catch (error) {
-		console.error("Error listing files from GitHub:", error);
+		console.error("Error Listing Files From GitHub:", error);
 		return [];
 	}
 }
@@ -157,7 +162,7 @@ export async function fetchUserRepos(token: string): Promise<GitHubRepo[]> {
 			updated_at: repo.updated_at,
 		}));
 	} catch (error) {
-		console.error("Error fetching user repos:", error);
+		console.error("Error Fetching User Repos:", error);
 		return [];
 	}
 }
@@ -189,7 +194,7 @@ export async function fetchPinnedProjects(): Promise<PinnedProjectFile | null> {
 	const body = parsed.content.trim();
 
 	if (!Array.isArray(projects)) {
-		console.warn("Pinned projects file missing 'projects' array in frontmatter");
+		console.warn("Pinned Projects File Missing");
 		return { sha: file.sha, projects: [], body, html: marked.parse(body) as string };
 	}
 

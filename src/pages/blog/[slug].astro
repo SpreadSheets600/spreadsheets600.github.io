@@ -2,6 +2,8 @@
 import BlogPost from "../../layouts/BlogPost.astro";
 import { getCollection } from "astro:content";
 
+export const prerender = true;
+
 export async function getStaticPaths() {
 	const posts = await getCollection("blog");
 	return posts
@@ -21,6 +23,6 @@ if (!post || post.data.draft) {
 const { Content, headings } = await post.render();
 ---
 
-<BlogPost title={post.data.title} description={post.data.description} date={post.data.date} tags={post.data.tags} heroImage={post.data.heroImage} author={post.data.author} authorRole={post.data.authorRole} headings={headings}>
+<BlogPost title={post.data.title} description={post.data.description} date={post.data.date} tags={post.data.tags} heroImage={post.data.heroImage} headings={headings}>
 	<Content />
 </BlogPost>

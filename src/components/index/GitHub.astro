@@ -1,20 +1,79 @@
 ---
 const username = "spreadsheets600";
+
+interface Contribution {
+	date: string;
+	count: number;
+	level: 0 | 1 | 2 | 3 | 4;
+}
+
+interface ContributionsResponse {
+	total: Record<string, number>;
+	contributions: Contribution[];
+}
+
+const ERROR_PATTERN = [
+	[1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+	[1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+	[1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1],
+	[1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+	[1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1],
+] as const;
+
 const today = new Date();
 const endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 const startDate = new Date(endDate);
-startDate.setUTCDate(endDate.getUTCDate() - 364);
-const apiUrl = `https://github-contributions-api.jogruber.de/v4/${username}?y=all`;
 
-let contributions = [];
-let totals = {};
+startDate.setUTCDate(endDate.getUTCDate() - 364);
+const apiUrl = `https://github-contributions-api.jogruber.de/v4/${username}?y=last`;
+
+const createDateKey = (date: Date) => date.toISOString().slice(0, 10);
+
+const createPlaceholderContributions = (): Contribution[] => {
+	const entries: Contribution[] = [];
+	const cursor = new Date(startDate);
+
+	while (cursor <= endDate) {
+		entries.push({
+			date: createDateKey(cursor),
+			count: 0,
+			level: 0,
+		});
+		cursor.setUTCDate(cursor.getUTCDate() + 1);
+	}
+	return entries;
+};
+
+const createErrorContributions = (): Contribution[] => {
+	const entries = createPlaceholderContributions();
+
+	const patternStartWeek = Math.floor((53 - 19) / 2);
+	const patternStartRow = Math.floor((7 - 5) / 2);
+
+	return entries.map((entry, index) => {
+		const weekIndex = Math.floor(index / 7);
+		const dayIndex = index % 7;
+
+		const relativeWeek = weekIndex - patternStartWeek;
+		const relativeRow = dayIndex - patternStartRow;
+
+		const isPatternCell = relativeWeek >= 0 && relativeWeek < 19 && relativeRow >= 0 && relativeRow < 5;
+		const count = isPatternCell && ERROR_PATTERN[relativeRow]?.[relativeWeek] === 1 ? 10 : 0;
+
+		return { ...entry, count, level: count > 0 ? 4 : 0 };
+	});
+};
+
+let contributions: Contribution[] = createPlaceholderContributions();
+let totals: Record<string, number> = {};
 let loadError = false;
 
 try {
 	const response = await fetch(apiUrl);
 	if (response.ok) {
-		const data = await response.json();
-		contributions = Array.isArray(data?.contributions) ? data.contributions : [];
+		const data = (await response.json()) as ContributionsResponse;
+
+		contributions = Array.isArray(data?.contributions) && data.contributions.length > 0 ? data.contributions : contributions;
 		totals = data?.total ?? {};
 	} else {
 		loadError = true;
@@ -23,32 +82,42 @@ try {
 	loadError = true;
 }
 
-const contributionMap = new Map();
-for (const entry of contributions) {
+if (loadError) {
+	contributions = createErrorContributions();
+}
+
+const contributionMap = new Map<string, Contribution>();
+for (const entry of contributions as Contribution[]) {
 	contributionMap.set(entry.date, entry);
 }
 
-const lastYearContribs = [];
+const lastYearContribs: Contribution[] = [];
 const cursor = new Date(startDate);
+
 while (cursor <= endDate) {
 	const key = cursor.toISOString().slice(0, 10);
-	const entry = contributionMap.get(key) ?? { date: key, count: 0, level: 0 };
+	const entry = contributionMap.get(key) ?? { date: key, count: 0, level: 0 as const };
+
 	lastYearContribs.push(entry);
 	cursor.setUTCDate(cursor.getUTCDate() + 1);
 }
 
-const weeks = [];
-let currentWeek = [];
+const weeks: Array<Array<Contribution | null>> = [];
+let currentWeek: Array<Contribution | null> = [];
+
 const startDay = startDate.getUTCDay();
+
 for (let i = 0; i < startDay; i += 1) currentWeek.push(null);
 
 for (const entry of lastYearContribs) {
 	currentWeek.push(entry);
+
 	if (currentWeek.length === 7) {
 		weeks.push(currentWeek);
 		currentWeek = [];
 	}
 }
+
 if (currentWeek.length) {
 	while (currentWeek.length < 7) currentWeek.push(null);
 	weeks.push(currentWeek);
@@ -57,13 +126,30 @@ if (currentWeek.length) {
 const totalLastYear = lastYearContribs.reduce((sum, entry) => sum + Number(entry?.count ?? 0), 0);
 const rangeLabel = `${startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${endDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
-const levelClass = (level) => {
+const levelClass = (level: number) => {
 	if (level === 0) return "bg-white/5 ring-white/5";
 	if (level === 1) return "bg-emerald-400/30 ring-emerald-400/40";
 	if (level === 2) return "bg-emerald-400/60 ring-emerald-400/70";
 	if (level === 3) return "bg-emerald-300 ring-emerald-300/90";
 	if (level >= 4) return "bg-emerald-200 ring-emerald-200/90";
+
 	return "bg-white/5 ring-white/5";
+};
+
+const heatmapTooltip = (entry: Contribution | null) => {
+	if (!entry) return "No data";
+
+	const formattedDate = new Date(entry.date).toLocaleDateString("en-US", {
+		weekday: "long",
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
+
+	if (entry.count === 0) return `${formattedDate} - Rest day`;
+	if (entry.count === 1) return `${formattedDate} - 1 Contribution`;
+
+	return `${formattedDate} - ${entry.count} Contributions`;
 };
 ---
 
@@ -81,7 +167,7 @@ const levelClass = (level) => {
 				<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
 				<img
 					class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
-					src="https://github-readme-stats.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000"
+					src="https://github-readme-stats-fast.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000"
 					alt="GitHub stats"
 					loading="lazy"
 					onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
@@ -93,7 +179,7 @@ const levelClass = (level) => {
 				<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
 				<img
 					class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
-					src="https://github-readme-streak-stats.herokuapp.com/?user=spreadsheets600&theme=dark&card_height=180&hide_border=true&background=151515&stroke=FFFFFF&ring=FFFFFF&fire=FFFFFF&currStreakNum=FFFFFF&sideNums=FFFFFF&currStreakLabel=FFFFFF&sideLabels=FFFFFF&dates=FFFFFF"
+					src="https://github-readme-stats-fast.vercel.app/api/streak?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000"
 					alt="GitHub streak"
 					loading="lazy"
 					onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
@@ -118,7 +204,6 @@ const levelClass = (level) => {
 			<div class="mb-4 flex flex-wrap items-center justify-between gap-2">
 				<div>
 					<p class="text-sm font-semibold text-white">Contribution Heatmap</p>
-					<p class="text-xs text-white/60">Last 365 days ({rangeLabel}) • {totalLastYear} total</p>
 				</div>
 				<div class="flex items-center gap-2 text-[11px] text-white/60">
 					<span>Less</span>
@@ -133,24 +218,20 @@ const levelClass = (level) => {
 				</div>
 			</div>
 
-			{
-				loadError ?
-					<div class="card-empty text-sm">Contribution data unavailable.</div>
-				:	<div class="w-full">
-						<div class="grid w-full grid-flow-col auto-cols-fr gap-1.5">
-							{weeks.map((week) => (
-								<div class="grid grid-rows-7 gap-1.5">
-									{week.map((entry) => (
-										<div
-											class={`aspect-square w-full rounded-sm ring-1 ${levelClass(entry?.level ?? 0)}`}
-											title={entry ? `${entry.date} • ${entry.count} contributions` : "No data"}
-										/>
-									))}
-								</div>
-							))}
-						</div>
-					</div>
-			}
+			<div id="github-heatmap-scroll" class="w-full max-md:overflow-x-auto pb-1 [scrollbar-width:thin]">
+				<div class="grid max-md:min-w-max grid-flow-col gap-1.5">
+					{
+						weeks.map((week) => (
+							<div class="grid grid-rows-7 gap-1.5">
+								{week.map((entry) => (
+									<div class={`h-3 w-3 rounded-[3px] ring-1 transition-transform hover:scale-125 ${levelClass(entry?.level ?? 0)}`} title={heatmapTooltip(entry)} />
+								))}
+							</div>
+						))
+					}
+				</div>
+			</div>
+			{loadError && <p class="mt-3 text-xs text-white/55">Live contribution data is unavailable right now. Showing fallback heatmap pattern.</p>}
 		</div>
 
 		<div class="card-shell-lg group relative p-4">
@@ -166,3 +247,10 @@ const levelClass = (level) => {
 		</div>
 	</div>
 </section>
+
+<script>
+	const container = document.getElementById("github-heatmap-scroll");
+	if (container) {
+		container.scrollLeft = container.scrollWidth;
+	}
+</script>

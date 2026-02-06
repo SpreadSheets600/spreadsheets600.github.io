@@ -55,6 +55,7 @@ collections:
                   search_fields: ["name"],
                   display_fields: ["name"],
                   value_field: "name",
+                  required: false,
                 }
               - {
                   label: "Enabled",

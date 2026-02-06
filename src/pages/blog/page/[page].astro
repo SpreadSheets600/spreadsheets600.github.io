@@ -2,29 +2,34 @@
 import Layout from "../../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-const PAGE_SIZE = 10;
+export const prerender = true;
+const LIST_PAGE_SIZE = 10;
 
 export async function getStaticPaths() {
+	const pageSize = 10;
 	const posts = (await getCollection("blog")).filter((post) => !post.data.draft);
-	const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
+	const totalPages = Math.max(1, Math.ceil(posts.length / pageSize));
 
 	return Array.from({ length: totalPages }, (_, i) => ({
 		params: { page: String(i + 1) },
 	}));
 }
 
-const posts = (await getCollection("blog")).filter((post) => !post.data.draft).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const posts = (await getCollection("blog"))
+	.filter((post) => !post.data.draft)
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const totalCount = posts.length;
-const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+const totalPages = Math.max(1, Math.ceil(totalCount / LIST_PAGE_SIZE));
 const pageNumber = Number(Astro.params.page ?? "1");
 
 if (!Number.isFinite(pageNumber) || pageNumber < 1 || pageNumber > totalPages) {
 	return Astro.redirect("/blog/");
 }
 
-const start = (pageNumber - 1) * PAGE_SIZE;
-const pagePosts = posts.slice(start, start + PAGE_SIZE);
+const start = (pageNumber - 1) * LIST_PAGE_SIZE;
+const pagePosts = posts.slice(start, start + LIST_PAGE_SIZE);
+const latestDateLabel = posts[0] ? posts[0].data.date.toLocaleDateString("en-US", { dateStyle: "medium" }) : "-";
 
 const stripForSearch = (input: string) =>
 	input
@@ -36,85 +41,75 @@ const stripForSearch = (input: string) =>
 ---
 
 <Layout title={`Blog · Page ${pageNumber}`} description="Posts and notes from SpreadSheets600.">
-	<section class="mx-auto max-w-7xl py-10 sm:py-14">
-		<header class="card-shell-lg p-6 sm:p-10">
-			<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-				<div class="max-w-2xl">
-					<p class="text-xs uppercase tracking-[0.2em] text-white/50">Field Notes</p>
-					<h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-semibold text-white">The Blog</h1>
-					<p class="mt-3 text-base sm:text-lg text-white/70">Experiments, project updates, and short essays. Search by keyword or tag.</p>
+	<section class="mx-auto max-w-6xl py-10 sm:py-14">
+		<header class="card-shell-lg p-6 sm:p-8">
+			<p class="text-xs uppercase tracking-[0.2em] text-white/45">Journal</p>
+			<div class="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+				<div>
+					<h1 class="text-3xl font-semibold text-white sm:text-4xl">Blog</h1>
+					<p class="mt-2 max-w-2xl text-sm text-white/70 sm:text-base">Page {pageNumber} of posts. Search stays available across all entries.</p>
 				</div>
-				<div class="grid grid-cols-2 gap-3 w-full lg:w-auto">
+				<div class="grid grid-cols-2 gap-2 text-sm lg:w-auto">
 					<div class="card-shell px-4 py-3">
-						<p class="text-xs uppercase tracking-wide text-white/50">Showing</p>
-						<p id="postCount" class="text-lg font-semibold text-white">{pagePosts.length}</p>
-						<p id="postTotal" class="text-xs text-white/40">of {totalCount}</p>
+						<p class="text-[11px] uppercase tracking-[0.16em] text-white/45">Posts</p>
+						<p id="postCount" class="mt-1 text-lg font-semibold text-white">{pagePosts.length}</p>
+						<p id="postTotal" class="text-[11px] text-white/45">of {totalCount}</p>
 					</div>
 					<div class="card-shell px-4 py-3">
-						<p class="text-xs uppercase tracking-wide text-white/50">Latest</p>
-						<p class="text-lg font-semibold text-white">
-							{posts[0] ? posts[0].data.date.toLocaleDateString("en-US", { dateStyle: "medium" }) : "—"}
-						</p>
+						<p class="text-[11px] uppercase tracking-[0.16em] text-white/45">Latest</p>
+						<p class="mt-1 text-sm font-medium text-white">{latestDateLabel}</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+			<div class="mt-6 flex flex-col gap-3 sm:flex-row">
 				<label class="relative flex-1">
 					<span class="sr-only">Search posts</span>
-					<input id="searchInput" type="search" placeholder="Search posts, tags, and topics..." class="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 pr-10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30" />
-					<i class="ph ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-white/40"></i>
+					<input id="searchInput" type="search" placeholder="Search by keyword or tag..." class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 pr-10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20" />
+					<i class="ph ph-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-white/40"></i>
 				</label>
-				<button id="clearSearch" class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white/80 hover:bg-white/20 transition" type="button"> Clear </button>
+				<button id="clearSearch" class="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white/80 transition hover:bg-white/20" type="button">Clear</button>
 			</div>
 		</header>
 
-		<div id="postGrid" class="mt-8 grid gap-5 sm:gap-6">
+		<div id="postGrid" class="mt-7 grid gap-4">
 			{
 				pagePosts.map((post) => (
-					<article class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45" data-title={post.data.title.toLowerCase()} data-description={post.data.description.toLowerCase()} data-tags={(post.data.tags || []).join(" ").toLowerCase()} data-body={stripForSearch(post.body ?? "")}>
+					<article class="card-shell-lg group p-5" data-title={post.data.title.toLowerCase()} data-description={post.data.description.toLowerCase()} data-tags={(post.data.tags || []).join(" ").toLowerCase()} data-body={stripForSearch(post.body ?? "")}>
 						<a href={`/blog/${post.slug}/`} class="block">
-							<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-								<div>
-									<p class="text-xs uppercase tracking-[0.2em] text-white/50">{post.data.date.toLocaleDateString("en-US", { dateStyle: "long" })}</p>
-									<h2 class="mt-2 text-xl sm:text-2xl font-semibold text-white group-hover:text-white/90">{post.data.title}</h2>
-									<p class="mt-2 text-sm sm:text-base text-white/70">{post.data.description}</p>
-								</div>
-								<div class="flex items-center gap-2 text-sm text-white/60">
-									<span>Read</span>
-									<i class="ph ph-arrow-up-right" />
-								</div>
-							</div>
+							<p class="text-xs uppercase tracking-[0.2em] text-white/45">{post.data.date.toLocaleDateString("en-US", { dateStyle: "long" })}</p>
+							<h2 class="mt-2 text-xl font-semibold text-white transition group-hover:text-white/90">{post.data.title}</h2>
+							<p class="mt-2 text-sm text-white/70">{post.data.description}</p>
 						</a>
-
-						{post.data.tags?.length ?
-							<ul class="mt-4 flex flex-wrap gap-2">
-								{post.data.tags.map((tag) => (
-									<li>
-										<button type="button" class="tag-pill text-xs px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/70 hover:border-white/40 hover:text-white transition" data-tag={tag}>
-											{tag}
-										</button>
-									</li>
-								))}
-							</ul>
-						:	null}
+						{
+							post.data.tags?.length ? (
+								<ul class="mt-4 flex flex-wrap gap-1.5">
+									{post.data.tags.map((tag) => (
+										<li>
+											<button type="button" class="tag-pill rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] text-white/70 transition hover:border-white/40 hover:text-white" data-tag={tag}>
+												{tag}
+											</button>
+										</li>
+									))}
+								</ul>
+							) : null
+						}
 					</article>
 				))
 			}
 
 			{posts.length === 0 && <div class="card-empty">No published posts yet.</div>}
-
-			<div id="noResults" class="hidden card-empty">No posts match your search.</div>
+			<div id="noResults" class="card-empty hidden">No posts match your search.</div>
 		</div>
 
 		{
 			totalPages > 1 && (
-				<nav id="paginationNav" class="mt-10 flex flex-wrap items-center justify-center gap-2 text-sm text-white/70">
-					<a href={pageNumber <= 2 ? `/blog/` : `/blog/page/${pageNumber - 1}/`} class={`rounded-full border border-white/15 px-4 py-2 transition ${pageNumber === 1 ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"}`}>
+				<nav id="paginationNav" class="mt-8 flex flex-wrap items-center justify-center gap-2 text-sm text-white/70">
+					<a href={pageNumber <= 2 ? "/blog/" : `/blog/page/${pageNumber - 1}/`} class={`rounded-full border border-white/15 px-4 py-2 transition ${pageNumber === 1 ? "pointer-events-none opacity-50" : "hover:border-white/40 hover:text-white"}`}>
 						Previous
 					</a>
 					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-						<a href={page === 1 ? `/blog/` : `/blog/page/${page}/`} class={`rounded-full border px-3 py-1.5 transition ${page === pageNumber ? "border-white/60 bg-white/15 text-white" : "border-white/15 hover:border-white/40 hover:text-white"}`}>
+						<a href={page === 1 ? "/blog/" : `/blog/page/${page}/`} class={`rounded-full border px-3 py-1.5 transition ${page === pageNumber ? "border-white/50 bg-white/10 text-white" : "border-white/15 hover:border-white/40 hover:text-white"}`}>
 							{page}
 						</a>
 					))}
@@ -131,20 +126,20 @@ const stripForSearch = (input: string) =>
 	const searchInput = document.getElementById("searchInput");
 	const clearSearch = document.getElementById("clearSearch");
 	const postCount = document.getElementById("postCount");
+	const postTotal = document.getElementById("postTotal");
 	const noResults = document.getElementById("noResults");
 	const grid = document.getElementById("postGrid");
 	const pagination = document.getElementById("paginationNav");
-	const postTotal = document.getElementById("postTotal");
 	const initialCards = Array.from(document.querySelectorAll("article[data-title]"));
-	let cards = initialCards;
-	/** @typedef {{ slug: string; title: string; description: string; date: string; tags: string[]; search: string }} BlogSearchPost */
-	/** @type {Promise<BlogSearchPost[]> | null} */
 	let allPostsPromise = null;
 
-	/** @param {unknown} value */
-	const escapeHtml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+	const escapeHtml = (value) => String(value)
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/\"/g, "&quot;")
+		.replace(/'/g, "&#39;");
 
-	/** @param {string} value */
 	const formatDate = (value) => new Date(value).toLocaleDateString("en-US", { dateStyle: "long" });
 
 	const loadAllPosts = async () => {
@@ -156,60 +151,33 @@ const stripForSearch = (input: string) =>
 		return allPostsPromise;
 	};
 
-	/** @param {BlogSearchPost} post */
 	const buildCard = (post) => {
 		const tags = Array.isArray(post.tags) ? post.tags : [];
-		const tagMarkup = tags.length ? `<ul class="mt-4 flex flex-wrap gap-2">${tags.map((tag) => `<li><button type="button" class="tag-pill text-xs px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/70 hover:border-white/40 hover:text-white transition" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button></li>`).join("")}</ul>` : "";
+		const tagMarkup = tags.length
+			? `<ul class="mt-4 flex flex-wrap gap-1.5">${tags.map((tag) => `<li><button type="button" class="tag-pill rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] text-white/70 transition hover:border-white/40 hover:text-white" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button></li>`).join("")}</ul>`
+			: "";
 
-		return `
-				<article class="card-shell-lg group p-5 sm:p-7 hover:border-white/30 hover:bg-black/45" data-title="${escapeHtml(post.title.toLowerCase())}" data-description="${escapeHtml(post.description.toLowerCase())}" data-tags="${escapeHtml(tags.join(" ").toLowerCase())}" data-body="${escapeHtml(post.search || "")}">
-					<a href="/blog/${escapeHtml(post.slug)}/" class="block">
-						<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<div>
-								<p class="text-xs uppercase tracking-[0.2em] text-white/50">${formatDate(post.date)}</p>
-								<h2 class="mt-2 text-xl sm:text-2xl font-semibold text-white group-hover:text-white/90">${escapeHtml(post.title)}</h2>
-								<p class="mt-2 text-sm sm:text-base text-white/70">${escapeHtml(post.description)}</p>
-							</div>
-							<div class="flex items-center gap-2 text-sm text-white/60">
-								<span>Read</span>
-								<i class="ph ph-arrow-up-right"></i>
-							</div>
-						</div>
-					</a>
-					${tagMarkup}
-				</article>
-			`;
+		return `<article class="card-shell-lg group p-5" data-title="${escapeHtml(post.title.toLowerCase())}" data-description="${escapeHtml(post.description.toLowerCase())}" data-tags="${escapeHtml(tags.join(" ").toLowerCase())}" data-body="${escapeHtml(post.search || "")}">
+			<a href="/blog/${escapeHtml(post.slug)}/" class="block">
+				<p class="text-xs uppercase tracking-[0.2em] text-white/45">${formatDate(post.date)}</p>
+				<h2 class="mt-2 text-xl font-semibold text-white transition group-hover:text-white/90">${escapeHtml(post.title)}</h2>
+				<p class="mt-2 text-sm text-white/70">${escapeHtml(post.description)}</p>
+			</a>
+			${tagMarkup}
+		</article>`;
 	};
 
-	/** @param {MouseEvent} event */
-	const handleTagClick = (event) => {
-		const target = event.target;
-		if (!(target instanceof HTMLElement)) return;
-		const button = target.closest(".tag-pill");
-		if (!button) return;
-		const tag = button.getAttribute("data-tag") || "";
-		if (searchInput) {
-			searchInput.value = tag;
-			updateFilter();
-			searchInput.focus();
-		}
-	};
-
-	/** @param {BlogSearchPost[]} posts */
 	const renderPosts = (posts) => {
 		if (!grid) return;
 		grid.innerHTML = posts.map(buildCard).join("");
-		cards = Array.from(grid.querySelectorAll("article[data-title]"));
 	};
 
 	const restoreInitial = () => {
 		if (!grid) return;
 		grid.innerHTML = "";
 		initialCards.forEach((card) => grid.appendChild(card));
-		cards = initialCards;
 	};
 
-	/** @param {number} visible @param {boolean} hasQuery */
 	const updateCount = (visible, hasQuery) => {
 		if (postCount) postCount.textContent = String(visible);
 		if (noResults) noResults.classList.toggle("hidden", !hasQuery || visible !== 0);
@@ -234,11 +202,20 @@ const stripForSearch = (input: string) =>
 		updateCount(matches.length, true);
 	};
 
+	const handleTagClick = (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		const button = target.closest(".tag-pill");
+		if (!button || !searchInput) return;
+		searchInput.value = button.getAttribute("data-tag") || "";
+		void updateFilter();
+	};
+
 	grid?.addEventListener("click", handleTagClick);
-	searchInput?.addEventListener("input", updateFilter);
+	searchInput?.addEventListener("input", () => void updateFilter());
 	clearSearch?.addEventListener("click", () => {
 		if (!searchInput) return;
 		searchInput.value = "";
-		updateFilter();
+		void updateFilter();
 	});
 </script>

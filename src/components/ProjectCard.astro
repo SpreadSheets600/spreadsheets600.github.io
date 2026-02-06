@@ -1,8 +1,10 @@
 ---
+import { getLanguageColorMap, getLanguageColorSync } from "../lib/languageColors.js";
+
 interface Props {
 	project: {
 		name: string;
-		html_url: string;
+		html_url?: string | null;
 		topics: string[];
 		forks_count?: number;
 		homepage: string | null;
@@ -10,14 +12,13 @@ interface Props {
 		stargazers_count?: number;
 		description: string | null;
 		image?: string | null;
+		languageColor?: string;
 	};
 }
 
 const { project } = Astro.props;
-
-import { getLanguageColor } from "../lib/languageColors.js";
-
-const langColor = getLanguageColor(project.language);
+const languageColorMap = await getLanguageColorMap();
+const langColor = project.languageColor ?? getLanguageColorSync(project.language, languageColorMap);
 ---
 
 <article class="group card-shell flex flex-col py-3 px-4 sm:py-4 sm:px-6 hover:-translate-y-1 hover:bg-black/50">
@@ -43,7 +44,7 @@ const langColor = getLanguageColor(project.language);
 	{
 		project.topics.length > 0 && (
 			<div class="flex flex-wrap gap-1.5 mb-4">
-				{project.topics.slice(0, 4).map((topic) => (
+				{project.topics.slice(0, 3).map((topic) => (
 					<span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">{topic}</span>
 				))}
 			</div>
@@ -79,10 +80,14 @@ const langColor = getLanguageColor(project.language);
 		</div>
 
 		<div class="flex gap-2">
-			<a href={project.html_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg bg-white/15 px-3 py-1.5 text-xs sm:text-sm font-medium text-white hover:bg-white/20 transition">
-				<i class="ph ph-github-logo"></i>
-				Code
-			</a>
+			{
+				project.html_url && (
+					<a href={project.html_url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg bg-white/15 px-3 py-1.5 text-xs sm:text-sm font-medium text-white hover:bg-white/20 transition">
+						<i class="ph ph-github-logo" />
+						Code
+					</a>
+				)
+			}
 			{
 				project.homepage && (
 					<a href={project.homepage} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-lg border border-white/20 px-3 py-1.5 text-xs sm:text-sm font-medium text-white hover:bg-white/10 transition">

@@ -8,11 +8,18 @@ const PAGE_SIZE = 10;
 const pageNumber = 1;
 const totalCount = posts.length;
 const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
 const pagePosts = posts.slice(0, PAGE_SIZE);
+
+const showingCountLabel = pagePosts.length.toLocaleString();
+const latestDateLabel = posts[0] ? posts[0].data.date.toLocaleDateString("en-US", { dateStyle: "medium" }) : "—";
+
 const groupedPagePosts = pagePosts.reduce((acc, post) => {
 	const year = post.data.date.getFullYear();
 	if (!acc.has(year)) acc.set(year, []);
+
 	acc.get(year).push(post);
+
 	return acc;
 }, new Map());
 
@@ -30,19 +37,36 @@ const stripForSearch = (input: string) =>
 		<header class="mb-8 sm:mb-12">
 			<div class="card-shell-lg p-6 sm:p-8">
 				<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-					<div class="mb-2 flex items-center gap-3">
-						<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">The Blog</h1>
+					<div class="max-w-2xl">
+						<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
+							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text">The Blog</span>
+						</h1>
 					</div>
-					<div class="grid grid-cols-2 gap-3 w-full lg:w-auto">
-						<div class="card-shell px-4 py-3">
-							<p class="text-xs uppercase tracking-wide text-white/50">Showing</p>
-							<p id="postCount" class="text-lg font-semibold text-white">{pagePosts.length}</p>
+
+					<div class="grid grid-cols-2 gap-2 w-full lg:w-auto">
+						<div class="card-shell group relative overflow-hidden px-3 py-2.5">
+							<div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-sky-400/10 via-transparent to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100"></div>
+							<div class="relative flex items-center gap-2.5">
+								<div class="flex h-9 w-9 items-center justify-center rounded-lg border border-sky-300/30 bg-sky-400/10 text-sky-200 shadow-[0_0_16px_rgba(56,189,248,0.2)]">
+									<i class="ph ph-newspaper-clipping text-lg"></i>
+								</div>
+								<div class="leading-tight">
+									<p class="text-[11px] uppercase tracking-[0.14em] text-white/50">Showing</p>
+									<p id="postCount" class="mt-0.5 text-xl font-bold text-white">{showingCountLabel}</p>
+								</div>
+							</div>
 						</div>
-						<div class="card-shell px-4 py-3">
-							<p class="text-xs uppercase tracking-wide text-white/50">Latest</p>
-							<p class="text-lg font-semibold text-white">
-								{posts[0] ? posts[0].data.date.toLocaleDateString("en-US", { dateStyle: "medium" }) : "—"}
-							</p>
+						<div class="card-shell group relative overflow-hidden px-3 py-2.5">
+							<div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-amber-300/10 via-transparent to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100"></div>
+							<div class="relative flex items-center gap-2.5">
+								<div class="flex h-9 w-9 items-center justify-center rounded-lg border border-amber-300/30 bg-amber-300/10 text-amber-200 shadow-[0_0_16px_rgba(252,211,77,0.2)]">
+									<i class="ph ph-calendar-blank text-lg"></i>
+								</div>
+								<div class="leading-tight">
+									<p class="text-[11px] uppercase tracking-[0.14em] text-white/50">Latest</p>
+									<p class="mt-0.5 text-xl font-bold text-white">{latestDateLabel}</p>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -54,6 +78,7 @@ const stripForSearch = (input: string) =>
 					<input id="searchInput" type="search" placeholder="Search posts, tags, and topics..." class="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 pr-10 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30" />
 					<i class="ph ph-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-white/40"></i>
 				</label>
+
 				<button id="clearSearch" class="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white/80 hover:bg-white/20 transition" type="button"> Clear </button>
 			</div>
 
@@ -110,16 +135,15 @@ const stripForSearch = (input: string) =>
 		const searchInput = document.getElementById("searchInput") as HTMLInputElement | null;
 		const clearSearch = document.getElementById("clearSearch");
 		const postCount = document.getElementById("postCount");
-		const noResults = document.getElementById("noResults");
+
 		const grid = document.getElementById("postGrid");
 		const pagination = document.getElementById("paginationNav");
 		const initialCards = Array.from(document.querySelectorAll("article[data-title]"));
-		let cards = initialCards;
+		const initialGridHtml = grid?.innerHTML ?? "";
+
 		let allPostsPromise = null;
 
 		const escapeHtml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
-
-		const formatDate = (value) => new Date(value).toLocaleDateString("en-US", { dateStyle: "long" });
 
 		const loadAllPosts = async () => {
 			if (!allPostsPromise) {
@@ -151,18 +175,32 @@ const stripForSearch = (input: string) =>
 
 		const renderPosts = (posts) => {
 			if (!grid) return;
-			grid.innerHTML = posts.map(buildCard).join("");
-			cards = Array.from(grid.querySelectorAll("article[data-title]"));
+			const grouped = posts.reduce((acc, post) => {
+				const year = new Date(post.date).getFullYear();
+				if (!acc.has(year)) acc.set(year, []);
+				acc.get(year).push(post);
+				return acc;
+			}, new Map());
+
+			const groupsMarkup = Array.from(grouped.entries())
+				.map(([year, yearPosts]) => `
+					<div class="grid gap-5 sm:gap-6">
+						<h3 class="text-sm font-semibold uppercase tracking-[0.3em] text-white/40">${year}</h3>
+						${yearPosts.map((post) => buildCard(post)).join("")}
+					</div>
+				`)
+				.join("");
+
+			grid.innerHTML = `${groupsMarkup}<div id="noResults" class="hidden card-empty">No posts match your search.</div>`;
 		};
 
 		const restoreInitial = () => {
 			if (!grid) return;
-			grid.innerHTML = "";
-			initialCards.forEach((card) => grid.appendChild(card));
-			cards = initialCards;
+			grid.innerHTML = initialGridHtml;
 		};
 
 		const updateCount = (visible, hasQuery) => {
+			const noResults = document.getElementById("noResults");
 			if (postCount) postCount.textContent = String(visible);
 			if (noResults) noResults.classList.toggle("hidden", !hasQuery || visible !== 0);
 		};
@@ -173,7 +211,6 @@ const stripForSearch = (input: string) =>
 				restoreInitial();
 				pagination?.classList.remove("hidden");
 				updateCount(initialCards.length, false);
-				if (noResults) noResults.classList.add("hidden");
 				return;
 			}
 
