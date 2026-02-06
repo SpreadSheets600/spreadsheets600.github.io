@@ -3,9 +3,6 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "predev": "node --env-file=.env scripts/sync-repos.mjs",
-    "prebuild": "node --env-file=.env scripts/sync-repos.mjs",
-    "prepreview": "node --env-file=.env scripts/sync-repos.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

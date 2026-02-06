@@ -4,50 +4,10 @@ on:
     push:
         branches: [jam-stack]
     repository_dispatch:
-        types: [sveltia-cms-publish, sync-repos]
+        types: [sveltia-cms-publish]
     workflow_dispatch: {}
-    schedule:
-        - cron: "0 3 * * *"
 
 jobs:
-    sync-repos:
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'repository_dispatch' && github.event.action == 'sync-repos')
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  ref: jam-stack
-                  fetch-depth: 0
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "npm"
-
-            - name: Install dependencies
-              run: npm ci
-
-            - name: Sync repositories
-              run: npm run sync-repos
-              env:
-                  GITHUB_USERNAME: SpreadSheets600
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Commit and push changes
-              run: |
-                  if git status --porcelain | grep -q .; then
-                    git config user.name "github-actions[bot]"
-                    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                    git add src/content/repositories
-                    git commit -m "chore: sync repositories"
-                    git push origin jam-stack
-                  else
-                    echo "No repository changes to commit."
-                  fi
-
     deploy:
         runs-on: ubuntu-latest
         steps:
