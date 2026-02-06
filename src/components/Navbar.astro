@@ -58,11 +58,6 @@ const navLinks = [
 						</li>
 					))
 				}
-				<li>
-					<a href="/terminal" class:list={["mobile-nav-link inline-flex items-center !text-green-400", { active: isActive("/terminal") }]}>
-						<span>Terminal</span>
-					</a>
-				</li>
 			</ul>
 		</div>
 	</div>
@@ -113,10 +108,6 @@ const navLinks = [
 	.nav-link.active::after {
 		content: "";
 		@apply absolute -bottom-4 left-0 right-0 h-0.5 bg-gradient-to-r from-white/60 to-white/30 rounded-full;
-	}
-
-	.terminal-link {
-		@apply bg-gradient-to-r from-green-500/20 to-green-400/20 px-3 py-1.5 rounded-lg border border-green-400/30 hover:border-green-400/50;
 	}
 
 	.mobile-nav-link {

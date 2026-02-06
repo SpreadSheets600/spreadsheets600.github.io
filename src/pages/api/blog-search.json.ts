@@ -16,14 +16,11 @@ export const GET: APIRoute = async () => {
 
 	const payload = posts.map((post) => {
 		const tags = post.data.tags ?? [];
-		const search = [post.data.title, post.data.description, tags.join(" "), stripForSearch(post.body ?? "")]
-			.join(" ")
-			.toLowerCase();
+		const search = [post.data.title, tags.join(" "), stripForSearch(post.body ?? "")].join(" ").toLowerCase();
 
 		return {
 			slug: post.slug,
 			title: post.data.title,
-			description: post.data.description,
 			date: post.data.date.toISOString(),
 			tags,
 			search,

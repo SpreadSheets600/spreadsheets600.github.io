@@ -75,11 +75,10 @@ const stripForSearch = (input: string) =>
 		<div id="postGrid" class="mt-7 grid gap-4">
 			{
 				pagePosts.map((post) => (
-					<article class="card-shell-lg group p-5" data-title={post.data.title.toLowerCase()} data-description={post.data.description.toLowerCase()} data-tags={(post.data.tags || []).join(" ").toLowerCase()} data-body={stripForSearch(post.body ?? "")}>
+					<article class="card-shell-lg group p-5" data-title={post.data.title.toLowerCase()} data-tags={(post.data.tags || []).join(" ").toLowerCase()} data-body={stripForSearch(post.body ?? "")}>
 						<a href={`/blog/${post.slug}/`} class="block">
 							<p class="text-xs uppercase tracking-[0.2em] text-white/45">{post.data.date.toLocaleDateString("en-US", { dateStyle: "long" })}</p>
 							<h2 class="mt-2 text-xl font-semibold text-white transition group-hover:text-white/90">{post.data.title}</h2>
-							<p class="mt-2 text-sm text-white/70">{post.data.description}</p>
 						</a>
 						{
 							post.data.tags?.length ? (
@@ -157,11 +156,10 @@ const stripForSearch = (input: string) =>
 			? `<ul class="mt-4 flex flex-wrap gap-1.5">${tags.map((tag) => `<li><button type="button" class="tag-pill rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] text-white/70 transition hover:border-white/40 hover:text-white" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button></li>`).join("")}</ul>`
 			: "";
 
-		return `<article class="card-shell-lg group p-5" data-title="${escapeHtml(post.title.toLowerCase())}" data-description="${escapeHtml(post.description.toLowerCase())}" data-tags="${escapeHtml(tags.join(" ").toLowerCase())}" data-body="${escapeHtml(post.search || "")}">
+		return `<article class="card-shell-lg group p-5" data-title="${escapeHtml(post.title.toLowerCase())}" data-tags="${escapeHtml(tags.join(" ").toLowerCase())}" data-body="${escapeHtml(post.search || "")}">
 			<a href="/blog/${escapeHtml(post.slug)}/" class="block">
 				<p class="text-xs uppercase tracking-[0.2em] text-white/45">${formatDate(post.date)}</p>
 				<h2 class="mt-2 text-xl font-semibold text-white transition group-hover:text-white/90">${escapeHtml(post.title)}</h2>
-				<p class="mt-2 text-sm text-white/70">${escapeHtml(post.description)}</p>
 			</a>
 			${tagMarkup}
 		</article>`;

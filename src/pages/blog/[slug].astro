@@ -23,6 +23,6 @@ if (!post || post.data.draft) {
 const { Content, headings } = await post.render();
 ---
 
-<BlogPost title={post.data.title} description={post.data.description} date={post.data.date} tags={post.data.tags} heroImage={post.data.heroImage} headings={headings}>
+<BlogPost title={post.data.title} date={post.data.date} tags={post.data.tags} heroImage={post.data.heroImage} headings={headings}>
 	<Content />
 </BlogPost>
