@@ -2,21 +2,85 @@
   "projects": [
     {
       "repo": "",
+      "github": "https://github.com/novatrax",
       "enabled": true,
-      "order": 1,
+      "order": 0,
       "image": "/uploads/banner.e952f3168112.jpg",
       "title": "Novatra",
       "description": "Novatra offers topic-wise quizzes, past papers, analytics, and detailed explanations to help students prepare for NSE, JEE, NEET, and other exams.  It provides a focused study environment and progress tracking.",
-      "homepage": "https://novatra.in"
+      "homepage": "https://novatra.in",
+      "language": "Python",
+      "stargazers_count": null,
+      "forks_count": null
     },
     {
       "repo": "Anilist-Wrapped",
+      "github": "",
       "enabled": true,
-      "order": 0,
-      "image": "",
+      "order": 1,
+      "image": "/uploads/Screenshot 2026-02-06 130155.png",
       "title": "Anilist Wrapped",
       "description": "",
-      "homepage": ""
+      "homepage": "",
+      "language": "",
+      "stargazers_count": null,
+      "forks_count": null
+    },
+    {
+      "repo": "Repo-Recomendations",
+      "github": "",
+      "enabled": true,
+      "order": 2,
+      "image": "https://raw.githubusercontent.com/SpreadSheets600/Repo-Recomendations/main/.github/images/preview.png",
+      "title": "Repo Recommendations",
+      "description": "Generate GitHub repository recommendations based on your starred repositories and co-stargazers.",
+      "homepage": "",
+      "topics": [],
+      "language": "",
+      "stargazers_count": null,
+      "forks_count": null
+    },
+    {
+      "repo": "Links-Classification",
+      "github": "",
+      "enabled": true,
+      "order": 3,
+      "image": "/uploads/Screenshot 2026-02-06 130929.png",
+      "title": "Link Classification",
+      "description": "Generate structured metadata for a list of URLs. The pipeline reads links.md, fetches page content, classifies each link, and writes results to JSON.",
+      "homepage": "",
+      "topics": [],
+      "language": "",
+      "stargazers_count": null,
+      "forks_count": null
+    },
+    {
+      "repo": "TidyTabs",
+      "github": "",
+      "enabled": true,
+      "order": 4,
+      "image": "",
+      "title": "Tidy Tabs Chrome",
+      "description": "AI-powered browser tab organization using Google's Gemini API to intelligently group your tabs by topic, domain, and context.",
+      "homepage": "",
+      "topics": [],
+      "language": "",
+      "stargazers_count": null,
+      "forks_count": null
+    },
+    {
+      "repo": "Steam-Wrapped",
+      "github": "",
+      "enabled": true,
+      "order": 5,
+      "image": "/uploads/Screenshot 2026-02-06 131304.png",
+      "title": "Steam Wrapped",
+      "description": "Steam Wrapped is a web application that delivers a personalized \"Wrapped\" experience for Steam users, similar to Spotify Wrapped but focused on gaming data.",
+      "homepage": "",
+      "topics": [],
+      "language": "",
+      "stargazers_count": null,
+      "forks_count": null
     }
   ]
 }
