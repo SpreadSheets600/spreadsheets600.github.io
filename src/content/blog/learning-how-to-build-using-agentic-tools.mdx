@@ -1,0 +1,66 @@
+---
+title: Learning How To Build Using Agentic Tools
+description: Learning how to use agentic tools!
+date: 2026-02-01T13:28:00
+tags: []
+heroImage: ''
+author: ''
+authorRole: ''
+draft: false
+---
+
+**For the past two days, I haven’t really been doing much regarding my academics,** but I worked quite a bit with AI and agentic tools. It helped me learn a really important lesson: AI agents are really good _only_ if you can use them properly. The better the prompt and instructions you give, the better the results you will get.
+
+How did I come to this basic conclusion so late after using AI agents for so long? No idea, don’t even ask me.
+
+**Well, I got access to ChatGPT Plus for a month (free, of course).** And with the Plus plan came **Codex**. Boy, Codex is great; it’s fast (P.S. written in Rust) and works really well. I have been playing with it while working on **Novatra**.
+
+I was working on improving the way statistics are handled to reduce DB queries and make things faster. Even though we don’t have complex statistics - just correct, incorrect, partially correct, etc. we used to calculate them for every quiz _every time_ a request was sent, instead of saving them to the DB. This increased DB queries significantly.
+
+- **Solution:** Simple. Just calculate them once and save them to the DB as a column.
+
+**As simple as the task sounds, there are a few things to note.** We already have over **44,000 attempts** at this time. So, the previous ones would be `null` if I didn't do anything. Well, here is a simple benefit of using **Django Commands**: writing a simple command to backfill them would be amazing.
+
+With that said, I had clear goals:
+
+1. Getting the new columns in the DB.
+2. Writing a Django command to fill in the old data.
+3. Updating the templates to directly fetch data from the DB.
+
+**Here’s the thing:** When I started writing this to my agent, I couldn't just tell it to do the above without any context. If I just said:
+
+> _"Update the database to save the statistics data, write me a Django command to backfill the existing data, and update the templates to use the data from the database instead of calculating."_
+
+Well, this _might_ work, but it would take more time for the AI to understand what it has to do. If I gave _you_ this prompt with the codebase, you would have a lot of questions: _Which statistics? What database? Which templates?_
+
+Similarly, the AI would have the same questions. Even though models are being updated to ask clarifying questions, it takes a lot of time (and context window) to understand what is being said, which makes things worse.
+
+**The Solution? Provide enough context.**
+
+What I mean by that is treating an AI agent like a **new developer** working on the codebase. It has all the knowledge on _how_ to code, but not _what_ to do since it’s new to the project. Our task is to tell it **what**, **where**, and suggest **how -** which creates clear instructions and makes it work like a charm.
+
+So, for the above prompt, it should be something like:
+
+> `<tagging models.py where all database models are defined>`Update the `<mentioning table_name, in this case app_quizattempts>` to include all the statistics: correct question count, incorrect question count, partially correct question count, and wrong question count. Keep them `null` by default.
+
+**Well, that’s it.** But wait a minute doing this will only solve one part of a three-part problem. And that is fine. When this is done, we will move to the next step. Things need to be kept small, or else the context will run out. The main goal is getting the task done while spending as little context as possible.
+
+**Once that first step was done - the models updated and migrated - I moved to the next task: the backfill command.** The process remained exactly the same.
+
+Instead of confusing the agent with too much context or trying to chain everything together, I kept it focused. I tagged the updated `models.py` and the specific file where the calculation logic currently lived.
+
+My prompt was simple -
+
+> `<tagging models.py and utils.py>`Create a Django management command to iterate through all existing `QuizAttempts`. Use the calculation logic available in `utils.py` to compute the stats for each attempt and save them to the new fields we just created. Handle it in batches to avoid memory issues.
+
+Because the scope was small, the code came out perfect. No hallucinations, no weird logic errors. It just worked.
+
+**Finally, the templates.** Same drill. I didn't need the AI to know about the database migration or the backfill command anymore. I just needed it to know about the HTML.
+
+I tagged the specific template file and said:
+
+> `<tagging quiz_result.html>`Replace the complex template tags that are currently calculating scores on the fly with the new model fields: `correct_count`, `incorrect_count`, and `partial_count`.
+
+**The result?** It worked like a charm.
+
+This approach of breaking it down into "micro-tasks" ensures the AI doesn't lose track. It keeps the context window clean and the results accurate. It really is just like managing a developer - you can't just wave your hands and say "fix the whole feature." You have to break it down into specific tickets. That’s the secret to getting "smarter" results from these agents.
