@@ -1,13 +1,13 @@
 {
   "projects": [
     {
-      "repo": "spreadsheets600.github.io",
+      "repo": "",
       "enabled": true,
       "order": 1,
-      "image": "",
-      "title": "",
-      "description": "",
-      "homepage": ""
+      "image": "/uploads/banner.e952f3168112.jpg",
+      "title": "Novatra",
+      "description": "Novatra offers topic-wise quizzes, past papers, analytics, and detailed explanations to help students prepare for NSE, JEE, NEET, and other exams.  It provides a focused study environment and progress tracking.",
+      "homepage": "https://novatra.in"
     }
   ]
 }
