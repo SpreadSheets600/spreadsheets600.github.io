@@ -1,4 +1,5 @@
 export const prerender = false;
+import { getCachedOrFetch } from "../../lib/cache.js";
 
 const API_BASE = "https://api.steampowered.com";
 const CDN_BASE = "https://cdn.cloudflare.steamstatic.com/steam/apps";
@@ -70,81 +71,104 @@ export async function GET({ request }) {
 
 	let steamId = querySteamId || envSteamId || "";
 	const vanity = queryVanity || envVanity || "";
+	const cacheId = steamId || vanity;
+	const cacheKey = `steam-status:${cacheId}`;
+	const ttlMs = 5 * 60 * 1000;
 
 	try {
-		if (!steamId) {
-			if (!vanity) {
-				return json({ error: "Missing Steam ID or vanity name." }, 400);
+		const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
+			let resolvedSteamId = steamId;
+			if (!resolvedSteamId) {
+				if (!vanity) {
+					const err = new Error("Missing Steam ID or vanity name.");
+					err.upstreamStatus = 400;
+					throw err;
+				}
+				resolvedSteamId = await resolveVanity(apiKey, vanity);
 			}
-			steamId = await resolveVanity(apiKey, vanity);
-		}
 
-		const [summaryData, ownedData, recentData] = await Promise.all([
-			fetchSteam(
-				withParams("/ISteamUser/GetPlayerSummaries/v0002/", {
-					key: apiKey,
-					steamids: steamId,
-				}),
-			),
-			fetchSteam(
-				withParams("/IPlayerService/GetOwnedGames/v0001/", {
-					key: apiKey,
-					steamid: steamId,
-					include_appinfo: 0,
-					include_played_free_games: 1,
-				}),
-			),
-			fetchSteam(
-				withParams("/IPlayerService/GetRecentlyPlayedGames/v0001/", {
-					key: apiKey,
-					steamid: steamId,
-					count: 4,
-				}),
-			),
-		]);
+			const [summaryData, ownedData, recentData] = await Promise.all([
+				fetchSteam(
+					withParams("/ISteamUser/GetPlayerSummaries/v0002/", {
+						key: apiKey,
+						steamids: resolvedSteamId,
+					}),
+				),
+				fetchSteam(
+					withParams("/IPlayerService/GetOwnedGames/v0001/", {
+						key: apiKey,
+						steamid: resolvedSteamId,
+						include_appinfo: 0,
+						include_played_free_games: 1,
+					}),
+				),
+				fetchSteam(
+					withParams("/IPlayerService/GetRecentlyPlayedGames/v0001/", {
+						key: apiKey,
+						steamid: resolvedSteamId,
+						count: 4,
+					}),
+				),
+			]);
 
-		const player = summaryData?.response?.players?.[0];
-		if (!player) {
-			return json({ error: "Steam profile not found." }, 404);
-		}
+			const player = summaryData?.response?.players?.[0];
+			if (!player) {
+				const err = new Error("Steam profile not found.");
+				err.upstreamStatus = 404;
+				throw err;
+			}
 
-		const profile = {
-			profileUrl: player.profileurl,
-			avatar: player.avatarfull || player.avatarmedium || player.avatar || "",
-			name: player.personaname || "Unknown",
-			status: player.personastate ?? 0,
-			lastLogoff: player.lastlogoff,
-			currentGame:
-				player.gameid ?
-					{
-						id: player.gameid,
-						name: player.gameextrainfo || "In-game",
-						header: headerForApp(player.gameid),
-					}
-				:	null,
-		};
+			const profile = {
+				profileUrl: player.profileurl,
+				avatar: player.avatarfull || player.avatarmedium || player.avatar || "",
+				name: player.personaname || "Unknown",
+				status: player.personastate ?? 0,
+				lastLogoff: player.lastlogoff,
+				currentGame:
+					player.gameid ?
+						{
+							id: player.gameid,
+							name: player.gameextrainfo || "In-game",
+							header: headerForApp(player.gameid),
+						}
+					:	null,
+			};
 
-		const owned = ownedData?.response || {};
-		const totalGames = owned.game_count ?? 0;
-		const totalMinutes = Array.isArray(owned.games) ? owned.games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0) : 0;
-		const totalHours = Math.round(totalMinutes / 60);
+			const owned = ownedData?.response || {};
+			const totalGames = owned.game_count ?? 0;
+			const totalMinutes = Array.isArray(owned.games) ? owned.games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0) : 0;
+			const totalHours = Math.round(totalMinutes / 60);
 
-		const recentGamesRaw = recentData?.response?.games || [];
-		const recentGames = recentGamesRaw.map((game) => ({
-			appid: game.appid,
-			name: game.name,
-			playtime_2weeks: game.playtime_2weeks,
-			playtime_forever: game.playtime_forever,
-			header: headerForApp(game.appid),
-		}));
+			const recentGamesRaw = recentData?.response?.games || [];
+			const recentGames = recentGamesRaw.map((game) => ({
+				appid: game.appid,
+				name: game.name,
+				playtime_2weeks: game.playtime_2weeks,
+				playtime_forever: game.playtime_forever,
+				header: headerForApp(game.appid),
+			}));
+
+			return {
+				profile,
+				stats: { totalGames, totalHours },
+				recentGames,
+			};
+		});
 
 		return json({
-			profile,
-			stats: { totalGames, totalHours },
-			recentGames,
+			...cached.data,
+			meta: {
+				fromCache: cached.fromCache,
+				isStaleFallback: cached.isStaleFallback,
+				cachedAt: cached.cachedAt,
+			},
 		});
 	} catch (err) {
-		const status = err?.upstreamStatus ? 502 : 500;
+		const status =
+			err?.upstreamStatus === 400 ? 400
+			: err?.upstreamStatus === 404 ? 404
+			: err?.upstreamStatus ? 502
+			: 500;
 		return json(
 			{
 				error: err?.message || "Steam status unavailable.",

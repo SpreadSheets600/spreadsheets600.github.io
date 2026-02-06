@@ -1,4 +1,5 @@
 export const prerender = false;
+import { getCachedOrFetch } from "../../lib/cache.js";
 
 const TOKEN_URL = "https://accounts.spotify.com/api/token";
 const API_BASE = "https://api.spotify.com/v1";
@@ -83,26 +84,36 @@ export async function GET({ request }) {
 
 	const url = new URL(request.url);
 	const count = Math.min(parseInt(url.searchParams.get("count") || "3", 10), 10);
+	const cacheKey = `spotify-playlists:${spotifyUserId}`;
+	const ttlMs = 10 * 60 * 1000;
 
 	try {
-		const token = await getAccessToken(clientId, clientSecret);
-		const data = await fetchSpotify(`/users/${spotifyUserId}/playlists?limit=50`, token);
+		const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
+			const token = await getAccessToken(clientId, clientSecret);
+			const data = await fetchSpotify(`/users/${spotifyUserId}/playlists?limit=50`, token);
+			return (data.items || [])
+				.filter((p) => p.public)
+				.map((p) => ({
+					id: p.id,
+					name: p.name,
+					description: p.description || "",
+					image: p.images?.[0]?.url || null,
+					tracks: p.tracks?.total || 0,
+					url: p.external_urls?.spotify || `https://open.spotify.com/playlist/${p.id}`,
+					owner: p.owner?.display_name || "",
+				}));
+		});
 
-		const playlists = (data.items || [])
-			.filter((p) => p.public)
-			.map((p) => ({
-				id: p.id,
-				name: p.name,
-				description: p.description || "",
-				image: p.images?.[0]?.url || null,
-				tracks: p.tracks?.total || 0,
-				url: p.external_urls?.spotify || `https://open.spotify.com/playlist/${p.id}`,
-				owner: p.owner?.display_name || "",
-			}));
+		const randomPlaylists = shuffleArray(cached.data).slice(0, count);
 
-		const randomPlaylists = shuffleArray(playlists).slice(0, count);
-
-		return json({ playlists: randomPlaylists });
+		return json({
+			playlists: randomPlaylists,
+			meta: {
+				fromCache: cached.fromCache,
+				isStaleFallback: cached.isStaleFallback,
+				cachedAt: cached.cachedAt,
+			},
+		});
 	} catch (err) {
 		return json({ error: err?.message || "Failed to fetch playlists." }, 500);
 	}

@@ -1,4 +1,5 @@
 export const prerender = false;
+import { getCachedOrFetch } from "../../lib/cache.js";
 
 const json = (data, status = 200) =>
 	new Response(JSON.stringify(data), {
@@ -31,16 +32,10 @@ export async function GET({ request }) {
 	const queryUsername = url.searchParams.get("username");
 	const envUsername = import.meta.env.ANILIST_USERNAME;
 	const username = queryUsername || envUsername || "SpreadSheeets";
+	const cacheKey = `anilist-status:${username}`;
+	const ttlMs = 10 * 60 * 1000;
 
 	try {
-		const userResponse = await fetchAniList(`query ($name: String) { User(name: $name) { id } }`, { name: username });
-
-		if (!userResponse.data?.User?.id) {
-			return json({ error: "User not found" }, 404);
-		}
-
-		const userId = userResponse.data.User.id;
-
 		const query = `
             query ($name: String, $userId: Int) {
                 User(name: $name) {
@@ -84,14 +79,33 @@ export async function GET({ request }) {
             }
         `;
 
-		const response = await fetchAniList(query, {
-			name: username,
-			userId,
+		const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
+			const userResponse = await fetchAniList(`query ($name: String) { User(name: $name) { id } }`, { name: username });
+			if (!userResponse.data?.User?.id) {
+				const err = new Error("User not found");
+				err.upstreamStatus = 404;
+				throw err;
+			}
+			const response = await fetchAniList(query, {
+				name: username,
+				userId: userResponse.data.User.id,
+			});
+			return response.data || {};
 		});
 
-		return json(response.data || {});
+		return json({
+			...cached.data,
+			meta: {
+				fromCache: cached.fromCache,
+				isStaleFallback: cached.isStaleFallback,
+				cachedAt: cached.cachedAt,
+			},
+		});
 	} catch (err) {
-		const status = err?.upstreamStatus ? 502 : 500;
+		const status =
+			err?.upstreamStatus === 404 ? 404
+			: err?.upstreamStatus ? 502
+			: 500;
 		return json(
 			{
 				error: err?.message || "AniList status unavailable.",

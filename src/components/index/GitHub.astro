@@ -1,4 +1,6 @@
 ---
+import { getCachedOrFetch } from "../../lib/cache.js";
+
 const username = "spreadsheets600";
 
 interface Contribution {
@@ -67,17 +69,24 @@ const createErrorContributions = (): Contribution[] => {
 let contributions: Contribution[] = createPlaceholderContributions();
 let totals: Record<string, number> = {};
 let loadError = false;
+let staleFallback = false;
+
+const cacheKey = `github-contributions:${username}`;
+const ttlMs = 15 * 60 * 1000;
 
 try {
-	const response = await fetch(apiUrl);
-	if (response.ok) {
-		const data = (await response.json()) as ContributionsResponse;
+	const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
+		const response = await fetch(apiUrl);
+		if (!response.ok) {
+			throw new Error(`Contributions API error (${response.status})`);
+		}
+		return (await response.json()) as ContributionsResponse;
+	});
 
-		contributions = Array.isArray(data?.contributions) && data.contributions.length > 0 ? data.contributions : contributions;
-		totals = data?.total ?? {};
-	} else {
-		loadError = true;
-	}
+	const data = cached.data;
+	staleFallback = cached.isStaleFallback;
+	contributions = Array.isArray(data?.contributions) && data.contributions.length > 0 ? data.contributions : contributions;
+	totals = data?.total ?? {};
 } catch {
 	loadError = true;
 }
@@ -232,6 +241,7 @@ const heatmapTooltip = (entry: Contribution | null) => {
 				</div>
 			</div>
 			{loadError && <p class="mt-3 text-xs text-white/55">Live contribution data is unavailable right now. Showing fallback heatmap pattern.</p>}
+			{!loadError && staleFallback && <p class="mt-3 text-xs text-white/55">Live contribution API is unavailable. Showing cached heatmap data.</p>}
 		</div>
 
 		<div class="card-shell-lg group relative p-4">
