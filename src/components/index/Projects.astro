@@ -3,50 +3,63 @@ import ProjectCard from "../ProjectCard.astro";
 import featuredConfig from "../../data/featured-projects.json";
 import { fetchPublicRepos, type GitHubRepo } from "../../lib/repositories.ts";
 
-type FeaturedGitHubRepo = GitHubRepo & { image?: string | null };
+type FeaturedProject = Omit<GitHubRepo, "html_url"> & {
+	html_url?: string | null;
+	image?: string | null;
+};
 
 interface FeaturedProjectConfig {
-	repo: string;
+	repo?: string;
 	enabled?: boolean;
 	order?: number;
 	image?: string;
 	title?: string;
 	description?: string;
 	homepage?: string;
+	github?: string;
+	topics?: string[];
+	language?: string;
+	stargazers_count?: number;
+	forks_count?: number;
 }
 
 const GITHUB_USERNAME = "SpreadSheets600";
 
-let projects: FeaturedGitHubRepo[] = [];
+let projects: FeaturedProject[] = [];
 let error = false;
 
 try {
-	const featuredProjects: FeaturedProjectConfig[] = (featuredConfig?.projects || []).filter((project) => project && project.repo && project.enabled !== false).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+	const featuredProjects: FeaturedProjectConfig[] = (featuredConfig?.projects || []).filter((project) => project && project.enabled !== false).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
 	const { repos: baseRepos, ok } = await fetchPublicRepos(GITHUB_USERNAME);
 	error = !ok;
+	const repoMap = new Map(baseRepos.map((repo) => [repo.name.toLowerCase(), repo]));
 
-	if (baseRepos.length > 0) {
-		const repoMap = new Map(baseRepos.map((repo) => [repo.name.toLowerCase(), repo]));
+	if (featuredProjects.length > 0) {
+		projects = featuredProjects
+			.map((featured) => {
+				const repoName = featured.repo?.trim() || "";
+				const repo = repoName ? repoMap.get(repoName.toLowerCase()) : null;
+				const title = featured.title?.trim() || repo?.name || repoName;
 
-		if (featuredProjects.length > 0) {
-			projects = featuredProjects
-				.map((featured) => {
-					const repo = repoMap.get(featured.repo.toLowerCase());
-					if (!repo) return null;
+				if (!title) return null;
 
-					return {
-						...repo,
-						name: featured.title?.trim() || repo.name,
-						description: featured.description?.trim() || repo.description,
-						homepage: featured.homepage?.trim() || repo.homepage,
-						image: featured.image?.trim() || null,
-					} satisfies FeaturedGitHubRepo;
-				})
-				.filter(Boolean) as FeaturedGitHubRepo[];
-		} else {
-			projects = baseRepos.slice(0, 6).map((repo) => ({ ...repo }));
-		}
+				return {
+					name: title,
+					description: featured.description?.trim() || repo?.description || null,
+					homepage: featured.homepage?.trim() || repo?.homepage || null,
+					html_url: featured.github?.trim() || repo?.html_url || null,
+					language: featured.language?.trim() || repo?.language || null,
+					topics: Array.isArray(featured.topics) ? featured.topics : (repo?.topics ?? []),
+					stargazers_count: featured.stargazers_count ?? repo?.stargazers_count ?? 0,
+					forks_count: featured.forks_count ?? repo?.forks_count ?? 0,
+					updated_at: repo?.updated_at || "",
+					image: featured.image?.trim() || null,
+				} satisfies FeaturedProject;
+			})
+			.filter(Boolean) as FeaturedProject[];
+	} else if (baseRepos.length > 0) {
+		projects = baseRepos.slice(0, 6).map((repo) => ({ ...repo }));
 	}
 } catch (e) {
 	error = true;

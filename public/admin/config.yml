@@ -45,7 +45,7 @@ collections:
           - label: "Projects"
             name: "projects"
             widget: "list"
-            summary: "{{fields.repo}}"
+            summary: "{{fields.title}} {{fields.repo}}"
             fields:
               - {
                   label: "Repository",
@@ -56,6 +56,13 @@ collections:
                   display_fields: ["name"],
                   value_field: "name",
                   required: false,
+                }
+              - {
+                  label: "GitHub URL Override",
+                  name: "github",
+                  widget: "string",
+                  required: false,
+                  hint: "Optional custom Code link (useful for private repos or non-standard GitHub URLs).",
                 }
               - {
                   label: "Enabled",
@@ -87,6 +94,34 @@ collections:
                   name: "homepage",
                   widget: "string",
                   required: false,
+                }
+              - {
+                  label: "Topics Override",
+                  name: "topics",
+                  widget: "list",
+                  required: false,
+                }
+              - {
+                  label: "Language Override",
+                  name: "language",
+                  widget: "string",
+                  required: false,
+                }
+              - {
+                  label: "Stars Override",
+                  name: "stargazers_count",
+                  widget: "number",
+                  required: false,
+                  value_type: "int",
+                  min: 0,
+                }
+              - {
+                  label: "Forks Override",
+                  name: "forks_count",
+                  widget: "number",
+                  required: false,
+                  value_type: "int",
+                  min: 0,
                 }
 
   - name: "connect_settings"
