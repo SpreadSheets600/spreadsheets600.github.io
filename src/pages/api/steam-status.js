@@ -24,13 +24,24 @@ async function steamFetch(path, params, apiKey) {
 	for (const [k, v] of Object.entries(params)) {
 		url.searchParams.set(k, String(v));
 	}
-	const res = await fetch(url.toString());
-	if (!res.ok) {
-		const err = new Error(`Steam API error ${res.status} on ${path}`);
-		err.upstreamStatus = res.status;
-		throw err;
+	
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+	try {
+		const res = await fetch(url.toString(), { signal: controller.signal });
+		clearTimeout(timeoutId);
+
+		if (!res.ok) {
+			const err = new Error(`Steam API error ${res.status} on ${path}`);
+			err.upstreamStatus = res.status;
+			throw err;
+		}
+		return res.json();
+	} catch (error) {
+		clearTimeout(timeoutId);
+		throw error;
 	}
-	return res.json();
 }
 
 async function resolveVanityURL(vanity, apiKey) {

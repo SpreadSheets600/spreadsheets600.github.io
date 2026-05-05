@@ -11,20 +11,31 @@ const json = (data, status = 200) =>
 	});
 
 async function fetchAniList(query, variables) {
-	const response = await fetch("https://graphql.anilist.co", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ query, variables }),
-	});
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-	if (!response.ok) {
-		const text = await response.text();
-		const err = new Error(text || `AniList API error (${response.status})`);
-		err.upstreamStatus = response.status;
-		throw err;
+	try {
+		const response = await fetch("https://graphql.anilist.co", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ query, variables }),
+			signal: controller.signal
+		});
+
+		clearTimeout(timeoutId);
+
+		if (!response.ok) {
+			const text = await response.text();
+			const err = new Error(text || `AniList API error (${response.status})`);
+			err.upstreamStatus = response.status;
+			throw err;
+		}
+
+		return response.json();
+	} catch (error) {
+		clearTimeout(timeoutId);
+		throw error;
 	}
-
-	return response.json();
 }
 
 export async function GET(context) {

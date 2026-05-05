@@ -20,44 +20,67 @@ function toBase64(value) {
 
 async function getAccessToken(clientId, clientSecret) {
 	const credentials = toBase64(`${clientId}:${clientSecret}`);
-	const res = await fetch(TOKEN_URL, {
-		method: "POST",
-		headers: {
-			Authorization: `Basic ${credentials}`,
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		body: "grant_type=client_credentials",
-	});
+	
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-	if (!res.ok) {
-		let detail = "";
-		try {
-			detail = await res.text();
-		} catch {}
-		throw new Error(`Failed to get Spotify token: ${res.status}${detail ? ` - ${detail}` : ""}`);
+	try {
+		const res = await fetch(TOKEN_URL, {
+			method: "POST",
+			headers: {
+				Authorization: `Basic ${credentials}`,
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: "grant_type=client_credentials",
+			signal: controller.signal
+		});
+
+		clearTimeout(timeoutId);
+
+		if (!res.ok) {
+			let detail = "";
+			try {
+				detail = await res.text();
+			} catch {}
+			throw new Error(`Failed to get Spotify token: ${res.status}${detail ? ` - ${detail}` : ""}`);
+		}
+
+		const data = await res.json();
+		return data.access_token;
+	} catch (error) {
+		clearTimeout(timeoutId);
+		throw error;
 	}
-
-	const data = await res.json();
-	return data.access_token;
 }
 
 async function fetchSpotify(endpoint, token) {
-	const res = await fetch(`${API_BASE}${endpoint}`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-			Accept: "application/json",
-		},
-	});
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-	if (!res.ok) {
-		let detail = "";
-		try {
-			detail = await res.text();
-		} catch {}
-		throw new Error(`Spotify API error: ${res.status}${detail ? ` - ${detail}` : ""}`);
+	try {
+		const res = await fetch(`${API_BASE}${endpoint}`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+				Accept: "application/json",
+			},
+			signal: controller.signal
+		});
+
+		clearTimeout(timeoutId);
+
+		if (!res.ok) {
+			let detail = "";
+			try {
+				detail = await res.text();
+			} catch {}
+			throw new Error(`Spotify API error: ${res.status}${detail ? ` - ${detail}` : ""}`);
+		}
+
+		return res.json();
+	} catch (error) {
+		clearTimeout(timeoutId);
+		throw error;
 	}
-
-	return res.json();
 }
 
 function shuffleArray(array) {
