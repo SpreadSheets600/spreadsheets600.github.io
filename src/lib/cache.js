@@ -1,3 +1,7 @@
+// NOTE: Cloudflare Workers run in V8 isolates that are ephemeral — each request
+// may get a fresh isolate, so this Map does NOT persist across requests in
+// production. It still de-duplicates calls within a single request invocation.
+// For durable cross-request caching, bind a Cloudflare KV namespace in wrangler.toml.
 const store = new Map();
 
 function now() {

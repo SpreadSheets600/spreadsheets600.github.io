@@ -84,15 +84,21 @@ const loadFallbackRepos = (): GitHubRepo[] =>
 
 export async function fetchPublicRepos(username: string): Promise<RepositoryFetchResult> {
 	try {
-		const token = import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN || "";
-		const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100&type=owner`, {
+		let token = import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN || "";
+
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+		const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=200&type=owner`, {
 			headers: {
 				Accept: "application/vnd.github+json",
 				"X-GitHub-Api-Version": "2022-11-28",
 				"User-Agent": "Astro-Portfolio",
 				...(token ? { Authorization: `Bearer ${token}` } : {}),
 			},
+			signal: controller.signal
 		});
+		clearTimeout(timeoutId);
 
 		if (response.ok) {
 			const data = await response.json();
@@ -114,9 +120,15 @@ export async function fetchPublicRepos(username: string): Promise<RepositoryFetc
 				);
 
 			return { repos, ok: true };
+		} else {
+			console.warn(`GitHub API returned ${response.status}: ${response.statusText}`);
 		}
 	} catch (error) {
-		console.error("Error fetching repos from GitHub:", error);
+		if (error instanceof Error && error.name === 'AbortError') {
+			console.error("Error fetching repos from GitHub: Request timed out");
+		} else {
+			console.error("Error fetching repos from GitHub:", error);
+		}
 	}
 
 	const fallbackRepos = loadFallbackRepos();
