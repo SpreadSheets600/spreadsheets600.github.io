@@ -6,8 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "astro build && wrangler pages deploy dist",
-    "sync-repos": "node --env-file=.env scripts/sync-repos.mjs"
+    "deploy": "npm run sync-colors && astro build && wrangler pages deploy dist",
+    "sync-repos": "node --env-file=.env scripts/sync-repos.mjs",
+    "sync-colors": "node scripts/sync-colors.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.12",

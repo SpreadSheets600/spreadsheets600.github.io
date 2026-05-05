@@ -5,6 +5,9 @@ pages_build_output_dir = "dist"
 
 [vars]
 # Add your environment variables here or in Cloudflare dashboard
+# STEAM_API_KEY = "your-steam-api-key"
+# GITHUB_TOKEN = "your-github-pat"
+# RAWG_API_KEY = "your-rawg-api-key"
 
 # Required for session support (optional - remove if not using sessions)
 # [[kv_namespaces]]

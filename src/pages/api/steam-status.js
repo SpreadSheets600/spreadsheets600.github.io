@@ -1,8 +1,8 @@
 export const prerender = false;
-import { getCachedOrFetch } from "../../lib/cache.js";
-import Steam from "steam-webapi";
-import util from "util";
 
+// Cloudflare Workers compatible — uses only native fetch(), no Node.js modules.
+
+const STEAM_API_BASE = "https://api.steampowered.com";
 const CDN_BASE = "https://cdn.akamai.steamstatic.com/steam/apps";
 
 const json = (data, status = 200) =>
@@ -16,21 +16,77 @@ const json = (data, status = 200) =>
 
 const headerForAppFallback = (appId) => `${CDN_BASE}/${appId}/header.jpg`;
 
+
+async function steamFetch(path, params, apiKey) {
+	const url = new URL(`${STEAM_API_BASE}${path}`);
+	url.searchParams.set("key", apiKey);
+	url.searchParams.set("format", "json");
+	for (const [k, v] of Object.entries(params)) {
+		url.searchParams.set(k, String(v));
+	}
+	const res = await fetch(url.toString());
+	if (!res.ok) {
+		const err = new Error(`Steam API error ${res.status} on ${path}`);
+		err.upstreamStatus = res.status;
+		throw err;
+	}
+	return res.json();
+}
+
+async function resolveVanityURL(vanity, apiKey) {
+	const data = await steamFetch("/ISteamUser/ResolveVanityURL/v1/", { vanityurl: vanity }, apiKey);
+	const response = data?.response;
+	if (!response || response.success !== 1 || !response.steamid) {
+		const err = new Error("Steam vanity URL could not be resolved.");
+		err.upstreamStatus = 404;
+		throw err;
+	}
+	return response.steamid;
+}
+
+async function getPlayerSummaries(steamId, apiKey) {
+	const data = await steamFetch("/ISteamUser/GetPlayerSummaries/v2/", { steamids: steamId }, apiKey);
+	return data?.response?.players || [];
+}
+
+async function getOwnedGames(steamId, apiKey) {
+	const data = await steamFetch("/IPlayerService/GetOwnedGames/v1/", {
+		steamid: steamId,
+		include_appinfo: 0,
+		include_played_free_games: 1,
+	}, apiKey);
+	return data?.response || {};
+}
+
+async function getRecentlyPlayedGames(steamId, apiKey, count = 4) {
+	const data = await steamFetch("/IPlayerService/GetRecentlyPlayedGames/v1/", {
+		steamid: steamId,
+		count,
+	}, apiKey);
+	return data?.response || {};
+}
+
+// --- Image resolution helpers ---
+
+// NOTE: In-memory cache is request-scoped on Cloudflare Workers (isolates are
+// ephemeral). This prevents redundant fetches *within* a single request only.
+// For cross-request caching, bind a KV namespace in wrangler.toml.
+const _requestCache = new Map();
+
 async function getSteamStoreImage(appId) {
 	if (!appId) return null;
 	const cacheKey = `steam-store-image:${appId}`;
+	if (_requestCache.has(cacheKey)) return _requestCache.get(cacheKey);
+
 	try {
-		const cached = await getCachedOrFetch(cacheKey, 7 * 24 * 60 * 60 * 1000, async () => {
-			const res = await fetch(
-				`https://store.steampowered.com/api/appdetails/?appids=${appId}&filters=basic`,
-			);
-			if (!res.ok) throw new Error("Steam Store API error");
-			const data = await res.json();
-			const img = data?.[appId]?.data?.header_image;
-			if (!img) throw new Error("No header_image in response");
-			return img;
-		});
-		return cached.data || null;
+		const res = await fetch(
+			`https://store.steampowered.com/api/appdetails/?appids=${appId}&filters=basic`,
+		);
+		if (!res.ok) return null;
+		const data = await res.json();
+		const img = data?.[appId]?.data?.header_image;
+		if (img) _requestCache.set(cacheKey, img);
+		return img || null;
 	} catch {
 		return null;
 	}
@@ -41,26 +97,25 @@ async function getGameImage(gameName, appId) {
 
 	if (rawgKey && gameName) {
 		const cacheKey = `rawg-image:${gameName}`;
+		if (_requestCache.has(cacheKey)) return _requestCache.get(cacheKey);
+
 		try {
-			const cached = await getCachedOrFetch(cacheKey, 7 * 24 * 60 * 60 * 1000, async () => {
-				const url = new URL("https://api.rawg.io/api/games");
+			const url = new URL("https://api.rawg.io/api/games");
+			url.searchParams.set("search", gameName);
+			url.searchParams.set("key", rawgKey);
+			url.searchParams.set("page_size", "1");
 
-				url.searchParams.set("search", gameName);
-				url.searchParams.set("key", rawgKey);
-				url.searchParams.set("page_size", "1");
-
-				const res = await fetch(url.toString());
-
-				if (!res.ok) throw new Error("RAWG API error");
+			const res = await fetch(url.toString());
+			if (res.ok) {
 				const data = await res.json();
-
 				const img = data?.results?.[0]?.background_image;
-				if (!img) throw new Error("No image in RAWG result");
-				return img;
-			});
-			if (cached.data) return cached.data;
+				if (img) {
+					_requestCache.set(cacheKey, img);
+					return img;
+				}
+			}
 		} catch {
-
+			// fall through to Steam store image
 		}
 	}
 
@@ -70,34 +125,13 @@ async function getGameImage(gameName, appId) {
 	return headerForAppFallback(appId);
 }
 
-let steamInstance = null;
-let steamReadyPromise = null;
-
-async function getSteamClient(apiKey) {
-	if (steamInstance) return steamInstance;
-	if (!steamReadyPromise) {
-		Steam.key = apiKey;
-		const ready = util.promisify(Steam.ready);
-		steamReadyPromise = ready().then(() => {
-			const steam = new Steam();
-			steam.resolveVanityURLAsync = util.promisify(steam.resolveVanityURL.bind(steam));
-			steam.getPlayerSummariesAsync = util.promisify(steam.getPlayerSummaries.bind(steam));
-			steam.getOwnedGamesAsync = util.promisify(steam.getOwnedGames.bind(steam));
-			steam.getRecentlyPlayedGamesAsync = util.promisify(steam.getRecentlyPlayedGames.bind(steam));
-			steamInstance = steam;
-			return steam;
-		});
-	}
-	return steamReadyPromise;
-}
+// --- Route handler ---
 
 export async function GET({ request }) {
 	const apiKey = import.meta.env.STEAM_API_KEY;
 	if (!apiKey) {
 		return json(
-			{
-				error: "Missing Steam API key. Set STEAM_API_KEY in your environment.",
-			},
+			{ error: "Missing Steam API key. Set STEAM_API_KEY in your environment." },
 			500,
 		);
 	}
@@ -111,96 +145,66 @@ export async function GET({ request }) {
 
 	let steamId = querySteamId || envSteamId || "";
 	const vanity = queryVanity || envVanity || "";
-	const cacheId = steamId || vanity;
-	const cacheKey = `steam-status:${cacheId}`;
-	const ttlMs = 5 * 60 * 1000;
 
 	try {
-		const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
-			const steamClient = await getSteamClient(apiKey);
-			let resolvedSteamId = steamId;
-
-			if (!resolvedSteamId) {
-				if (!vanity) {
-					const err = new Error("Missing Steam ID or vanity name.");
-					err.upstreamStatus = 400;
-					throw err;
-				}
-				const vanityData = await steamClient.resolveVanityURLAsync({ vanityurl: vanity });
-				if (!vanityData || vanityData.success !== 1 || !vanityData.steamid) {
-					const err = new Error("Steam vanity URL could not be resolved.");
-					err.upstreamStatus = 404;
-					throw err;
-				}
-				resolvedSteamId = vanityData.steamid;
+		// Resolve vanity to steam ID if needed
+		if (!steamId) {
+			if (!vanity) {
+				return json({ error: "Missing Steam ID or vanity name." }, 400);
 			}
+			steamId = await resolveVanityURL(vanity, apiKey);
+		}
 
-			const [summaryData, ownedData, recentData] = await Promise.all([
-				steamClient.getPlayerSummariesAsync({ steamids: resolvedSteamId }),
-				steamClient.getOwnedGamesAsync({
-					steamid: resolvedSteamId,
-					include_appinfo: 0,
-					include_played_free_games: 1,
-					appids_filter: [],
-					include_free_sub: 0,
-					language: "english",
-					include_extended_appinfo: 0,
-				}),
-				steamClient.getRecentlyPlayedGamesAsync({ steamid: resolvedSteamId, count: 4 }),
-			]);
+		// Fetch all three endpoints in parallel
+		const [players, ownedData, recentData] = await Promise.all([
+			getPlayerSummaries(steamId, apiKey),
+			getOwnedGames(steamId, apiKey),
+			getRecentlyPlayedGames(steamId, apiKey, 4),
+		]);
 
-			const player = summaryData?.players?.[0];
-			if (!player) {
-				const err = new Error("Steam profile not found.");
-				err.upstreamStatus = 404;
-				throw err;
-			}
+		const player = players?.[0];
+		if (!player) {
+			return json({ error: "Steam profile not found." }, 404);
+		}
 
-			const profile = {
-				profileUrl: player.profileurl,
-				avatar: player.avatarfull || player.avatarmedium || player.avatar || "",
-				name: player.personaname || "Unknown",
-				status: player.personastate ?? 0,
-				lastLogoff: player.lastlogoff,
-				currentGame:
-					player.gameid ?
-						{
-							id: player.gameid,
-							name: player.gameextrainfo || "In-game",
-							header: await getGameImage(player.gameextrainfo, player.gameid),
-						}
-						: null,
-			};
+		const profile = {
+			profileUrl: player.profileurl,
+			avatar: player.avatarfull || player.avatarmedium || player.avatar || "",
+			name: player.personaname || "Unknown",
+			status: player.personastate ?? 0,
+			lastLogoff: player.lastlogoff,
+			currentGame:
+				player.gameid
+					? {
+						id: player.gameid,
+						name: player.gameextrainfo || "In-game",
+						header: await getGameImage(player.gameextrainfo, player.gameid),
+					}
+					: null,
+		};
 
-			const totalGames = ownedData?.game_count ?? 0;
-			const totalMinutes = Array.isArray(ownedData?.games) ? ownedData.games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0) : 0;
-			const totalHours = Math.round(totalMinutes / 60);
+		const totalGames = ownedData?.game_count ?? 0;
+		const totalMinutes = Array.isArray(ownedData?.games)
+			? ownedData.games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0)
+			: 0;
+		const totalHours = Math.round(totalMinutes / 60);
 
-			const recentGamesRaw = recentData?.games || [];
-			const recentGames = await Promise.all(
-				recentGamesRaw.map(async (game) => ({
-					appid: game.appid,
-					name: game.name,
-					playtime_2weeks: game.playtime_2weeks,
-					playtime_forever: game.playtime_forever,
-					header: await getGameImage(game.name, game.appid),
-				}))
-			);
-
-			return {
-				profile,
-				stats: { totalGames, totalHours },
-				recentGames,
-			};
-		});
+		const recentGamesRaw = recentData?.games || [];
+		const recentGames = await Promise.all(
+			recentGamesRaw.map(async (game) => ({
+				appid: game.appid,
+				name: game.name,
+				playtime_2weeks: game.playtime_2weeks,
+				playtime_forever: game.playtime_forever,
+				header: await getGameImage(game.name, game.appid),
+			})),
+		);
 
 		return json({
-			...cached.data,
-			meta: {
-				fromCache: cached.fromCache,
-				isStaleFallback: cached.isStaleFallback,
-				cachedAt: cached.cachedAt,
-			},
+			profile,
+			stats: { totalGames, totalHours },
+			recentGames,
+			meta: { fromCache: false, isStaleFallback: false, cachedAt: Date.now() },
 		});
 	} catch (err) {
 		const status =
