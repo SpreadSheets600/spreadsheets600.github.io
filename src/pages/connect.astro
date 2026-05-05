@@ -7,7 +7,7 @@ import AniListStats from "../components/connect/AniListStats.astro";
 import DiscordStatusCard from "../components/connect/DiscordStatusCard.astro";
 import SpotifyNowPlaying from "../components/connect/SpotifyNowPlaying.astro";
 
-const steamVanity = import.meta.env.STEAM_VANITY;
+const steamVanity = Astro.locals.runtime?.env?.STEAM_VANITY || import.meta.env.STEAM_VANITY;
 
 const sectionCount = 4;
 const integrationCount = 4;

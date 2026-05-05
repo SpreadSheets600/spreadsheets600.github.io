@@ -1,5 +1,5 @@
 ---
-const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
+const userId = Astro.locals.runtime?.env?.DISCORD_USER_ID || import.meta.env.DISCORD_USER_ID || "727012870683885578";
 ---
 
 <div

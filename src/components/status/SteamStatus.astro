@@ -1,7 +1,7 @@
 ---
 import steamModuleUrl from "../../lib/status/steam.js?url";
-const steamId = import.meta.env.STEAM_ID;
-const vanity = import.meta.env.STEAM_VANITY;
+const steamId = Astro.locals.runtime?.env?.STEAM_ID || import.meta.env.STEAM_ID;
+const vanity = Astro.locals.runtime?.env?.STEAM_VANITY || import.meta.env.STEAM_VANITY;
 ---
 
 <div id="steam-status-container" class="w-full" data-endpoint="/api/steam-status" data-steam-id={steamId} data-vanity={vanity}>

@@ -10,7 +10,8 @@ let allProjects: GitHubRepo[] = [];
 let error = false;
 
 try {
-	const { repos, ok } = await fetchPublicRepos(GITHUB_USERNAME);
+	const githubToken = Astro.locals.runtime?.env?.GITHUB_PAT || Astro.locals.runtime?.env?.GITHUB_TOKEN || import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN;
+	const { repos, ok } = await fetchPublicRepos(GITHUB_USERNAME, githubToken);
 	allProjects = repos;
 	error = !ok;
 } catch (e) {

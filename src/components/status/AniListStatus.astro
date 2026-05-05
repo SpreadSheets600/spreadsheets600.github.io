@@ -1,5 +1,5 @@
 ---
-const username = import.meta.env.ANILIST_USERNAME || "SpreadSheeets";
+const username = Astro.locals.runtime?.env?.ANILIST_USERNAME || import.meta.env.ANILIST_USERNAME || "SpreadSheeets";
 ---
 
 <div id="anilist-status-container" class="space-y-4" data-anilist data-username={username}>

@@ -31,7 +31,8 @@ let error = false;
 try {
 	const featuredProjects: FeaturedProjectConfig[] = (featuredConfig?.projects || []).filter((project) => project && project.enabled !== false).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-	const { repos: baseRepos, ok } = await fetchPublicRepos(GITHUB_USERNAME);
+const githubToken = Astro.locals.runtime?.env?.GITHUB_PAT || Astro.locals.runtime?.env?.GITHUB_TOKEN || import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN;
+	const { repos: baseRepos, ok } = await fetchPublicRepos(GITHUB_USERNAME, githubToken);
 	error = !ok;
 	const repoMap = new Map(baseRepos.map((repo) => [repo.name.toLowerCase(), repo]));
 

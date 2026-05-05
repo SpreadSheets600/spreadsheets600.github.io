@@ -92,8 +92,8 @@ async function getSteamStoreImage(appId) {
 	}
 }
 
-async function getGameImage(gameName, appId) {
-	const rawgKey = import.meta.env.RAWG_API_KEY;
+async function getGameImage(gameName, appId, env) {
+	const rawgKey = env?.RAWG_API_KEY || import.meta.env.RAWG_API_KEY;
 
 	if (rawgKey && gameName) {
 		const cacheKey = `rawg-image:${gameName}`;
@@ -127,8 +127,11 @@ async function getGameImage(gameName, appId) {
 
 // --- Route handler ---
 
-export async function GET({ request }) {
-	const apiKey = import.meta.env.STEAM_API_KEY;
+export async function GET(context) {
+	const { request } = context;
+	const env = context.locals.runtime?.env || {};
+	const apiKey = env.STEAM_API_KEY || import.meta.env.STEAM_API_KEY;
+
 	if (!apiKey) {
 		return json(
 			{ error: "Missing Steam API key. Set STEAM_API_KEY in your environment." },
@@ -140,8 +143,8 @@ export async function GET({ request }) {
 	const querySteamId = url.searchParams.get("steamId");
 	const queryVanity = url.searchParams.get("vanity");
 
-	const envSteamId = import.meta.env.STEAM_ID;
-	const envVanity = import.meta.env.STEAM_VANITY;
+	const envSteamId = env.STEAM_ID || import.meta.env.STEAM_ID;
+	const envVanity = env.STEAM_VANITY || import.meta.env.STEAM_VANITY;
 
 	let steamId = querySteamId || envSteamId || "";
 	const vanity = queryVanity || envVanity || "";
@@ -178,7 +181,7 @@ export async function GET({ request }) {
 					? {
 						id: player.gameid,
 						name: player.gameextrainfo || "In-game",
-						header: await getGameImage(player.gameextrainfo, player.gameid),
+						header: await getGameImage(player.gameextrainfo, player.gameid, env),
 					}
 					: null,
 		};
@@ -196,7 +199,7 @@ export async function GET({ request }) {
 				name: game.name,
 				playtime_2weeks: game.playtime_2weeks,
 				playtime_forever: game.playtime_forever,
-				header: await getGameImage(game.name, game.appid),
+				header: await getGameImage(game.name, game.appid, env),
 			})),
 		);
 

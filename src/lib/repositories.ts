@@ -82,9 +82,9 @@ const loadFallbackRepos = (): GitHubRepo[] =>
 		.filter((repo): repo is GitHubRepo => repo !== null)
 		.sort((a, b) => a.name.localeCompare(b.name));
 
-export async function fetchPublicRepos(username: string): Promise<RepositoryFetchResult> {
+export async function fetchPublicRepos(username: string, tokenOverride?: string): Promise<RepositoryFetchResult> {
 	try {
-		let token = import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN || "";
+		let token = tokenOverride || import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN || "";
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 8000);

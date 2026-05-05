@@ -27,10 +27,11 @@ async function fetchAniList(query, variables) {
 	return response.json();
 }
 
-export async function GET({ request }) {
+export async function GET(context) {
+	const { request } = context;
 	const url = new URL(request.url);
 	const queryUsername = url.searchParams.get("username");
-	const envUsername = import.meta.env.ANILIST_USERNAME;
+	const envUsername = context.locals.runtime?.env?.ANILIST_USERNAME || import.meta.env.ANILIST_USERNAME;
 	const username = queryUsername || envUsername || "SpreadSheeets";
 	const cacheKey = `anilist-status:${username}`;
 	const ttlMs = 10 * 60 * 1000;

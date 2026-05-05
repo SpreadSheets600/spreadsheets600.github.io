@@ -69,10 +69,11 @@ function shuffleArray(array) {
 	return arr;
 }
 
-export async function GET({ request }) {
-	const clientId = import.meta.env.SPOTIFY_CLIENT_ID;
-	const clientSecret = import.meta.env.SPOTIFY_CLIENT_SECRET;
-	const spotifyUserId = import.meta.env.SPOTIFY_USER_ID;
+export async function GET(context) {
+	const { request } = context;
+	const clientId = context.locals.runtime?.env?.SPOTIFY_CLIENT_ID || import.meta.env.SPOTIFY_CLIENT_ID;
+	const clientSecret = context.locals.runtime?.env?.SPOTIFY_CLIENT_SECRET || import.meta.env.SPOTIFY_CLIENT_SECRET;
+	const spotifyUserId = context.locals.runtime?.env?.SPOTIFY_USER_ID || import.meta.env.SPOTIFY_USER_ID;
 
 	if (!clientId || !clientSecret) {
 		return json({ error: "Missing Spotify API credentials." }, 500);
