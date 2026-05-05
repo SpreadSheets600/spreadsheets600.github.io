@@ -1,8 +1,9 @@
 export const prerender = false;
 import { getCachedOrFetch } from "../../lib/cache.js";
+import Steam from "steam-webapi";
+import util from "util";
 
-const API_BASE = "https://api.steampowered.com";
-const CDN_BASE = "https://cdn.cloudflare.steamstatic.com/steam/apps";
+const CDN_BASE = "https://cdn.akamai.steamstatic.com/steam/apps";
 
 const json = (data, status = 200) =>
 	new Response(JSON.stringify(data), {
@@ -13,42 +14,81 @@ const json = (data, status = 200) =>
 		},
 	});
 
-const withParams = (path, params) => {
-	const url = new URL(path, API_BASE);
-	Object.entries(params).forEach(([key, value]) => {
-		if (value !== undefined && value !== null && value !== "") {
-			url.searchParams.set(key, String(value));
-		}
-	});
-	return url.toString();
-};
+const headerForAppFallback = (appId) => `${CDN_BASE}/${appId}/header.jpg`;
 
-const headerForApp = (appId) => `${CDN_BASE}/${appId}/header.jpg`;
-
-async function fetchSteam(url) {
-	const res = await fetch(url, { headers: { Accept: "application/json" } });
-	if (!res.ok) {
-		const text = await res.text();
-		const err = new Error(text || `Steam API error (${res.status})`);
-		err.upstreamStatus = res.status;
-		throw err;
+async function getSteamStoreImage(appId) {
+	if (!appId) return null;
+	const cacheKey = `steam-store-image:${appId}`;
+	try {
+		const cached = await getCachedOrFetch(cacheKey, 7 * 24 * 60 * 60 * 1000, async () => {
+			const res = await fetch(
+				`https://store.steampowered.com/api/appdetails/?appids=${appId}&filters=basic`,
+			);
+			if (!res.ok) throw new Error("Steam Store API error");
+			const data = await res.json();
+			const img = data?.[appId]?.data?.header_image;
+			if (!img) throw new Error("No header_image in response");
+			return img;
+		});
+		return cached.data || null;
+	} catch {
+		return null;
 	}
-	return res.json();
 }
 
-async function resolveVanity(apiKey, vanity) {
-	const url = withParams("/ISteamUser/ResolveVanityURL/v0001/", {
-		key: apiKey,
-		vanityurl: vanity,
-	});
-	const data = await fetchSteam(url);
-	const response = data?.response;
-	if (!response || response.success !== 1 || !response.steamid) {
-		const err = new Error("Steam vanity URL could not be resolved.");
-		err.upstreamStatus = 404;
-		throw err;
+async function getGameImage(gameName, appId) {
+	const rawgKey = import.meta.env.RAWG_API_KEY;
+
+	if (rawgKey && gameName) {
+		const cacheKey = `rawg-image:${gameName}`;
+		try {
+			const cached = await getCachedOrFetch(cacheKey, 7 * 24 * 60 * 60 * 1000, async () => {
+				const url = new URL("https://api.rawg.io/api/games");
+
+				url.searchParams.set("search", gameName);
+				url.searchParams.set("key", rawgKey);
+				url.searchParams.set("page_size", "1");
+
+				const res = await fetch(url.toString());
+
+				if (!res.ok) throw new Error("RAWG API error");
+				const data = await res.json();
+
+				const img = data?.results?.[0]?.background_image;
+				if (!img) throw new Error("No image in RAWG result");
+				return img;
+			});
+			if (cached.data) return cached.data;
+		} catch {
+
+		}
 	}
-	return response.steamid;
+
+	const storeImage = await getSteamStoreImage(appId);
+	if (storeImage) return storeImage;
+
+	return headerForAppFallback(appId);
+}
+
+let steamInstance = null;
+let steamReadyPromise = null;
+
+async function getSteamClient(apiKey) {
+	if (steamInstance) return steamInstance;
+	if (!steamReadyPromise) {
+		Steam.key = apiKey;
+		const ready = util.promisify(Steam.ready);
+		steamReadyPromise = ready().then(() => {
+			const steam = new Steam();
+			steam.resolveVanityURLAsync = util.promisify(steam.resolveVanityURL.bind(steam));
+			steam.getPlayerSummariesAsync = util.promisify(steam.getPlayerSummaries.bind(steam));
+			steam.getOwnedGamesAsync = util.promisify(steam.getOwnedGames.bind(steam));
+			steam.getRecentlyPlayedGamesAsync = util.promisify(steam.getRecentlyPlayedGames.bind(steam));
+			steamInstance = steam;
+			return steam;
+		});
+	}
+	return steamReadyPromise;
 }
 
 export async function GET({ request }) {
@@ -77,41 +117,39 @@ export async function GET({ request }) {
 
 	try {
 		const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
+			const steamClient = await getSteamClient(apiKey);
 			let resolvedSteamId = steamId;
+
 			if (!resolvedSteamId) {
 				if (!vanity) {
 					const err = new Error("Missing Steam ID or vanity name.");
 					err.upstreamStatus = 400;
 					throw err;
 				}
-				resolvedSteamId = await resolveVanity(apiKey, vanity);
+				const vanityData = await steamClient.resolveVanityURLAsync({ vanityurl: vanity });
+				if (!vanityData || vanityData.success !== 1 || !vanityData.steamid) {
+					const err = new Error("Steam vanity URL could not be resolved.");
+					err.upstreamStatus = 404;
+					throw err;
+				}
+				resolvedSteamId = vanityData.steamid;
 			}
 
 			const [summaryData, ownedData, recentData] = await Promise.all([
-				fetchSteam(
-					withParams("/ISteamUser/GetPlayerSummaries/v0002/", {
-						key: apiKey,
-						steamids: resolvedSteamId,
-					}),
-				),
-				fetchSteam(
-					withParams("/IPlayerService/GetOwnedGames/v0001/", {
-						key: apiKey,
-						steamid: resolvedSteamId,
-						include_appinfo: 0,
-						include_played_free_games: 1,
-					}),
-				),
-				fetchSteam(
-					withParams("/IPlayerService/GetRecentlyPlayedGames/v0001/", {
-						key: apiKey,
-						steamid: resolvedSteamId,
-						count: 4,
-					}),
-				),
+				steamClient.getPlayerSummariesAsync({ steamids: resolvedSteamId }),
+				steamClient.getOwnedGamesAsync({
+					steamid: resolvedSteamId,
+					include_appinfo: 0,
+					include_played_free_games: 1,
+					appids_filter: [],
+					include_free_sub: 0,
+					language: "english",
+					include_extended_appinfo: 0,
+				}),
+				steamClient.getRecentlyPlayedGamesAsync({ steamid: resolvedSteamId, count: 4 }),
 			]);
 
-			const player = summaryData?.response?.players?.[0];
+			const player = summaryData?.players?.[0];
 			if (!player) {
 				const err = new Error("Steam profile not found.");
 				err.upstreamStatus = 404;
@@ -129,24 +167,25 @@ export async function GET({ request }) {
 						{
 							id: player.gameid,
 							name: player.gameextrainfo || "In-game",
-							header: headerForApp(player.gameid),
+							header: await getGameImage(player.gameextrainfo, player.gameid),
 						}
-					:	null,
+						: null,
 			};
 
-			const owned = ownedData?.response || {};
-			const totalGames = owned.game_count ?? 0;
-			const totalMinutes = Array.isArray(owned.games) ? owned.games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0) : 0;
+			const totalGames = ownedData?.game_count ?? 0;
+			const totalMinutes = Array.isArray(ownedData?.games) ? ownedData.games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0) : 0;
 			const totalHours = Math.round(totalMinutes / 60);
 
-			const recentGamesRaw = recentData?.response?.games || [];
-			const recentGames = recentGamesRaw.map((game) => ({
-				appid: game.appid,
-				name: game.name,
-				playtime_2weeks: game.playtime_2weeks,
-				playtime_forever: game.playtime_forever,
-				header: headerForApp(game.appid),
-			}));
+			const recentGamesRaw = recentData?.games || [];
+			const recentGames = await Promise.all(
+				recentGamesRaw.map(async (game) => ({
+					appid: game.appid,
+					name: game.name,
+					playtime_2weeks: game.playtime_2weeks,
+					playtime_forever: game.playtime_forever,
+					header: await getGameImage(game.name, game.appid),
+				}))
+			);
 
 			return {
 				profile,
@@ -166,9 +205,9 @@ export async function GET({ request }) {
 	} catch (err) {
 		const status =
 			err?.upstreamStatus === 400 ? 400
-			: err?.upstreamStatus === 404 ? 404
-			: err?.upstreamStatus ? 502
-			: 500;
+				: err?.upstreamStatus === 404 ? 404
+					: err?.upstreamStatus ? 502
+						: 500;
 		return json(
 			{
 				error: err?.message || "Steam status unavailable.",

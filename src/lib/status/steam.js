@@ -79,6 +79,7 @@ function updateUI(data, els, container) {
 		const items = recent.slice(0, 1).map((game) => {
 			const fallbackImage = "https://assetsio.gnwcdn.com/desktop-screenshot-2019.11.15-16.11.30.37-cropped.jpg";
 			const isSpacewar = (game?.name || "").toLowerCase() === "spacewar";
+			
 			const header = isSpacewar ? fallbackImage : game.header;
 			const playtime2w = Math.round((game.playtime_2weeks || 0) / 60);
 			const playtimeTotal = Math.round((game.playtime_forever || 0) / 60);
