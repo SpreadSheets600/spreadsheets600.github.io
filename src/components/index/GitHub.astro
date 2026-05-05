@@ -248,7 +248,7 @@ weeks.forEach((week, index) => {
 			<div id="github-heatmap-scroll" class="w-full max-md:overflow-x-auto pb-1 [scrollbar-width:thin]">
 				<div class="flex flex-col gap-2 max-md:min-w-max w-full">
 					<div class="flex text-[10px] text-white/50 pl-[30px] w-full">
-						<div class="flex justify-between w-full">
+						<div class="flex max-md:gap-1.5 md:justify-between w-full">
 							{weeks.map((week, index) => {
 								const label = monthLabels.find((m) => m.index === index)?.label;
 								return (
@@ -271,7 +271,7 @@ weeks.forEach((week, index) => {
 							<span class="h-3 leading-3"></span>
 						</div>
 
-						<div class="flex justify-between w-full">
+						<div class="flex max-md:gap-1.5 md:justify-between w-full">
 							{
 								weeks.map((week) => (
 									<div class="grid grid-rows-7 gap-1.5 shrink-0">

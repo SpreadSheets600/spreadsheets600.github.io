@@ -158,25 +158,33 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 		</h3>
 		<div id="playlists-mobile" class="grid grid-cols-2 gap-2">
 			<!-- Loading skeleton -->
-			<div class="card-skeleton p-1.5">
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
-				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
+			<div class="card-skeleton p-2 flex items-center gap-3">
+				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
+				<div class="flex-1 min-w-0">
+					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
+					<div class="h-2 bg-white/10 rounded w-1/2"></div>
+				</div>
 			</div>
-			<div class="card-skeleton p-1.5">
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
-				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
+			<div class="card-skeleton p-2 flex items-center gap-3">
+				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
+				<div class="flex-1 min-w-0">
+					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
+					<div class="h-2 bg-white/10 rounded w-1/2"></div>
+				</div>
 			</div>
-			<div class="card-skeleton p-1.5">
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
-				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
+			<div class="card-skeleton p-2 flex items-center gap-3">
+				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
+				<div class="flex-1 min-w-0">
+					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
+					<div class="h-2 bg-white/10 rounded w-1/2"></div>
+				</div>
 			</div>
-			<div class="card-skeleton p-1.5">
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2 mb-2"></div>
-				<div class="h-[30px] w-[30px] rounded-md bg-white/10"></div>
+			<div class="card-skeleton p-2 flex items-center gap-3">
+				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
+				<div class="flex-1 min-w-0">
+					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
+					<div class="h-2 bg-white/10 rounded w-1/2"></div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -359,11 +367,13 @@ const userId = import.meta.env.DISCORD_USER_ID || "727012870683885578";
 					.map(
 						(p: any) => `
 					<a href="${p.url}" target="_blank" rel="noopener noreferrer" 
-					   class="card-shell p-1.5 hover:bg-black/50 transition-colors">
-						<p class="font-medium text-white text-[11px] truncate">${p.name}</p>
-						<p class="text-[10px] text-white/60 mb-2">${p.tracks} tracks</p>
-						<div class="h-[24px] w-[24px] rounded-md overflow-hidden bg-white/10">
-							${p.image ? `<img src="${p.image}" alt="${p.name}" class="block w-full h-full object-cover" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-[12px] text-white/40"></i></div>`}
+					   class="card-shell p-2 hover:bg-black/50 transition-colors flex items-center gap-3 group">
+						<div class="h-10 w-10 shrink-0 rounded-md overflow-hidden bg-white/10">
+							${p.image ? `<img src="${p.image}" alt="${p.name}" class="block w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-lg text-white/40"></i></div>`}
+						</div>
+						<div class="flex-1 min-w-0">
+							<p class="font-medium text-white text-xs truncate mb-0.5">${p.name}</p>
+							<p class="text-[10px] text-white/60 truncate">${p.tracks} tracks</p>
 						</div>
 					</a>
 				`,
