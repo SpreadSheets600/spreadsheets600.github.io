@@ -31,7 +31,8 @@ export async function GET(context) {
 	const { request } = context;
 	const url = new URL(request.url);
 	const queryUsername = url.searchParams.get("username");
-	const envUsername = context.locals.runtime?.env?.ANILIST_USERNAME || import.meta.env.ANILIST_USERNAME;
+	let envUsername = context.locals.runtime?.env?.ANILIST_USERNAME || import.meta.env.ANILIST_USERNAME;
+	if (envUsername === "AniList Username") envUsername = null;
 	const username = queryUsername || envUsername || "SpreadSheeets";
 	const cacheKey = `anilist-status:${username}`;
 	const ttlMs = 10 * 60 * 1000;
@@ -105,8 +106,8 @@ export async function GET(context) {
 	} catch (err) {
 		const status =
 			err?.upstreamStatus === 404 ? 404
-			: err?.upstreamStatus ? 502
-			: 500;
+				: err?.upstreamStatus ? 502
+					: 500;
 		return json(
 			{
 				error: err?.message || "AniList status unavailable.",
