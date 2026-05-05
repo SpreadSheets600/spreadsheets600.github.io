@@ -28,6 +28,24 @@
       "enabled": true
     },
     {
+      "title": "Reddit",
+      "description": "Mostly Lurk Here",
+      "url": "https://www.reddit.com/user/Top_Pension7146/",
+      "icon": "reddit",
+      "color": "text-orange-400",
+      "order": 4,
+      "enabled": true
+    },
+    {
+      "title": "Instagram",
+      "description": "Doom Scroller",
+      "url": "https://www.instagram.com/SpreadSheets600/",
+      "icon": "instagram",
+      "color": "text-pink-400",
+      "order": 5,
+      "enabled": true
+    },
+    {
       "title": "Email",
       "description": "Get In Touch Via E-Mail",
       "url": "mailto:sohammaity239@gmail.com",
