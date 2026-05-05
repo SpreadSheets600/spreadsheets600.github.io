@@ -2,24 +2,84 @@ function getEl(container, id) {
     return container?.querySelector(`#${id}`) ?? document.getElementById(id);
 }
 
+async function fetchAniList(query, variables) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+        const response = await fetch("https://graphql.anilist.co", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, variables }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`AniList API error (${response.status})`);
+        }
+
+        return response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+}
+
 async function fetchStats(username) {
-    const url = new URL("/api/anilist-status", window.location.origin);
-    if (username) {
-        url.searchParams.set("username", username);
+    const userResponse = await fetchAniList(`query ($name: String) { User(name: $name) { id } }`, { name: username });
+    if (!userResponse.data?.User?.id) {
+        throw new Error("User not found");
     }
 
-    const response = await fetch(url.toString(), {
-        headers: { Accept: "application/json" },
-    });
+    const userId = userResponse.data.User.id;
 
-    if (!response.ok) {
-        const text = await response.text();
-        const err = new Error(text || `AniList API error (${response.status})`);
-        err.status = response.status;
-        throw err;
-    }
+    const query = `
+        query ($name: String, $userId: Int) {
+            User(name: $name) {
+                id
+                name
+                avatar { large }
+                siteUrl
+                statistics {
+                    anime { count minutesWatched episodesWatched meanScore }
+                    manga { count chaptersRead volumesRead meanScore }
+                }
+            }
+            latestAnime: Page(perPage: 1) {
+                activities(userId: $userId, sort: ID_DESC, type_in: ANIME_LIST) {
+                    ... on ListActivity {
+                        status
+                        media {
+                            type
+                            format
+                            title { english romaji }
+                            coverImage { large }
+                            siteUrl
+                        }
+                    }
+                }
+            }
+            latestManga: Page(perPage: 1) {
+                activities(userId: $userId, sort: ID_DESC, type_in: MANGA_LIST) {
+                    ... on ListActivity {
+                        status
+                        media {
+                            type
+                            format
+                            title { english romaji }
+                            coverImage { large }
+                            siteUrl
+                        }
+                    }
+                }
+            }
+        }
+    `;
 
-    return response.json();
+    const response = await fetchAniList(query, { name: username, userId });
+    return response.data;
 }
 
 function updateUI(data, container) {
