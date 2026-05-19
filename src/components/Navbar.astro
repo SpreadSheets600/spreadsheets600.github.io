@@ -12,6 +12,7 @@ const navLinks = [
 	{ name: "Home", path: "/" },
 	{ name: "Projects", path: "/projects" },
 	{ name: "Connect", path: "/connect" },
+	{ name: "Blog", path: "https://blogs.spreadsheets600.buz" },
 ];
 ---
 
@@ -27,7 +28,12 @@ const navLinks = [
 				{
 					navLinks.map((link) => (
 						<li>
-							<a href={link.path} class:list={["nav-link", { active: isActive(link.path) }]}>
+							<a 
+								href={link.path} 
+								class:list={["nav-link", { active: isActive(link.path) }]}
+								target={link.path.startsWith("http") ? "_blank" : undefined}
+								rel={link.path.startsWith("http") ? "noopener noreferrer" : undefined}
+							>
 								{link.name}
 							</a>
 						</li>
@@ -50,7 +56,12 @@ const navLinks = [
 				{
 					navLinks.map((link) => (
 						<li>
-							<a href={link.path} class:list={["mobile-nav-link", { active: isActive(link.path) }]}>
+							<a 
+								href={link.path} 
+								class:list={["mobile-nav-link", { active: isActive(link.path) }]}
+								target={link.path.startsWith("http") ? "_blank" : undefined}
+								rel={link.path.startsWith("http") ? "noopener noreferrer" : undefined}
+							>
 								{link.name}
 							</a>
 						</li>
