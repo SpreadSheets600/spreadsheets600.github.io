@@ -12,15 +12,21 @@ const navLinks = [
 	{ name: "Home", path: "/" },
 	{ name: "Projects", path: "/projects" },
 	{ name: "Connect", path: "/connect" },
-	{ name: "Blog", path: "https://blogs.spreadsheets600.buz" },
+	{ name: "Blog", path: "https://blogs.spreadsheets600.buzz" },
 ];
 ---
 
-<nav class="sticky bottom-0 z-50 border-t border-white/10 bg-black/30 backdrop-blur-xl">
+<nav
+	class="sticky bottom-0 z-50 border-t border-white/10 bg-black/30 backdrop-blur-xl"
+>
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="flex h-16 items-center justify-between">
 			<a href="/" class="text-lg font-semibold tracking-wide">
-				<span class="bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text"> SpreadSheets600 </span>
+				<span
+					class="bg-gradient-to-r from-white via-white/80 to-white/60 bg-clip-text"
+				>
+					SpreadSheets600
+				</span>
 			</a>
 
 			<!-- Desktop Menu -->
@@ -28,21 +34,47 @@ const navLinks = [
 				{
 					navLinks.map((link) => (
 						<li>
-							<a 
-								href={link.path} 
-								class:list={["nav-link", { active: isActive(link.path) }]}
-								target={link.path.startsWith("http") ? "_blank" : undefined}
-								rel={link.path.startsWith("http") ? "noopener noreferrer" : undefined}
+							<a
+								href={link.path}
+								class:list={[
+									"nav-link",
+									{ active: isActive(link.path) },
+								]}
+								target={
+									link.path.startsWith("http")
+										? "_blank"
+										: undefined
+								}
+								rel={
+									link.path.startsWith("http")
+										? "noopener noreferrer"
+										: undefined
+								}
 							>
 								{link.name}
 							</a>
 						</li>
 					))
 				}
+				<li>
+					<a
+						href="https://blogs.spreadsheets600.buzz"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="nav-link inline-flex items-center gap-1"
+					>
+						Blogs
+						<i class="ph ph-arrow-up-right text-xs"></i>
+					</a>
+				</li>
 			</ul>
 
 			<!-- Mobile Menu Button -->
-			<button id="mobile-menu-btn" class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:text-white hover:bg-white/10 transition" aria-label="Toggle Menu">
+			<button
+				id="mobile-menu-btn"
+				class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-white/70 hover:text-white hover:bg-white/10 transition"
+				aria-label="Toggle Menu"
+			>
 				<i id="menu-icon-list" class="ph ph-list text-xl"></i>
 				<i id="menu-icon-x" class="ph ph-x text-xl hidden"></i>
 			</button>
@@ -50,23 +82,48 @@ const navLinks = [
 	</div>
 
 	<!-- Mobile Menu -->
-	<div id="mobile-menu" class="hidden border-t border-white/10 bg-black/40 backdrop-blur-xl md:hidden">
+	<div
+		id="mobile-menu"
+		class="hidden border-t border-white/10 bg-black/40 backdrop-blur-xl md:hidden"
+	>
 		<div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
 			<ul class="grid gap-2">
 				{
 					navLinks.map((link) => (
 						<li>
-							<a 
-								href={link.path} 
-								class:list={["mobile-nav-link", { active: isActive(link.path) }]}
-								target={link.path.startsWith("http") ? "_blank" : undefined}
-								rel={link.path.startsWith("http") ? "noopener noreferrer" : undefined}
+							<a
+								href={link.path}
+								class:list={[
+									"mobile-nav-link",
+									{ active: isActive(link.path) },
+								]}
+								target={
+									link.path.startsWith("http")
+										? "_blank"
+										: undefined
+								}
+								rel={
+									link.path.startsWith("http")
+										? "noopener noreferrer"
+										: undefined
+								}
 							>
 								{link.name}
 							</a>
 						</li>
 					))
 				}
+				<li>
+					<a
+						href="https://blogs.spreadsheets600.buzz"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="nav-link inline-flex items-center gap-1"
+					>
+						Blogs
+						<i class="ph ph-arrow-up-right text-xs"></i>
+					</a>
+				</li>
 			</ul>
 		</div>
 	</div>
