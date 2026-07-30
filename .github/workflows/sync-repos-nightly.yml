@@ -28,7 +28,7 @@ jobs:
               run: npm ci
 
             - name: Sync repositories
-              run: npm run sync-repos
+              run: node scripts/sync-repos.mjs
               env:
                   GITHUB_USERNAME: SpreadSheets600
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
