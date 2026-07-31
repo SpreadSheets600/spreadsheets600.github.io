@@ -1,0 +1,5 @@
+name: Anime-List-Sync
+description: A simple GitHub workflow to sync between various anime list providers like Anilist, MyAnimeList and Anime Schedule Net
+html_url: "https://github.com/SpreadSheets600/Anime-List-Sync"
+homepage: "https://spreadsheets600.github.io/Anime-List-Sync/"
+topics:

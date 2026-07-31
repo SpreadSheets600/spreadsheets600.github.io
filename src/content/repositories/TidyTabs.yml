@@ -1,11 +1,12 @@
 name: TidyTabs
-description: AI powered browser tab organization by topic, domain, and context using Google's Gemini API
+description: AI powered browser tab organization by topic, domain, and context using OpenRouter LLMS
 html_url: "https://github.com/SpreadSheets600/TidyTabs"
-homepage: ""
+homepage: "https://chromewebstore.google.com/detail/tidytabs/cpmlaapifmhgklniidiijogjgnnhcbmn?authuser=3&pageId=none"
 topics:
   - chrome-extension
   - gemini
   - gemini-ai
   - gemini-api
+  - open-router
   - tabs
   - tabs-management
