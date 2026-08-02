@@ -1,7 +1,7 @@
 name: Uptime-Monitor
 description: 📈 Uptime monitor and status page for Upptime, powered by @upptime
 html_url: "https://github.com/SpreadSheets600/Uptime-Monitor"
-homepage: "http://spreadsheets600.is-a.dev/Uptime-Monitor/"
+homepage: "https://spreadsheets600.github.io/Uptime-Monitor/"
 topics:
   - status-page
   - upptime
