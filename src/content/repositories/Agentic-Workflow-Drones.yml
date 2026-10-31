@@ -2,4 +2,8 @@ name: Agentic-Workflow-Drones
 description: Evidence-driven drone inspection agent with deterministic guardrails, mock-LLM seams, and semantic RAG
 html_url: "https://github.com/SpreadSheets600/Agentic-Workflow-Drones"
 homepage: ""
+language: Python
+stargazers_count: 0
+forks_count: 0
+updated_at: "2026-09-05T08:36:56Z"
 topics:

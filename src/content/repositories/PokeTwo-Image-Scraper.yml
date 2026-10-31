@@ -2,4 +2,8 @@ name: PokeTwo-Image-Scraper
 description: ""
 html_url: "https://github.com/SpreadSheets600/PokeTwo-Image-Scraper"
 homepage: ""
+language: Python
+stargazers_count: 1
+forks_count: 1
+updated_at: "2026-04-12T15:41:58Z"
 topics:

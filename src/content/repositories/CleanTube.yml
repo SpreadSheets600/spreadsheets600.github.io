@@ -2,6 +2,10 @@ name: CleanTube
 description: A Clean Minimal YouTube Viewer - For Distraction Free YouTube Viewing
 html_url: "https://github.com/SpreadSheets600/CleanTube"
 homepage: "https://spreadsheets600.github.io/CleanTube/"
+language: JavaScript
+stargazers_count: 2
+forks_count: 1
+updated_at: "2026-02-19T07:08:02Z"
 topics:
   - clean
   - distraction-free

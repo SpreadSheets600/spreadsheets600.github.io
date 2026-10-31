@@ -2,4 +2,8 @@ name: Markdown-Archive-Engine
 description: Astro + React + shadcn/ui engine that turns a folder of Markdown into a polished documentation archive. Content stays in YOUR repo.
 html_url: "https://github.com/SpreadSheets600/Markdown-Archive-Engine"
 homepage: ""
+language: Astro
+stargazers_count: 0
+forks_count: 0
+updated_at: "2026-09-22T08:44:33Z"
 topics:

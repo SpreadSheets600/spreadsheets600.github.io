@@ -2,6 +2,10 @@ name: Uptime-Monitor
 description: 📈 Uptime monitor and status page for Upptime, powered by @upptime
 html_url: "https://github.com/SpreadSheets600/Uptime-Monitor"
 homepage: "https://spreadsheets600.github.io/Uptime-Monitor/"
+language: Markdown
+stargazers_count: 1
+forks_count: 0
+updated_at: "2026-10-31T03:31:40Z"
 topics:
   - status-page
   - upptime

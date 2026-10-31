@@ -1,0 +1,16 @@
+name: GitM
+description: "Ghost in the Machine: An offline haunted terminal, computing séance chamber, and digital ofrenda engine powered by open-weight Gemma 2."
+html_url: "https://github.com/SpreadSheets600/GitM"
+homepage: ""
+language: Python
+stargazers_count: 0
+forks_count: 0
+updated_at: "2026-10-31T09:55:27Z"
+topics:
+  - ai
+  - cli
+  - gemma
+  - hacktoberfest
+  - ollama
+  - python
+  - terminal

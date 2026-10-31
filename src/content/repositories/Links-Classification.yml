@@ -2,4 +2,8 @@ name: Links-Classification
 description: A basic metadata extractor and LLM based link classifier
 html_url: "https://github.com/SpreadSheets600/Links-Classification"
 homepage: ""
+language: Python
+stargazers_count: 0
+forks_count: 0
+updated_at: "2026-02-04T12:22:39Z"
 topics:

@@ -42,6 +42,10 @@ for (const repo of repos) {
     `description: ${safeYaml(repo.description || "")}`,
     `html_url: ${safeYaml(repo.html_url)}`,
     `homepage: ${safeYaml(repo.homepage || "")}`,
+    `language: ${safeYaml(repo.language || "")}`,
+    `stargazers_count: ${Number(repo.stargazers_count) || 0}`,
+    `forks_count: ${Number(repo.forks_count) || 0}`,
+    `updated_at: ${safeYaml(repo.updated_at || "")}`,
     "topics:",
     ...(repo.topics || []).map((topic) => `  - ${safeYaml(topic)}`),
   ];

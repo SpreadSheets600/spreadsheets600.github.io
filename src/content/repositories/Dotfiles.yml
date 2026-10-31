@@ -2,4 +2,8 @@ name: Dotfiles
 description: ""
 html_url: "https://github.com/SpreadSheets600/Dotfiles"
 homepage: ""
+language: Shell
+stargazers_count: 3
+forks_count: 0
+updated_at: "2026-10-31T05:03:07Z"
 topics:

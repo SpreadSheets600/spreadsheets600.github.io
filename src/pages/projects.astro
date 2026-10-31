@@ -1,55 +1,73 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Static at build time: GitHub is queried during the build, not on every request.
+// Static at build time: data is read during the build, not on every request.
 export const prerender = true;
 
 import ProjectCard from "../components/ProjectCard.astro";
 import { fetchPublicRepos, type GitHubRepo } from "../lib/repositories.ts";
+import { API_BASE } from "../lib/api";
 import { getLanguageColorMap, getLanguageColorSync, DEFAULT_LANGUAGE_COLOR } from "../lib/languageColors.js";
 
 const GITHUB_USERNAME = "SpreadSheets600";
 
 let allProjects: GitHubRepo[] = [];
 let error = false;
-let usingFallback = false;
 
 try {
 	const githubToken = Astro.locals.runtime?.env?.GITHUB_PAT || Astro.locals.runtime?.env?.GITHUB_TOKEN || import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN;
-	const { repos, source } = await fetchPublicRepos(GITHUB_USERNAME, githubToken);
+	const { repos } = await fetchPublicRepos(GITHUB_USERNAME, githubToken);
 	allProjects = repos;
-	usingFallback = source === "fallback";
 	error = repos.length === 0;
 } catch (e) {
 	error = true;
 }
 
-const totalStars = allProjects.reduce((sum, project) => sum + (project.stargazers_count || 0), 0);
-const repoCountLabel = allProjects.length.toLocaleString();
-const starCountLabel = totalStars.toLocaleString();
+// Same profile API snapshot the home page uses: totals and the language mix come from it.
+interface ApiGithub {
+	repos?: number;
+	stars?: number;
+	languages?: { name: string; color: string | null; repos: number }[];
+}
 
-const languageCounts = allProjects.reduce(
-	(acc, project) => {
-		if (!project.language) return acc;
-		acc[project.language] = (acc[project.language] || 0) + 1;
-		return acc;
-	},
-	{} as Record<string, number>,
-);
+const fetchApiGithub = async (): Promise<ApiGithub | null> => {
+	try {
+		const response = await fetch(`${API_BASE}/snapshot`, { signal: AbortSignal.timeout(15000) });
+		if (!response.ok) return null;
+		const snapshot = await response.json();
+		return snapshot?.github?.ok ? (snapshot.github.data as ApiGithub) : null;
+	} catch {
+		return null;
+	}
+};
 
-const totalLangCount = Object.values(languageCounts).reduce((sum, count) => sum + count, 0);
-const sortedLanguageStats = Object.entries(languageCounts)
-	.map(([language, count]) => ({
-		language,
-		count,
-		percent: totalLangCount ? (count / totalLangCount) * 100 : 0,
-	}))
-	.sort((a, b) => b.count - a.count);
+const api = await fetchApiGithub();
 
+const localStars = allProjects.reduce((sum, project) => sum + (project.stargazers_count || 0), 0);
+const repoCountLabel = (api?.repos ?? allProjects.length).toLocaleString();
+const starCountLabel = (api?.stars ?? localStars).toLocaleString();
+
+const languageRows: { language: string; count: number; color: string | null }[] = api?.languages?.length
+	? api.languages.map((item) => ({ language: item.name, count: item.repos, color: item.color }))
+	: Object.entries(
+			allProjects.reduce(
+				(acc, project) => {
+					if (project.language) acc[project.language] = (acc[project.language] || 0) + 1;
+					return acc;
+				},
+				{} as Record<string, number>,
+			),
+		).map(([language, count]) => ({ language, count, color: null }));
+
+const sortedLanguages = languageRows.filter((row) => row.count > 0).sort((a, b) => b.count - a.count);
+const totalLangCount = sortedLanguages.reduce((sum, row) => sum + row.count, 0);
 const languageColorMap = await getLanguageColorMap();
-const topLanguageStats = sortedLanguageStats.slice(0, 5).map((stat) => ({
-	...stat,
-	color: getLanguageColorSync(stat.language, languageColorMap),
+
+const topLanguageStats = sortedLanguages.slice(0, 5).map((row) => ({
+	language: row.language,
+	count: row.count,
+	percent: totalLangCount ? (row.count / totalLangCount) * 100 : 0,
+	color: row.color ?? getLanguageColorSync(row.language, languageColorMap),
 }));
 
 const topLanguageTotal = topLanguageStats.reduce((sum, stat) => sum + stat.count, 0);
@@ -67,6 +85,7 @@ const languageSegments =
 			},
 		]
 	:	topLanguageStats;
+
 ---
 
 <Layout title="Projects | SpreadSheets600">
@@ -147,11 +166,6 @@ const languageSegments =
 					<p class="text-white/60">No projects found.</p>
 				</div>
 			:	<>
-					{usingFallback && (
-						<p class="mb-4 text-sm text-white/60">
-							Live GitHub data is unavailable right now, so this list comes from the last nightly sync. Star counts and languages may be missing.
-						</p>
-					)}
 					<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
 						{allProjects.map((project) => (
 							<ProjectCard project={project} />

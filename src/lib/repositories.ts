@@ -71,11 +71,11 @@ const parseRepoFromYaml = (raw: string): GitHubRepo | null => {
 		description: parsed.get("description") || null,
 		html_url: htmlUrl,
 		homepage: parsed.get("homepage") || null,
-		language: null,
+		language: parsed.get("language") || null,
 		topics,
-		stargazers_count: 0,
-		forks_count: 0,
-		updated_at: "",
+		stargazers_count: Number(parsed.get("stargazers_count")) || 0,
+		forks_count: Number(parsed.get("forks_count")) || 0,
+		updated_at: parsed.get("updated_at") || "",
 	};
 };
 
