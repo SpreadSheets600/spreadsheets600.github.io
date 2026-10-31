@@ -1,28 +1,14 @@
 ---
-
+// Local, compressed backgrounds (public/backgrounds). One is picked at build time so the
+// image is part of the server-rendered HTML instead of being fetched after first paint.
+const backgroundImages = ["/backgrounds/bg-1.webp", "/backgrounds/bg-2.webp", "/backgrounds/bg-3.webp", "/backgrounds/bg-4.webp", "/backgrounds/bg-5.webp"];
+const selectedImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 ---
 
 <div class="background-container">
-	<div class="background-image" id="bg-image"></div>
+	<div class="background-image" style={`background-image: url('${selectedImage}')`}></div>
 	<div class="background-overlay"></div>
 </div>
-
-<script>
-	const backgroundImages = [
-		"https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/public/1.jpg",
-		"https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/public/2.jpg",
-		"https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/public/3.jpg",
-		"https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/public/4.jpg",
-		"https://raw.githubusercontent.com/SpreadSheets600/spreadsheets600.github.io/refs/heads/main/public/5.jpg",
-	];
-
-	const bgElement = document.getElementById("bg-image");
-	if (bgElement) {
-		const randomIndex = Math.floor(Math.random() * backgroundImages.length);
-		const selectedImage = backgroundImages[randomIndex];
-		bgElement.style.backgroundImage = `url(${selectedImage})`;
-	}
-</script>
 
 <style>
 	.background-container {
