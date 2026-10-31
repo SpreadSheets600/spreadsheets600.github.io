@@ -7,109 +7,113 @@
 
 <script>
 	import { onSnapshot, pick, refresh } from "../../lib/api";
-	import { html, toHtml, timeAgo } from "../../lib/format";
+	import { html, raw, toHtml, timeAgo } from "../../lib/format";
 	import { observeReveals } from "../../lib/fx";
 
 	const root = document.getElementById("discord-root")!;
 
-	const STATUS: Record<string, { label: string; dot: string; ring: string }> = {
-		online: { label: "Online", dot: "bg-emerald-400", ring: "ring-emerald-400/60" },
-		idle: { label: "Idle", dot: "bg-amber-400", ring: "ring-amber-400/60" },
-		dnd: { label: "Do not disturb", dot: "bg-rose-500", ring: "ring-rose-500/60" },
-		offline: { label: "Offline", dot: "bg-slate-500", ring: "ring-slate-500/40" },
+	const STATUS: Record<string, { label: string; dot: string }> = {
+		online: { label: "Online", dot: "bg-emerald-400" },
+		idle: { label: "Idle", dot: "bg-amber-400" },
+		dnd: { label: "Do not disturb", dot: "bg-rose-500" },
+		offline: { label: "Offline", dot: "bg-slate-500" },
 	};
 
-	const ACCOUNT_ICONS: Record<string, string> = {
-		github: "ph-github-logo",
-		steam: "ph-steam-logo",
-		spotify: "ph-spotify-logo",
-		domain: "ph-globe",
-		twitter: "ph-twitter-logo",
-		youtube: "ph-youtube-logo",
-		twitch: "ph-twitch-logo",
-		reddit: "ph-reddit-logo",
-		instagram: "ph-instagram-logo",
-		tiktok: "ph-tiktok-logo",
-	};
+	// Pixel cat for the empty state: one character per pixel, drawn as SVG rects.
+	const CAT_ROWS = [
+		"..kk....kk....",
+		".kookk..kkook.",
+		".k" + "o".repeat(10) + "k.",
+		"k" + "o".repeat(12) + "k",
+		"k" + "o".repeat(12) + "k",
+		"k" + "o".repeat(12) + "k",
+		"k" + "o".repeat(5) + "pp" + "o".repeat(5) + "k",
+		"k" + "o".repeat(12) + "k",
+		".k" + "o".repeat(10) + "k.",
+		".k" + "o".repeat(10) + "k.",
+		"..k" + "w".repeat(8) + "k..",
+		".." + "k".repeat(10) + "..",
+	];
+	const CAT_COLORS: Record<string, string> = { k: "#1b1b1b", o: "#f5a524", p: "#f08fb0", w: "#fff7ea" };
+	const CAT_TAIL = [
+		[12, 11, "o"],
+		[13, 11, "o"],
+		[14, 10, "o"],
+		[14, 9, "o"],
+		[15, 9, "o"],
+		[15, 8, "o"],
+	] as const;
 
-	const toColor = (value: unknown) => (typeof value === "number" ? `#${value.toString(16).padStart(6, "0")}` : null);
+	const catSvg = () => {
+		const pixels = CAT_ROWS.flatMap((row, y) =>
+			[...row].map((ch, x) => (CAT_COLORS[ch] ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${CAT_COLORS[ch]}"/>` : "")),
+		).join("");
+		const tail = CAT_TAIL.map(([x, y, ch]) => `<rect x="${x}" y="${y}" width="1" height="1" fill="${CAT_COLORS[ch]}"/>`).join("");
+		return `<svg class="pixel-cat" viewBox="0 0 16 12" width="96" height="72" shape-rendering="crispEdges" aria-hidden="true">
+			<g class="cat-tail">${tail}</g>
+			${pixels}
+			<rect class="cat-eye" x="3" y="4" width="1" height="2" fill="#111"/>
+			<rect class="cat-eye" x="10" y="4" width="1" height="2" fill="#111"/>
+		</svg>`;
+	};
 
 	const view = (presence: any, profile: any) => {
 		const status = STATUS[presence.status] ?? STATUS.offline;
-		const themes: unknown[] = profile?.user_profile?.theme_colors ?? [];
-		const [from, to] = [toColor(themes[0]) ?? toColor(profile?.user?.accent_color), toColor(themes[1]) ?? toColor(themes[0])];
-		const banner = from ? `linear-gradient(120deg, ${from}55, ${(to ?? from)}33)` : "linear-gradient(120deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))";
 		const bio = profile?.user_profile?.bio || profile?.user?.bio;
 		const pronouns = profile?.user_profile?.pronouns;
 		const badges: any[] = profile?.badges ?? [];
-		const accounts: any[] = profile?.connected_accounts ?? [];
 		const activity = presence.activity;
-		const custom = presence.custom;
 		const id = profile?.user?.id;
 
 		return html`
-			<div class="card-shell-lg h-full" data-reveal>
-				<div class="relative z-10 h-20" style="background:${banner}"></div>
-				<div class="relative z-10 px-5 pb-5">
-					<div class="-mt-10 flex items-end justify-between gap-3">
-						<div class="relative h-20 w-20 shrink-0">
-							<img src="${presence.avatarUrl}" alt="" class="h-full w-full rounded-full object-cover ring-4 ring-black/70" loading="lazy" />
-							${presence.decorationUrl ? html`<img src="${presence.decorationUrl}" alt="" class="pointer-events-none absolute -inset-[10%] h-[120%] w-[120%] max-w-none" loading="lazy" />` : ""}
-							<span class="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-black/80 p-[3px]" data-tip="${status.label}">
-								<span class="relative block h-full w-full rounded-full ${status.dot} ${presence.status === "online" ? "ping-dot" : ""}"></span>
-							</span>
-						</div>
-						${id ? html`<a href="https://discord.com/users/${id}" target="_blank" rel="noopener noreferrer" class="btn-outline mb-1">Profile <i class="ph ph-arrow-up-right"></i></a>` : ""}
+			<div class="card-shell-lg card-pad h-full" data-reveal>
+				<div class="relative z-10 flex items-start justify-between gap-3">
+					<div class="relative h-16 w-16 shrink-0">
+						<img src="${presence.avatarUrl}" alt="" class="h-full w-full rounded-full object-cover ring-2 ring-white/15" loading="lazy" />
+						${presence.decorationUrl ? html`<img src="${presence.decorationUrl}" alt="" class="pointer-events-none absolute -inset-[10%] h-[120%] w-[120%] max-w-none" loading="lazy" />` : ""}
+						<span class="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-black/80 p-[3px]" data-tip="${status.label}">
+							<span class="relative block h-full w-full rounded-full ${status.dot} ${presence.status === "online" ? "ping-dot" : ""}"></span>
+						</span>
 					</div>
-
-					<div class="mt-3 flex flex-wrap items-center gap-2">
-						<h3 class="text-xl font-bold text-white">${presence.name}</h3>
-						${presence.tag
-							? html`<span class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-white/90">${presence.badgeUrl ? html`<img src="${presence.badgeUrl}" alt="" class="h-3.5 w-3.5" />` : ""}${presence.tag}</span>`
-							: ""}
-					</div>
-					<p class="mt-0.5 text-sm text-white/55">
-						<button type="button" class="transition-colors hover:text-white" data-copy="${presence.username}" data-tip="Click to copy">@${presence.username}</button>
-						${pronouns ? html`<span class="text-white/35"> · ${pronouns}</span>` : ""}
-						<span class="text-white/35"> · ${status.label}</span>
-					</p>
-					${bio ? html`<p class="mt-3 text-sm leading-relaxed text-white/70">${bio}</p>` : ""}
-
-					<div class="mt-4 rounded-xl border border-white/10 bg-black/30 p-3">
-						${activity
-							? html`
-								<div class="flex items-center gap-3">
-									${activity.image ? html`<img src="${activity.image}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />` : html`<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10"><i class="ph ph-game-controller text-xl"></i></div>`}
-									<div class="min-w-0 text-sm">
-										<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">${activity.kind}</p>
-										<p class="truncate font-semibold text-white">${activity.name}</p>
-										${activity.details ? html`<p class="truncate text-xs text-white/60">${activity.details}</p>` : ""}
-										${activity.state ? html`<p class="truncate text-xs text-white/45">${activity.state}</p>` : ""}
-									</div>
-								</div>`
-							: custom
-								? html`
-									<div class="flex items-center gap-3 text-sm text-white/80">
-										${custom.emojiUrl ? html`<img src="${custom.emojiUrl}" alt="" class="h-6 w-6" />` : custom.emoji ? html`<span class="text-xl">${custom.emoji}</span>` : ""}
-										<span class="truncate">${custom.text}</span>
-									</div>`
-								: html`<p class="text-sm text-white/45"><i class="ph ph-moon-stars mr-1.5"></i>Nothing going on right now</p>`}
-					</div>
-
-					${badges.length
-						? html`<div class="mt-4 flex flex-wrap items-center gap-2">${badges.map(
-								(badge) => html`<a href="${badge.link ?? "https://discord.com"}" target="_blank" rel="noopener noreferrer" class="lift rounded-md" data-tip="${badge.description}"><img src="https://cdn.discordapp.com/badge-icons/${badge.icon}.png" alt="${badge.description}" class="h-6 w-6" loading="lazy" /></a>`,
-							)}</div>`
-						: ""}
-
-					${accounts.length
-						? html`<div class="mt-4 flex flex-wrap gap-2">${accounts.map(
-								(account) => html`<span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70" data-tip="${account.type}${account.verified ? " · verified" : ""}"><i class="ph ${ACCOUNT_ICONS[account.type] ?? "ph-link"}"></i>${account.name}${account.verified ? html`<i class="ph-fill ph-seal-check text-sky-300"></i>` : ""}</span>`,
-							)}</div>`
-						: ""}
-
-					${profile?.premium_since ? html`<p class="mt-4 text-[11px] text-white/35">Nitro since ${timeAgo(profile.premium_since)}</p>` : ""}
+					${id ? html`<a href="https://discord.com/users/${id}" target="_blank" rel="noopener noreferrer" class="btn-outline">Profile <i class="ph ph-arrow-up-right"></i></a>` : ""}
 				</div>
+
+				<div class="relative z-10 mt-3 flex flex-wrap items-center gap-2">
+					<h3 class="text-lg font-bold text-white">${presence.name}</h3>
+					${presence.tag
+						? html`<span class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-white/90">${presence.badgeUrl ? html`<img src="${presence.badgeUrl}" alt="" class="h-3.5 w-3.5" />` : ""}${presence.tag}</span>`
+						: ""}
+					${badges.map(
+						(badge) => html`<a href="${badge.link ?? "https://discord.com"}" target="_blank" rel="noopener noreferrer" class="lift rounded-md" data-tip="${badge.description}"><img src="https://cdn.discordapp.com/badge-icons/${badge.icon}.png" alt="${badge.description}" class="h-5 w-5" loading="lazy" /></a>`,
+					)}
+				</div>
+				<p class="relative z-10 mt-1 text-sm text-white/55">
+					<button type="button" class="transition-colors hover:text-white" data-copy="${presence.username}" data-tip="Click to copy">@${presence.username}</button>
+					${pronouns ? html`<span class="text-white/35"> · ${pronouns}</span>` : ""}
+					<span class="text-white/35"> · ${status.label}</span>
+				</p>
+				${bio ? html`<p class="relative z-10 mt-3 text-sm leading-relaxed text-white/70">${bio}</p>` : ""}
+
+				<div class="relative z-10 mt-4 flex min-h-[9rem] items-center rounded-xl border border-white/10 bg-black/30 p-4">
+					${activity
+						? html`
+							<div class="flex w-full items-center gap-3">
+								${activity.image ? html`<img src="${activity.image}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />` : html`<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10"><i class="ph ph-game-controller text-xl"></i></div>`}
+								<div class="min-w-0 text-sm">
+									<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">${activity.kind}</p>
+									<p class="truncate font-semibold text-white">${activity.name}</p>
+									${activity.details ? html`<p class="truncate text-xs text-white/60">${activity.details}</p>` : ""}
+									${activity.state ? html`<p class="truncate text-xs text-white/45">${activity.state}</p>` : ""}
+								</div>
+							</div>`
+						: html`
+							<div class="flex w-full flex-col items-center gap-2 text-center">
+								${raw(catSvg())}
+								<p class="text-xs text-white/45">Nothing going on right now</p>
+							</div>`}
+				</div>
+
+				${profile?.premium_since ? html`<p class="relative z-10 mt-4 text-[11px] text-white/35">Nitro since ${timeAgo(profile.premium_since)}</p>` : ""}
 			</div>
 		`;
 	};

@@ -6,7 +6,6 @@ import SteamCard from "../components/connect/SteamCard.astro";
 import AniListStats from "../components/connect/AniListStats.astro";
 import DiscordStatusCard from "../components/connect/DiscordStatusCard.astro";
 import SpotifyNowPlaying from "../components/connect/SpotifyNowPlaying.astro";
-import LivePills from "../components/LivePills.astro";
 
 // All live data comes from the profile API in the browser, so this page is fully static.
 export const prerender = true;
@@ -28,10 +27,9 @@ const sections = [
 						<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
 							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">Connections</span>
 						</h1>
-						<p class="mt-3 text-sm text-white/60 sm:text-base">Where I'm hanging out, what I'm playing, listening to and watching, straight from my live profile API.</p>
+						<p class="mt-3 text-sm text-white/60 sm:text-base">Where I hang out, what I play, listen to and watch.</p>
 					</div>
 
-					<LivePills />
 
 					<nav class="flex flex-wrap gap-2" aria-label="Sections">
 						{

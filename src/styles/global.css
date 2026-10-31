@@ -327,3 +327,25 @@ html.js [data-reveal].is-in {
     font-size: 14px;
   }
 }
+
+/* Pixel cat empty state (Discord card): blinking eyes and a wagging tail */
+.pixel-cat .cat-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-blink 4.5s steps(1) infinite;
+}
+
+.pixel-cat .cat-tail {
+  transform-origin: 12px 11px;
+  animation: cat-wag 2.4s steps(2) infinite;
+}
+
+@keyframes cat-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.1); }
+}
+
+@keyframes cat-wag {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-14deg); }
+}

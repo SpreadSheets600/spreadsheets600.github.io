@@ -87,7 +87,6 @@
 		const anime = a.anime ?? {};
 		const manga = a.manga ?? {};
 		const user = a.user ?? {};
-		const score = anime.meanScore ? anime.meanScore / 10 : 0;
 
 		return html`
 			<div class="space-y-4">
@@ -106,11 +105,10 @@
 				</div>
 
 				<div class="card-shell-lg card-pad sm:p-6" data-reveal>
-					<div class="relative z-10 grid gap-3 sm:grid-cols-4 lg:grid-cols-7">
+					<div class="relative z-10 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
 						${counter("Anime", anime.count ?? 0, 0)}
 						${counter("Episodes", anime.episodesWatched ?? 0, 1)}
 						${counter("Days watched", anime.daysWatched ?? 0, 2, { decimals: 1 })}
-						${counter("Mean score", score, 3, { decimals: 1, suffix: score ? "/10" : "" })}
 						${counter("Manga", manga.count ?? 0, 4)}
 						${counter("Chapters", manga.chaptersRead ?? 0, 5)}
 						${counter("Volumes", manga.volumesRead ?? 0, 6)}
