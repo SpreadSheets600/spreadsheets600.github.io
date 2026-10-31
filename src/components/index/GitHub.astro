@@ -117,7 +117,7 @@ const tileSkeletons = Array(6).fill(0);
 	};
 
 	const languages = (g: any) => {
-		const list = [...(g.languages ?? [])].sort((a: any, b: any) => b.repos - a.repos).slice(0, 8);
+		const list = [...(g.languages ?? [])].sort((a: any, b: any) => b.repos - a.repos).slice(0, 6);
 		const total = list.reduce((sum: number, item: any) => sum + item.repos, 0) || 1;
 		const max = list[0]?.repos || 1;
 		return html`

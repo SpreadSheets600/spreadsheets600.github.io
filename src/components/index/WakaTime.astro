@@ -14,9 +14,8 @@
 		<div class="grid gap-4 sm:grid-cols-3">
 			<div class="skeleton h-28"></div><div class="skeleton h-28"></div><div class="skeleton h-28"></div>
 		</div>
-		<div class="skeleton h-72"></div>
-		<div class="grid gap-4 lg:grid-cols-2">
-			<div class="skeleton h-56"></div><div class="skeleton h-56"></div>
+		<div class="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+			<div class="skeleton h-72"></div><div class="skeleton h-72"></div><div class="skeleton h-72"></div>
 		</div>
 	</div>
 </section>
@@ -79,9 +78,10 @@
 				${stat("ph-calendar-blank", "Last 7 days", html`<span data-count="${(w.weekSeconds / 3600).toFixed(1)}" data-decimals="1">0</span><span class="text-lg font-medium text-white/50"> hrs</span>`, `${duration(w.weekSeconds)} in total`, 1)}
 				${stat("ph-timer", "Daily average", html`${duration(avg)}`, best.seconds ? `best day ${shortDay(best.date)} · ${duration(best.seconds)}` : "last 7 days", 2)}
 			</div>
+			<div class="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
 			<div class="card-shell-lg card-pad" data-reveal>
 				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">This week</h3>
-				<div class="relative z-10 mt-6 flex h-64 items-end justify-around sm:h-72">
+				<div class="relative z-10 mt-6 flex h-52 items-end justify-around sm:h-56">
 					${daily.map(
 						(day, i) => html`
 							<div class="group flex h-full flex-1 flex-col items-center justify-end gap-2" data-tip="${longDate(day.date)}\n${duration(day.seconds)} coded">
@@ -92,11 +92,10 @@
 					)}
 				</div>
 			</div>
-			<div class="grid gap-4 lg:grid-cols-2">
-				<div class="card-shell-lg card-pad" data-reveal>
+				<div class="card-shell-lg card-pad" data-reveal style="--i:1">
 					${ranked("Languages", w.languages ?? [], 0)}
 				</div>
-				<div class="card-shell-lg card-pad" data-reveal style="--i:1">
+				<div class="card-shell-lg card-pad" data-reveal style="--i:2">
 					${ranked("Editors", w.editors ?? [], 3)}
 				</div>
 			</div>
