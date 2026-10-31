@@ -1,13 +1,13 @@
 ---
-// Local compressed wallpaper, chosen at build time: it is in the HTML so the page never paints
-// on a blank background, and it stays if the API is unreachable. The API wallpaper
-// (GET /header) crossfades in on top once it has downloaded.
+// One wallpaper per visitor, never a swap: the page starts on plain dark, then the wallpaper
+// fades in once. It comes from the profile API (GET /header), is remembered for a day and its
+// bytes are kept in the Cache API, so later pages and visits show the same image immediately.
+// The local webp below is only the fallback when the API or the image download fails.
 const localImages = ["/backgrounds/bg-1.webp", "/backgrounds/bg-2.webp", "/backgrounds/bg-3.webp", "/backgrounds/bg-4.webp", "/backgrounds/bg-5.webp"];
-const localImage = localImages[Math.floor(Math.random() * localImages.length)];
+const fallbackImage = localImages[Math.floor(Math.random() * localImages.length)];
 ---
 
-<div class="background-container">
-	<div class="background-image" style={`background-image: url('${localImage}')`}></div>
+<div class="background-container" data-fallback={fallbackImage}>
 	<div class="background-image background-live" id="bg-live"></div>
 	<div class="background-overlay"></div>
 </div>
@@ -15,12 +15,17 @@ const localImage = localImages[Math.floor(Math.random() * localImages.length)];
 <script>
 	import { fetchWallpaper } from "../lib/api";
 
-	const STORAGE_KEY = "s600:wallpaper";
+	const STORAGE_KEY = "s600:wallpaper:v2";
+	const CACHE_NAME = "s600-wallpaper-v1";
+	const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+	const container = document.querySelector<HTMLElement>(".background-container");
 	const layer = document.getElementById("bg-live");
 
-	const readStored = () => {
+	const readStored = (): string | null => {
 		try {
-			return sessionStorage.getItem(STORAGE_KEY);
+			const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+			return saved && typeof saved.url === "string" && Date.now() - saved.at < MAX_AGE_MS ? saved.url : null;
 		} catch {
 			return null;
 		}
@@ -28,39 +33,63 @@ const localImage = localImages[Math.floor(Math.random() * localImages.length)];
 
 	const store = (url: string) => {
 		try {
-			sessionStorage.setItem(STORAGE_KEY, url);
+			localStorage.setItem(STORAGE_KEY, JSON.stringify({ url, at: Date.now() }));
 		} catch {
-			// Private mode: the wallpaper just changes on the next page.
+			// Private mode: the wallpaper just picks again on the next visit.
 		}
 	};
 
-	const show = (url: string) =>
+	/** Serve the image bytes from the Cache API so a repeat visit never waits on the network. */
+	const cachedSource = async (url: string): Promise<string> => {
+		try {
+			const cache = await caches.open(CACHE_NAME);
+			let response = await cache.match(url);
+			if (!response) {
+				response = await fetch(url, { mode: "cors" });
+				if (!response.ok) return url;
+				await cache.put(url, response.clone());
+				for (const request of await cache.keys()) if (request.url !== url) await cache.delete(request);
+			}
+			return URL.createObjectURL(await response.blob());
+		} catch {
+			return url;
+		}
+	};
+
+	const show = (src: string) =>
 		new Promise<boolean>((resolve) => {
 			if (!layer) return resolve(false);
 			const image = new Image();
 			image.decoding = "async";
 			image.onload = () => {
-				layer.style.backgroundImage = `url('${url}')`;
+				layer.style.backgroundImage = `url('${src}')`;
 				// Next frame so the opacity transition runs after the background is set.
 				requestAnimationFrame(() => layer.classList.add("is-on"));
 				resolve(true);
 			};
 			image.onerror = () => resolve(false);
-			image.src = url;
+			image.src = src;
 		});
 
 	const run = async () => {
-		// Keep the same wallpaper while navigating within a visit instead of refetching and flashing.
-		const stored = readStored();
-		if (stored && (await show(stored))) return;
+		let url = readStored();
+		if (!url) {
+			url = await fetchWallpaper();
+			if (url) store(url);
+		}
 
-		const url = await fetchWallpaper();
-		if (url && (await show(url))) store(url);
+		if (url && (await show(await cachedSource(url)))) return;
+
+		// API or download failed: fall back to the bundled wallpaper (still just one fade-in).
+		const fallback = container?.dataset.fallback;
+		if (fallback) await show(fallback);
 	};
 
-	// Let the page finish its own work first; the wallpaper can be several MB.
-	if ("requestIdleCallback" in window) (window as any).requestIdleCallback(run, { timeout: 2500 });
-	else setTimeout(run, 400);
+	// A remembered wallpaper is cheap, so show it right away; a first visit waits for idle time
+	// because the download can be several MB.
+	if (readStored()) void run();
+	else if ("requestIdleCallback" in window) (window as any).requestIdleCallback(run, { timeout: 2000 });
+	else setTimeout(run, 300);
 </script>
 
 <style>
@@ -87,7 +116,7 @@ const localImage = localImages[Math.floor(Math.random() * localImages.length)];
 
 	.background-live {
 		opacity: 0;
-		transition: opacity 1.4s ease-in-out;
+		transition: opacity 1s ease-in-out;
 	}
 
 	.background-live.is-on {
