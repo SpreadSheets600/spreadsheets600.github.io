@@ -68,12 +68,30 @@
 		`;
 	};
 
+	/** One unlock as a card with the game's cover fading in from the right. */
+	const unlock = (label: string, item: any, appid: number | undefined, tone: "sky" | "amber", pill: string) => html`
+		<div class="relative overflow-hidden rounded-xl border ${tone === "amber" ? "border-amber-300/25" : "border-white/10"} bg-black/30">
+			${appid ? html`<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/header.jpg" alt="" class="fade-left absolute inset-y-0 right-0 h-full w-3/5 object-cover opacity-30" loading="lazy" onerror="this.style.display='none'" />` : ""}
+			<div class="relative p-3.5">
+				<div class="flex items-center justify-between gap-2">
+					<span class="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${tone === "amber" ? "text-amber-200/80" : "text-sky-200/80"}"><i class="ph-fill ${tone === "amber" ? "ph-diamond" : "ph-trophy"}"></i>${label}</span>
+					${pill ? html`<span class="shrink-0 rounded-full ${tone === "amber" ? "bg-amber-300/15 text-amber-200" : "bg-white/10 text-white/70"} px-2 py-0.5 text-[10px] font-bold">${pill}</span>` : ""}
+				</div>
+				<p class="mt-2 font-semibold leading-snug text-white">${item.name}</p>
+				${item.description ? html`<p class="mt-1 line-clamp-2 text-xs text-white/55">${item.description}</p>` : ""}
+				<p class="mt-2 truncate text-[11px] text-white/45">${item.game}</p>
+			</div>
+		</div>
+	`;
+
 	const view = (s: any) => {
 		const a = s.achievements ?? {};
 		// Steam levels need 100 XP per step, plus another 100 for every ten levels reached.
 		const step = 100 * (Math.floor(s.level / 10) + 1);
 		const levelProgress = s.xpNeeded > 0 && s.xpNeeded <= step ? 1 - s.xpNeeded / step : 0;
 		const inGame = s.game;
+		const appids = new Map<string, number>();
+		for (const game of [...(s.recent ?? []), ...(s.topGames ?? []), s.latestPlayed]) if (game?.name) appids.set(game.name, game.appid);
 
 		return html`
 			<div class="card-shell-lg card-pad sm:p-6" data-reveal>
@@ -96,7 +114,7 @@
 					<a href="${s.profileUrl}" target="_blank" rel="noopener noreferrer" class="btn-outline">Steam profile <i class="ph ph-arrow-up-right"></i></a>
 				</div>
 
-				<div class="relative z-10 mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+				<div class="relative z-10 mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
 					${stat("ph-game-controller", "Games", s.ownedGames, 0)}
 					${stat("ph-clock", "Hours played", s.totalHours, 1)}
 					${stat("ph-stack", "Backlog", s.backlog, 2)}
@@ -118,12 +136,10 @@
 							</div>
 							<p class="text-xs text-white/55">${fmt(a.unlocked)} of ${fmt(a.total)} unlocked across the ${a.checked ?? 0} games checked</p>
 						</div>
-						${a.latest
-							? html`<div class="mt-4 rounded-lg border border-white/10 bg-black/30 p-3 text-xs"><p class="text-[10px] uppercase tracking-[0.14em] text-white/40">Latest</p><p class="mt-0.5 font-semibold text-white">${a.latest.name}</p><p class="text-white/45">${a.latest.game} · ${timeAgo(a.latest.unlockedAt)}</p></div>`
-							: ""}
-						${a.rarest
-							? html`<div class="mt-2 rounded-lg border border-amber-300/20 bg-amber-300/5 p-3 text-xs"><p class="text-[10px] uppercase tracking-[0.14em] text-amber-200/70">Rarest · ${a.rarest.percent}% of players</p><p class="mt-0.5 font-semibold text-white">${a.rarest.name}</p><p class="text-white/45">${a.rarest.game}</p></div>`
-							: ""}
+						<div class="mt-4 space-y-3">
+							${a.latest ? unlock("Latest unlock", a.latest, appids.get(a.latest.game), "sky", a.latest.unlockedAt ? timeAgo(a.latest.unlockedAt) : "") : ""}
+							${a.rarest ? unlock("Rarest unlock", a.rarest, appids.get(a.rarest.game), "amber", `${a.rarest.percent}% of players`) : ""}
+						</div>
 					</div>
 				</div>
 			</div>

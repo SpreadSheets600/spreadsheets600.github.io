@@ -328,24 +328,41 @@ html.js [data-reveal].is-in {
   }
 }
 
-/* Pixel cat empty state (Discord card): blinking eyes and a wagging tail */
-.pixel-cat .cat-eye {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: cat-blink 4.5s steps(1) infinite;
+/* Peeking cat (Discord empty state): pops up over the box edge, looks around, ducks back down */
+.peek-cat {
+  display: block;
+  animation: cat-peek 8s steps(6) infinite;
 }
 
-.pixel-cat .cat-tail {
-  transform-origin: 12px 11px;
-  animation: cat-wag 2.4s steps(2) infinite;
+.peek-cat .cat-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-blink 4s steps(1) infinite;
+}
+
+.peek-cat .cat-pupil {
+  animation: cat-look 4s steps(1) infinite;
+}
+
+@keyframes cat-peek {
+  0%, 6% { transform: translateY(100%); }
+  22%, 66% { transform: translateY(0); }
+  82%, 100% { transform: translateY(100%); }
+}
+
+@keyframes cat-look {
+  0%, 30% { transform: translateX(0); }
+  35%, 65% { transform: translateX(-1px); }
+  70%, 100% { transform: translateX(0); }
 }
 
 @keyframes cat-blink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  94% { transform: scaleY(0.1); }
+  0%, 90%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.15); }
 }
 
-@keyframes cat-wag {
-  0% { transform: rotate(0deg); }
-  50% { transform: rotate(-14deg); }
+/* Image that dissolves toward the left edge (Steam unlock cards) */
+.fade-left {
+  -webkit-mask-image: linear-gradient(to left, #000, transparent);
+  mask-image: linear-gradient(to left, #000, transparent);
 }

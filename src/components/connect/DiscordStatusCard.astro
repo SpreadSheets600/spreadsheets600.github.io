@@ -7,7 +7,7 @@
 
 <script>
 	import { onSnapshot, pick, refresh } from "../../lib/api";
-	import { html, raw, toHtml, timeAgo } from "../../lib/format";
+	import { html, raw, toHtml } from "../../lib/format";
 	import { observeReveals } from "../../lib/fx";
 
 	const root = document.getElementById("discord-root")!;
@@ -19,47 +19,40 @@
 		offline: { label: "Offline", dot: "bg-slate-500" },
 	};
 
-	// Pixel cat for the empty state: one character per pixel, drawn as SVG rects.
+	// Orange cat that peeks over the edge of the empty activity box. One character per pixel.
+	const o = (n: number) => "o".repeat(n);
 	const CAT_ROWS = [
-		"..kk....kk....",
-		".kookk..kkook.",
-		".k" + "o".repeat(10) + "k.",
-		"k" + "o".repeat(12) + "k",
-		"k" + "o".repeat(12) + "k",
-		"k" + "o".repeat(12) + "k",
-		"k" + "o".repeat(5) + "pp" + "o".repeat(5) + "k",
-		"k" + "o".repeat(12) + "k",
-		".k" + "o".repeat(10) + "k.",
-		".k" + "o".repeat(10) + "k.",
-		"..k" + "w".repeat(8) + "k..",
-		".." + "k".repeat(10) + "..",
+		"..kk........kk..",
+		".kook......kook.",
+		".k" + o(4) + "d" + o(2) + "d" + o(4) + "k.",
+		"k" + o(6) + "dd" + o(6) + "k",
+		"k" + o(14) + "k",
+		"k" + o(14) + "k",
+		"k" + o(5) + "wwww" + o(5) + "k",
+		".k" + o(4) + "wwww" + o(4) + "k.",
+		"..k" + o(10) + "k..",
+		"...kkkkkkkkkk...",
 	];
-	const CAT_COLORS: Record<string, string> = { k: "#1b1b1b", o: "#f5a524", p: "#f08fb0", w: "#fff7ea" };
-	const CAT_TAIL = [
-		[12, 11, "o"],
-		[13, 11, "o"],
-		[14, 10, "o"],
-		[14, 9, "o"],
-		[15, 9, "o"],
-		[15, 8, "o"],
-	] as const;
+	const CAT_COLORS: Record<string, string> = { k: "#2a1a0a", o: "#f59e2b", d: "#c2701a", w: "#fff4e0" };
 
 	const catSvg = () => {
-		const pixels = CAT_ROWS.flatMap((row, y) =>
-			[...row].map((ch, x) => (CAT_COLORS[ch] ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${CAT_COLORS[ch]}"/>` : "")),
-		).join("");
-		const tail = CAT_TAIL.map(([x, y, ch]) => `<rect x="${x}" y="${y}" width="1" height="1" fill="${CAT_COLORS[ch]}"/>`).join("");
-		return `<svg class="pixel-cat" viewBox="0 0 16 12" width="96" height="72" shape-rendering="crispEdges" aria-hidden="true">
-			<g class="cat-tail">${tail}</g>
-			${pixels}
-			<rect class="cat-eye" x="3" y="4" width="1" height="2" fill="#111"/>
-			<rect class="cat-eye" x="10" y="4" width="1" height="2" fill="#111"/>
+		const px = (x: number, y: number, w: number, h: number, fill: string, cls = "") =>
+			`<rect${cls ? ` class="${cls}"` : ""} x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
+		const body = CAT_ROWS.flatMap((row, y) => [...row].map((ch, x) => (CAT_COLORS[ch] ? px(x, y, 1, 1, CAT_COLORS[ch]) : ""))).join("");
+		return `<svg class="peek-cat" viewBox="0 0 16 12" width="112" height="84" shape-rendering="crispEdges" aria-hidden="true">
+			${body}
+			${px(7, 6, 2, 1, "#f08fb0")}
+			<g class="cat-eyes">
+				${px(3, 4, 2, 2, "#fff4e0")}${px(11, 4, 2, 2, "#fff4e0")}
+				${px(4, 4, 1, 2, "#111", "cat-pupil")}${px(12, 4, 1, 2, "#111", "cat-pupil")}
+			</g>
+			${px(2, 10, 3, 1, "#fff4e0")}${px(11, 10, 3, 1, "#fff4e0")}
+			${px(2, 11, 3, 1, "#2a1a0a")}${px(11, 11, 3, 1, "#2a1a0a")}
 		</svg>`;
 	};
 
 	const view = (presence: any, profile: any) => {
 		const status = STATUS[presence.status] ?? STATUS.offline;
-		const bio = profile?.user_profile?.bio || profile?.user?.bio;
 		const pronouns = profile?.user_profile?.pronouns;
 		const badges: any[] = profile?.badges ?? [];
 		const activity = presence.activity;
@@ -92,28 +85,23 @@
 					${pronouns ? html`<span class="text-white/35"> · ${pronouns}</span>` : ""}
 					<span class="text-white/35"> · ${status.label}</span>
 				</p>
-				${bio ? html`<p class="relative z-10 mt-3 text-sm leading-relaxed text-white/70">${bio}</p>` : ""}
 
-				<div class="relative z-10 mt-4 flex min-h-[9rem] items-center rounded-xl border border-white/10 bg-black/30 p-4">
-					${activity
-						? html`
-							<div class="flex w-full items-center gap-3">
-								${activity.image ? html`<img src="${activity.image}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />` : html`<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10"><i class="ph ph-game-controller text-xl"></i></div>`}
-								<div class="min-w-0 text-sm">
-									<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">${activity.kind}</p>
-									<p class="truncate font-semibold text-white">${activity.name}</p>
-									${activity.details ? html`<p class="truncate text-xs text-white/60">${activity.details}</p>` : ""}
-									${activity.state ? html`<p class="truncate text-xs text-white/45">${activity.state}</p>` : ""}
-								</div>
-							</div>`
-						: html`
-							<div class="flex w-full flex-col items-center gap-2 text-center">
-								${raw(catSvg())}
-								<p class="text-xs text-white/45">Nothing going on right now</p>
-							</div>`}
-				</div>
-
-				${profile?.premium_since ? html`<p class="relative z-10 mt-4 text-[11px] text-white/35">Nitro since ${timeAgo(profile.premium_since)}</p>` : ""}
+				${activity
+					? html`
+						<div class="relative z-10 mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/30 p-4">
+							${activity.image ? html`<img src="${activity.image}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />` : html`<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10"><i class="ph ph-game-controller text-xl"></i></div>`}
+							<div class="min-w-0 text-sm">
+								<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">${activity.kind}</p>
+								<p class="truncate font-semibold text-white">${activity.name}</p>
+								${activity.details ? html`<p class="truncate text-xs text-white/60">${activity.details}</p>` : ""}
+								${activity.state ? html`<p class="truncate text-xs text-white/45">${activity.state}</p>` : ""}
+							</div>
+						</div>`
+					: html`
+						<div class="relative z-10 mt-4 flex h-36 flex-col items-center overflow-hidden rounded-xl border border-white/10 bg-black/30 px-4 pt-5">
+							<p class="text-xs text-white/45">Nothing going on right now</p>
+							<div class="absolute bottom-0 left-1/2 -translate-x-1/2">${raw(catSvg())}</div>
+						</div>`}
 			</div>
 		`;
 	};
