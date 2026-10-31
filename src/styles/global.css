@@ -32,6 +32,37 @@
   html {
     scroll-behavior: smooth;
     font-family: "Poppins", sans-serif;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-[#0a0a0a] text-white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Outline button, ported from basecoat so the site no longer depends on a CDN stylesheet. */
+  .btn-outline {
+    @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-150 outline-none;
+  }
+
+  .btn-outline:hover {
+    @apply border-white/25 bg-white/15 text-white;
+  }
+
+  .btn-outline:focus-visible {
+    @apply border-white/40 ring-2 ring-white/30;
+  }
+
+  .btn-outline:disabled,
+  .btn-outline[aria-disabled="true"] {
+    @apply pointer-events-none opacity-50;
+  }
+
+  .btn-outline svg {
+    @apply pointer-events-none size-4 shrink-0;
   }
 }
 
