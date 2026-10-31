@@ -147,29 +147,6 @@ const tileSkeletons = Array(6).fill(0);
 		`;
 	};
 
-	const weekdays = (g: any) => {
-		const counts: number[] = g.weekdayCounts ?? [];
-		const max = Math.max(...counts, 1);
-		const peak = counts.indexOf(max);
-		return html`
-			<div class="card-shell-lg card-pad" data-reveal style="--i:1">
-				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">Busiest days</h3>
-				<p class="relative z-10 text-xs text-white/50">${WEEKDAYS[peak]} leads with ${fmt(max)} contributions</p>
-				<div class="relative z-10 mt-5 flex h-32 items-end gap-2">
-					${counts.map(
-						(count, i) => html`
-							<div class="group flex h-full flex-1 flex-col items-center justify-end gap-1.5" data-tip="${WEEKDAYS[i]}: ${fmt(count)}">
-								<span class="text-[10px] text-white/0 transition-colors group-hover:text-white/80">${fmt(count)}</span>
-								<div class="col-fill w-full rounded-t-md ${i === peak ? "bg-emerald-300" : "bg-white/25 group-hover:bg-white/45"} transition-colors" style="--v:${Math.max(0.04, count / max)};--d:${i};height:calc(100% - 22px)"></div>
-								<span class="text-[10px] ${i === peak ? "text-white" : "text-white/45"}">${WEEKDAYS[i]}</span>
-							</div>
-						`,
-					)}
-				</div>
-			</div>
-		`;
-	};
-
 	const highlights = (g: any) => {
 		const rows: [string, string, number | string][] = [
 			["ph-git-commit", "Commits", g.commits],
@@ -179,11 +156,8 @@ const tileSkeletons = Array(6).fill(0);
 			["ph-chart-line-up", "Avg per day", Number(g.averagePerDay).toFixed(1)],
 			["ph-buildings", "Contributed to", `${g.contributedTo} repos`],
 		];
-		const weekend = g.weekendContributions ?? 0;
-		const weekday = g.weekdayContributions ?? 0;
-		const share = weekend + weekday > 0 ? weekend / (weekend + weekday) : 0;
 		return html`
-			<div class="card-shell-lg card-pad" data-reveal style="--i:2">
+			<div class="card-shell-lg card-pad" data-reveal style="--i:1">
 				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">Highlights</h3>
 				<dl class="relative z-10 mt-3 divide-y divide-white/5">
 					${rows.map(
@@ -195,43 +169,6 @@ const tileSkeletons = Array(6).fill(0);
 						`,
 					)}
 				</dl>
-				<div class="relative z-10 mt-3">
-					<div class="flex justify-between text-[11px] text-white/45"><span>Weekdays</span><span>Weekends ${Math.round(share * 100)}%</span></div>
-					<div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
-						<div class="bar-fill h-full rounded-full bg-emerald-300/80" style="--v:${share}"></div>
-					</div>
-				</div>
-				${g.lastPushed
-					? html`<p class="relative z-10 mt-4 truncate text-xs text-white/45">Last push · <span class="text-white/70">${String(g.lastPushed.name).split("/").pop()}</span> ${timeAgo(g.lastPushed.pushedAt)}</p>`
-					: ""}
-			</div>
-		`;
-	};
-
-	const topRepos = (g: any) => {
-		const repos: any[] = g.topRepos ?? [];
-		if (repos.length === 0) return html``;
-		return html`
-			<div data-reveal>
-				<h3 class="mb-3 text-sm font-semibold tracking-wide text-white/90">Most starred</h3>
-				<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-					${repos.map(
-						(repo, i) => html`
-							<a href="https://github.com/${repo.nameWithOwner}" target="_blank" rel="noopener noreferrer" class="card-shell card-pad lift block" data-reveal style="--i:${i}">
-								<div class="relative z-10 flex items-center justify-between gap-2">
-									<span class="truncate text-sm font-semibold text-white">${repo.name}</span>
-									<i class="ph ph-arrow-up-right text-white/40"></i>
-								</div>
-								<p class="relative z-10 mt-1.5 line-clamp-2 min-h-[2rem] text-xs text-white/55">${repo.description || "No description"}</p>
-								<div class="relative z-10 mt-3 flex items-center gap-3 text-xs text-white/60">
-									${repo.language ? html`<span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full" style="background:${repo.languageColor ?? "#888"}"></span>${repo.language}</span>` : ""}
-									<span>★ ${fmt(repo.stars)}</span>
-									<span>⑂ ${fmt(repo.forks)}</span>
-								</div>
-							</a>
-						`,
-					)}
-				</div>
 			</div>
 		`;
 	};
@@ -246,8 +183,7 @@ const tileSkeletons = Array(6).fill(0);
 			${tile("ph-users", "Followers", g.followers, 5, `${fmt(g.following)} following`)}
 		</div>
 		${heatmap(g)}
-		<div class="grid gap-4 lg:grid-cols-3">${languages(g)}${weekdays(g)}${highlights(g)}</div>
-		${topRepos(g)}
+		<div class="grid gap-4 lg:grid-cols-2">${languages(g)}${highlights(g)}</div>
 	`;
 
 	let last = "";

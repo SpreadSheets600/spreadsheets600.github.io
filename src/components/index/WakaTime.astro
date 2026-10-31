@@ -14,8 +14,9 @@
 		<div class="grid gap-4 sm:grid-cols-3">
 			<div class="skeleton h-28"></div><div class="skeleton h-28"></div><div class="skeleton h-28"></div>
 		</div>
-		<div class="grid gap-4 lg:grid-cols-3">
-			<div class="skeleton h-60 lg:col-span-2"></div><div class="skeleton h-60"></div>
+		<div class="skeleton h-72"></div>
+		<div class="grid gap-4 lg:grid-cols-2">
+			<div class="skeleton h-56"></div><div class="skeleton h-56"></div>
 		</div>
 	</div>
 </section>
@@ -44,17 +45,17 @@
 		const max = items[0]?.seconds || 1;
 		const total = items.reduce((sum, item) => sum + item.seconds, 0) || 1;
 		return html`
-			<div class="mt-5 first:mt-0">
-				<h4 class="relative z-10 mb-2 text-[11px] uppercase tracking-[0.14em] text-white/45">${title}</h4>
-				<ul class="relative z-10 space-y-2.5">
+			<div>
+				<h4 class="relative z-10 mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">${title}</h4>
+				<ul class="relative z-10 space-y-3">
 					${items.map(
 						(item, i) => html`
 							<li data-tip="${item.name}: ${duration(item.seconds)} (${Math.round(percent(item.seconds, total))}%)">
-								<div class="flex justify-between text-xs">
+								<div class="flex items-baseline justify-between text-xs">
 									<span class="text-white/80">${item.name}</span>
 									<span class="text-white/45">${duration(item.seconds)}</span>
 								</div>
-								<div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+								<div class="mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
 									<div class="bar-fill h-full rounded-full" style="--v:${item.seconds / max};--d:${i};background:${PALETTE[(i + offset) % PALETTE.length]}"></div>
 								</div>
 							</li>
@@ -78,23 +79,24 @@
 				${stat("ph-calendar-blank", "Last 7 days", html`<span data-count="${(w.weekSeconds / 3600).toFixed(1)}" data-decimals="1">0</span><span class="text-lg font-medium text-white/50"> hrs</span>`, `${duration(w.weekSeconds)} in total`, 1)}
 				${stat("ph-timer", "Daily average", html`${duration(avg)}`, best.seconds ? `best day ${shortDay(best.date)} · ${duration(best.seconds)}` : "last 7 days", 2)}
 			</div>
-			<div class="grid gap-4 lg:grid-cols-3">
-				<div class="card-shell-lg card-pad lg:col-span-2" data-reveal>
-					<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">This week</h3>
-					<div class="relative z-10 mt-6 flex h-44 items-end gap-2 sm:gap-3">
-						${daily.map(
-							(day, i) => html`
-								<div class="group flex h-full flex-1 flex-col items-center justify-end gap-1.5" data-tip="${longDate(day.date)}\n${duration(day.seconds)} coded">
-									<span class="text-[10px] text-white/0 transition-colors group-hover:text-white/80">${duration(day.seconds)}</span>
-									<div class="col-fill w-full rounded-t-md ${day.date === best.date ? "bg-emerald-300" : "bg-white/25 group-hover:bg-white/45"} transition-colors" style="--v:${Math.max(0.03, day.seconds / max)};--d:${i};height:calc(100% - 40px)"></div>
-									<span class="text-[10px] ${day.date === best.date ? "text-white" : "text-white/45"}">${shortDay(day.date)}</span>
-								</div>
-							`,
-						)}
-					</div>
+			<div class="card-shell-lg card-pad" data-reveal>
+				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">This week</h3>
+				<div class="relative z-10 mt-6 flex h-64 items-end justify-around sm:h-72">
+					${daily.map(
+						(day, i) => html`
+							<div class="group flex h-full flex-1 flex-col items-center justify-end gap-2" data-tip="${longDate(day.date)}\n${duration(day.seconds)} coded">
+								<div class="col-fill w-5 rounded-full sm:w-6 ${day.date === best.date ? "bg-emerald-300" : "bg-white/25 group-hover:bg-white/45"} transition-colors" style="--v:${Math.max(0.03, day.seconds / max)};--d:${i};height:calc(100% - 22px)"></div>
+								<span class="text-[10px] ${day.date === best.date ? "text-white" : "text-white/45"}">${shortDay(day.date)}</span>
+							</div>
+						`,
+					)}
+				</div>
+			</div>
+			<div class="grid gap-4 lg:grid-cols-2">
+				<div class="card-shell-lg card-pad" data-reveal>
+					${ranked("Languages", w.languages ?? [], 0)}
 				</div>
 				<div class="card-shell-lg card-pad" data-reveal style="--i:1">
-					${ranked("Languages", w.languages ?? [], 0)}
 					${ranked("Editors", w.editors ?? [], 3)}
 				</div>
 			</div>
