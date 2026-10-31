@@ -2,7 +2,17 @@
 import Background from "../components/Background.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
+import "@fontsource/poppins/300.css";
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/700.css";
+import "../styles/phosphor.generated.css";
 import "../styles/global.css";
+import poppins400 from "@fontsource/poppins/files/poppins-latin-400-normal.woff2?url";
+import phosphorRegular from "@phosphor-icons/web/regular/Phosphor.woff2?url";
+import phosphorLight from "@phosphor-icons/web/light/Phosphor-Light.woff2?url";
+import poppins600 from "@fontsource/poppins/files/poppins-latin-600-normal.woff2?url";
 
 interface Props {
 	title: string;
@@ -25,13 +35,10 @@ const { title, description = "Portfolio Of SpreadSheets600" } = Astro.props;
 			document.documentElement.classList.add("js");
 		</script>
 
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/light/style.css" />
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
-
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" />
+		<link rel="preload" href={poppins400} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={poppins600} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={phosphorRegular} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={phosphorLight} as="font" type="font/woff2" crossorigin />
 	</head>
 	<body class="min-h-screen relative">
 		<Background />
