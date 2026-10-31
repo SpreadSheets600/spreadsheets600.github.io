@@ -101,7 +101,7 @@ const skills = [
 					<section class="flex-1 p-4">
 						<div class="flex flex-wrap gap-2">
 							{category.items.map((skill) => (
-								<div class="group/icon relative flex items-center justify-center">
+								<div class="group/icon relative flex items-center justify-center" data-tip={category.tooltips[category.items.indexOf(skill)]}>
 									<img
 										src={`https://skillicons.dev/icons?i=${skill}&theme=dark`}
 										alt={skill}
@@ -109,13 +109,6 @@ const skills = [
 										loading="lazy"
 									/>
 
-									<span class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black/90 px-2 py-0.5 text-[10px] text-white opacity-0 transition-opacity group-hover/icon:opacity-100 border border-white/10 ">
-										{
-											category.tooltips[
-												category.items.indexOf(skill)
-											]
-										}
-									</span>
 								</div>
 							))}
 						</div>
