@@ -12,7 +12,10 @@ export interface GitHubRepo {
 
 interface RepositoryFetchResult {
 	repos: GitHubRepo[];
+	/** true only when the live GitHub API call succeeded */
 	ok: boolean;
+	/** "fallback" means the repos came from the committed YAML snapshot (no stars/language data) */
+	source: "github" | "fallback";
 }
 
 const RAW_REPOSITORY_FILES = import.meta.glob("../content/repositories/*.yml", {
@@ -119,7 +122,7 @@ export async function fetchPublicRepos(username: string, tokenOverride?: string)
 						}) satisfies GitHubRepo,
 				);
 
-			return { repos, ok: true };
+			return { repos, ok: true, source: "github" };
 		} else {
 			console.warn(`GitHub API returned ${response.status}: ${response.statusText}`);
 		}
@@ -132,5 +135,5 @@ export async function fetchPublicRepos(username: string, tokenOverride?: string)
 	}
 
 	const fallbackRepos = loadFallbackRepos();
-	return { repos: fallbackRepos, ok: fallbackRepos.length > 0 };
+	return { repos: fallbackRepos, ok: false, source: "fallback" };
 }

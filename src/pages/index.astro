@@ -1,6 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
+// Static at build time: avoids per-request GitHub/API calls and serves from the edge.
+export const prerender = true;
+
 import Hero from "../components/index/Hero.astro";
 import About from "../components/index/About.astro";
 

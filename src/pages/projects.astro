@@ -1,5 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+// Static at build time: GitHub is queried during the build, not on every request.
+export const prerender = true;
+
 import ProjectCard from "../components/ProjectCard.astro";
 import { fetchPublicRepos, type GitHubRepo } from "../lib/repositories.ts";
 import { getLanguageColorMap, getLanguageColorSync, DEFAULT_LANGUAGE_COLOR } from "../lib/languageColors.js";
@@ -8,12 +12,14 @@ const GITHUB_USERNAME = "SpreadSheets600";
 
 let allProjects: GitHubRepo[] = [];
 let error = false;
+let usingFallback = false;
 
 try {
 	const githubToken = Astro.locals.runtime?.env?.GITHUB_PAT || Astro.locals.runtime?.env?.GITHUB_TOKEN || import.meta.env.GITHUB_PAT || import.meta.env.GITHUB_TOKEN;
-	const { repos, ok } = await fetchPublicRepos(GITHUB_USERNAME, githubToken);
+	const { repos, source } = await fetchPublicRepos(GITHUB_USERNAME, githubToken);
 	allProjects = repos;
-	error = !ok;
+	usingFallback = source === "fallback";
+	error = repos.length === 0;
 } catch (e) {
 	error = true;
 }
@@ -140,11 +146,18 @@ const languageSegments =
 					<i class="ph ph-folder-open text-4xl text-white/40 mb-4" />
 					<p class="text-white/60">No projects found.</p>
 				</div>
-			:	<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-					{allProjects.map((project) => (
-						<ProjectCard project={project} />
-					))}
-				</div>
+			:	<>
+					{usingFallback && (
+						<p class="mb-4 text-sm text-white/60">
+							Live GitHub data is unavailable right now, so this list comes from the last nightly sync. Star counts and languages may be missing.
+						</p>
+					)}
+					<div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						{allProjects.map((project) => (
+							<ProjectCard project={project} />
+						))}
+					</div>
+				</>
 		}
 	</main>
 </Layout>
