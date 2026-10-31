@@ -1,331 +1,281 @@
 ---
-import { getCachedOrFetch } from "../../lib/cache.js";
-
-const username = "spreadsheets600";
-
-interface Contribution {
-	date: string;
-	count: number;
-	level: 0 | 1 | 2 | 3 | 4;
-}
-
-interface ContributionsResponse {
-	total: Record<string, number>;
-	contributions: Contribution[];
-}
-
-const ERROR_PATTERN = [
-	[1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
-	[1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-	[1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1],
-	[1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-	[1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-] as const;
-
-const today = new Date();
-const endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-const startDate = new Date(endDate);
-
-startDate.setUTCDate(endDate.getUTCDate() - 364);
-const apiUrl = `https://github-contributions-api.jogruber.de/v4/${username}?y=last`;
-
-const createDateKey = (date: Date) => date.toISOString().slice(0, 10);
-
-const createPlaceholderContributions = (): Contribution[] => {
-	const entries: Contribution[] = [];
-	const cursor = new Date(startDate);
-
-	while (cursor <= endDate) {
-		entries.push({
-			date: createDateKey(cursor),
-			count: 0,
-			level: 0,
-		});
-		cursor.setUTCDate(cursor.getUTCDate() + 1);
-	}
-	return entries;
-};
-
-const createErrorContributions = (): Contribution[] => {
-	const entries = createPlaceholderContributions();
-
-	const patternStartWeek = Math.floor((53 - 19) / 2);
-	const patternStartRow = Math.floor((7 - 5) / 2);
-
-	return entries.map((entry, index) => {
-		const weekIndex = Math.floor(index / 7);
-		const dayIndex = index % 7;
-
-		const relativeWeek = weekIndex - patternStartWeek;
-		const relativeRow = dayIndex - patternStartRow;
-
-		const isPatternCell = relativeWeek >= 0 && relativeWeek < 19 && relativeRow >= 0 && relativeRow < 5;
-		const count = isPatternCell && ERROR_PATTERN[relativeRow]?.[relativeWeek] === 1 ? 10 : 0;
-
-		return { ...entry, count, level: count > 0 ? 4 : 0 };
-	});
-};
-
-let contributions: Contribution[] = createPlaceholderContributions();
-let totals: Record<string, number> = {};
-let loadError = false;
-let staleFallback = false;
-
-const cacheKey = `github-contributions:${username}`;
-const ttlMs = 15 * 60 * 1000;
-
-try {
-	const cached = await getCachedOrFetch(cacheKey, ttlMs, async () => {
-		const response = await fetch(apiUrl);
-		if (!response.ok) {
-			throw new Error(`Contributions API error (${response.status})`);
-		}
-		return (await response.json()) as ContributionsResponse;
-	});
-
-	const data = cached.data;
-	staleFallback = cached.isStaleFallback;
-	contributions = Array.isArray(data?.contributions) && data.contributions.length > 0 ? data.contributions : contributions;
-	totals = data?.total ?? {};
-} catch {
-	loadError = true;
-}
-
-if (loadError) {
-	contributions = createErrorContributions();
-}
-
-const contributionMap = new Map<string, Contribution>();
-for (const entry of contributions as Contribution[]) {
-	contributionMap.set(entry.date, entry);
-}
-
-const lastYearContribs: Contribution[] = [];
-const cursor = new Date(startDate);
-
-while (cursor <= endDate) {
-	const key = cursor.toISOString().slice(0, 10);
-	const entry = contributionMap.get(key) ?? { date: key, count: 0, level: 0 as const };
-
-	lastYearContribs.push(entry);
-	cursor.setUTCDate(cursor.getUTCDate() + 1);
-}
-
-const weeks: Array<Array<Contribution | null>> = [];
-let currentWeek: Array<Contribution | null> = [];
-
-const startDay = startDate.getUTCDay();
-
-for (let i = 0; i < startDay; i += 1) currentWeek.push(null);
-
-for (const entry of lastYearContribs) {
-	currentWeek.push(entry);
-
-	if (currentWeek.length === 7) {
-		weeks.push(currentWeek);
-		currentWeek = [];
-	}
-}
-
-if (currentWeek.length) {
-	while (currentWeek.length < 7) currentWeek.push(null);
-	weeks.push(currentWeek);
-}
-
-const totalLastYear = lastYearContribs.reduce((sum, entry) => sum + Number(entry?.count ?? 0), 0);
-const rangeLabel = `${startDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${endDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-
-const levelClass = (level: number) => {
-	if (level === 0) return "bg-white/5 ring-white/5";
-	if (level === 1) return "bg-emerald-400/30 ring-emerald-400/40";
-	if (level === 2) return "bg-emerald-400/60 ring-emerald-400/70";
-	if (level === 3) return "bg-emerald-300 ring-emerald-300/90";
-	if (level >= 4) return "bg-emerald-200 ring-emerald-200/90";
-
-	return "bg-white/5 ring-white/5";
-};
-
-const heatmapTooltip = (entry: Contribution | null) => {
-	if (!entry) return "No data";
-
-	const formattedDate = new Date(entry.date).toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-		timeZone: "UTC",
-	});
-
-	if (entry.count === 0) return `No contributions on ${formattedDate}`;
-	if (entry.count === 1) return `1 contribution on ${formattedDate}`;
-
-	return `${entry.count} contributions on ${formattedDate}`;
-};
-
-const monthLabels: { label: string; index: number }[] = [];
-let lastMonth = -1;
-
-weeks.forEach((week, index) => {
-	const firstDay = week.find((day) => day !== null);
-	if (firstDay) {
-		const dateObj = new Date(firstDay.date);
-		const month = dateObj.getUTCMonth();
-		if (month !== lastMonth) {
-			monthLabels.push({
-				label: dateObj.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }),
-				index,
-			});
-			lastMonth = month;
-		}
-	}
-});
+const tileSkeletons = Array(6).fill(0);
 ---
 
 <section id="github" class="scroll-mt-24 mt-8 sm:mt-12">
-	<div class="mb-8 flex items-center gap-3">
+	<div class="mb-8 flex flex-wrap items-center gap-3">
 		<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
 			<i class="ph-light ph-github-logo text-2xl"></i>
 		</div>
-		<h2 class="text-2xl font-bold text-white">GitHub Stats</h2>
+		<h2 class="text-2xl font-bold text-white">GitHub Activity</h2>
+		<span id="gh-status" class="hidden max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60"></span>
+		<span id="gh-sync" class="ml-auto text-xs text-white/40"></span>
 	</div>
 
-	<div class="grid gap-4 sm:gap-6">
-		<div class="grid gap-4 sm:gap-6 lg:grid-cols-2">
-			<div class="card-shell-lg group relative p-4">
-				<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-				<img
-					class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
-					src="https://github-readme-stats-fast.vercel.app/api?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000"
-					alt="GitHub stats"
-					loading="lazy"
-					onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
-					onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='GitHub stats unavailable';"
-				/>
-			</div>
-
-			<div class="card-shell-lg group relative p-4">
-				<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-				<img
-					class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
-					src="https://github-readme-stats-fast.vercel.app/api/streak?username=spreadsheets600&count_private=true&show_icons=true&include_all_commits=true&line_height=21&hide_border=true&theme=dark&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000"
-					alt="GitHub streak"
-					loading="lazy"
-					onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
-					onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='Streak stats unavailable';"
-				/>
-			</div>
+	<div id="gh-root" class="space-y-4">
+		<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+			{tileSkeletons.map(() => <div class="skeleton h-24" />)}
 		</div>
-
-		<div class="card-shell-lg group relative p-4">
-			<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-			<img
-				class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
-				src="https://github-readme-activity-graph.vercel.app/graph?username=SpreadSheets600&theme=react-dark&hide_border=true&bg_color=151515&color=FFFFFF&line=FFFFFF&point=FFFFFF"
-				alt="GitHub activity graph"
-				loading="lazy"
-				onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
-				onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='Activity graph unavailable';"
-			/>
-		</div>
-
-		<div class="card-shell-lg relative w-full p-6">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-2">
-				<div>
-					<p class="text-sm font-semibold text-white">Contribution Heatmap</p>
-				</div>
-				<div class="flex items-center gap-2 text-[11px] text-white/60">
-					<span>Less</span>
-					<div class="flex items-center gap-1">
-						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-white/10 bg-white/5"></span>
-						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-400/40 bg-emerald-400/30"></span>
-						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-400/70 bg-emerald-400/60"></span>
-						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-300/90 bg-emerald-300"></span>
-						<span class="h-2.5 w-2.5 rounded-sm ring-1 ring-emerald-200/90 bg-emerald-200"></span>
-					</div>
-					<span>More</span>
-				</div>
-			</div>
-
-			<div id="github-heatmap-scroll" class="w-full max-md:overflow-x-auto pb-1 [scrollbar-width:thin]">
-				<div class="flex flex-col gap-2 max-md:min-w-max w-full">
-					<div class="flex text-[10px] text-white/50 pl-[30px] w-full">
-						<div class="flex max-md:gap-1.5 md:justify-between w-full">
-							{weeks.map((week, index) => {
-								const label = monthLabels.find((m) => m.index === index)?.label;
-								return (
-									<div class="w-3 mb-2 relative shrink-0">
-										{label && <span class="absolute left-0 whitespace-nowrap">{label}</span>}
-									</div>
-								);
-							})}
-						</div>
-					</div>
-
-					<div class="flex gap-2 w-full">
-						<div class="grid grid-rows-7 gap-1.5 text-[10px] text-white/50 text-right w-[22px] shrink-0">
-							<span class="h-3 leading-3"></span>
-							<span class="h-3 leading-3">Mon</span>
-							<span class="h-3 leading-3"></span>
-							<span class="h-3 leading-3">Wed</span>
-							<span class="h-3 leading-3"></span>
-							<span class="h-3 leading-3">Fri</span>
-							<span class="h-3 leading-3"></span>
-						</div>
-
-						<div class="flex max-md:gap-1.5 md:justify-between w-full">
-							{
-								weeks.map((week) => (
-									<div class="grid grid-rows-7 gap-1.5 shrink-0">
-										{week.map((entry) => (
-											<div class={`heatmap-cell h-3 w-3 rounded-[3px] ring-1 transition-transform hover:scale-125 hover:ring-white/50 cursor-pointer ${levelClass(entry?.level ?? 0)}`} data-tooltip={heatmapTooltip(entry)} />
-										))}
-									</div>
-								))
-							}
-						</div>
-					</div>
-				</div>
-			</div>
-			{loadError && <p class="mt-3 text-xs text-white/55">Live contribution data is unavailable right now. Showing fallback heatmap pattern.</p>}
-			{!loadError && staleFallback && <p class="mt-3 text-xs text-white/55">Live contribution API is unavailable. Showing cached heatmap data.</p>}
-		</div>
-		<div id="heatmap-tooltip" class="pointer-events-none fixed z-50 hidden whitespace-nowrap rounded-md bg-zinc-800 px-3 py-1.5 text-xs text-white shadow-xl ring-1 ring-white/10 transition-opacity"></div>
-
-		<div class="card-shell-lg group relative p-4">
-			<div class="skeleton absolute inset-0 bg-white/5 animate-pulse z-0"></div>
-			<img
-				class="relative z-10 w-full rounded-xl opacity-0 transition-opacity duration-500"
-				src="https://holopin.me/spreadsheets600"
-				alt="Holopin badges"
-				loading="lazy"
-				onload="this.classList.remove('opacity-0'); this.previousElementSibling.style.display='none';"
-				onerror="this.classList.add('opacity-0'); this.previousElementSibling.classList.remove('animate-pulse'); this.previousElementSibling.classList.add('flex','items-center','justify-center','text-white/60','text-sm'); this.previousElementSibling.textContent='Holopin unavailable';"
-			/>
+		<div class="skeleton h-56" />
+		<div class="grid gap-4 lg:grid-cols-3">
+			<div class="skeleton h-56" /><div class="skeleton h-56" /><div class="skeleton h-56" />
 		</div>
 	</div>
 </section>
 
 <script>
-	const container = document.getElementById("github-heatmap-scroll");
-	if (container) {
-		container.scrollLeft = container.scrollWidth;
+	import { onSnapshot, pick, refresh, snapshotTime } from "../../lib/api";
+	import { html, toHtml, fmt, timeAgo, longDate, esc, raw } from "../../lib/format";
+	import { observeReveals } from "../../lib/fx";
+
+	const root = document.getElementById("gh-root")!;
+	const syncEl = document.getElementById("gh-sync")!;
+	const statusEl = document.getElementById("gh-status")!;
+
+	const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+	const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+	interface Day {
+		date: string;
+		count: number;
+		weekday: number;
 	}
 
-	const tooltip = document.getElementById("heatmap-tooltip");
-	const cells = document.querySelectorAll(".heatmap-cell");
+	const tile = (icon: string, label: string, value: number, index: number, hint = "") => html`
+		<div class="card-shell card-pad lift" data-reveal style="--i:${index}">
+			<div class="relative z-10 flex items-center gap-2 text-white/50">
+				<i class="ph-light ${icon} text-lg"></i>
+				<span class="text-[11px] uppercase tracking-[0.14em]">${label}</span>
+			</div>
+			<p class="relative z-10 mt-2 text-2xl font-bold text-white sm:text-3xl" data-count="${value}">0</p>
+			${hint ? html`<p class="relative z-10 mt-0.5 text-xs text-white/40">${hint}</p>` : ""}
+		</div>
+	`;
 
-	cells.forEach((cell) => {
-		cell.addEventListener("mouseenter", () => {
-			if (!tooltip) return;
-			const rect = cell.getBoundingClientRect();
-			tooltip.textContent = cell.getAttribute("data-tooltip");
-			tooltip.style.display = "block";
-			tooltip.style.left = `${rect.left + rect.width / 2}px`;
-			tooltip.style.top = `${rect.top - 8}px`;
-			tooltip.style.transform = "translate(-50%, -100%)";
-		});
-		cell.addEventListener("mouseleave", () => {
-			if (!tooltip) return;
-			tooltip.style.display = "none";
-		});
+	const levelFor = (days: Day[]) => {
+		const active = days.map((day) => day.count).filter((count) => count > 0).sort((a, b) => a - b);
+		const at = (p: number) => active[Math.min(active.length - 1, Math.floor(active.length * p))] ?? 1;
+		const [q1, q2, q3] = [at(0.25), at(0.5), at(0.75)];
+		return (count: number) => (count === 0 ? 0 : count <= q1 ? 1 : count <= q2 ? 2 : count <= q3 ? 3 : 4);
+	};
+
+	const heatmap = (g: any) => {
+		const days: Day[] = g.contributionDays ?? g.calendar?.contributionDays ?? [];
+		if (days.length === 0) return html`<div class="card-empty">No contribution data yet.</div>`;
+
+		const pad = days[0].weekday;
+		const cols = Math.ceil((days.length + pad) / 7);
+		const level = levelFor(days);
+
+		const monthAt = (col: number) => Number(days[Math.max(0, col * 7 - pad)].date.slice(5, 7)) - 1;
+		const labels: { col: number; name: string }[] = [];
+		let previous = -1;
+		let lastCol = -10;
+		for (let col = 0; col < cols; col++) {
+			const month = monthAt(col);
+			if (month !== previous && col - lastCol >= 3 && (col > 0 || monthAt(Math.min(3, cols - 1)) === month)) {
+				labels.push({ col, name: MONTHS[month] });
+				lastCol = col;
+			}
+			previous = month;
+		}
+
+		const cells = [
+			...Array.from({ length: pad }, () => html`<span></span>`),
+			...days.map((day, index) => {
+				const col = Math.floor((index + pad) / 7);
+				const tip = `${day.count === 0 ? "No" : fmt(day.count)} contribution${day.count === 1 ? "" : "s"}\n${longDate(day.date)}`;
+				return html`<span class="hm-cell hm-${level(day.count)}" style="--w:${col}" data-tip="${tip}"></span>`;
+			}),
+		];
+
+		const best = g.bestDay;
+		return html`
+			<div class="card-shell-lg card-pad" data-reveal>
+				<div class="relative z-10 mb-4 flex flex-wrap items-end justify-between gap-2">
+					<div>
+						<h3 class="text-sm font-semibold tracking-wide text-white/90">Contribution activity</h3>
+						<p class="text-xs text-white/50"><span class="font-semibold text-white" data-count="${g.contributions}">0</span> contributions in the last year</p>
+					</div>
+					${best ? html`<p class="text-xs text-white/50">Best day <span class="text-white">${fmt(best.count)}</span> on ${longDate(best.date)}</p>` : ""}
+				</div>
+				<div class="relative z-10 overflow-x-auto pb-2" id="hm-scroll">
+					<div class="min-w-[680px]" role="img" aria-label="Contribution heatmap for the last year">
+						<div class="mb-1 grid text-[10px] text-white/40" style="grid-template-columns:repeat(${cols},minmax(0,1fr));gap:3px">
+							${labels.map((label) => html`<span class="whitespace-nowrap" style="grid-column:${label.col + 1}">${label.name}</span>`)}
+						</div>
+						<div class="hm-grid" style="grid-auto-columns:minmax(0,1fr)">${cells}</div>
+					</div>
+				</div>
+				<div class="relative z-10 mt-3 flex items-center justify-end gap-1.5 text-[10px] text-white/40">
+					Less
+					${[0, 1, 2, 3, 4].map((n) => html`<span class="h-2.5 w-2.5 rounded-[3px] hm-${n}" style="opacity:1;transform:none"></span>`)}
+					More
+				</div>
+			</div>
+		`;
+	};
+
+	const languages = (g: any) => {
+		const list = [...(g.languages ?? [])].sort((a: any, b: any) => b.repos - a.repos).slice(0, 8);
+		const total = list.reduce((sum: number, item: any) => sum + item.repos, 0) || 1;
+		const max = list[0]?.repos || 1;
+		return html`
+			<div class="card-shell-lg card-pad" data-reveal style="--i:0">
+				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">Languages</h3>
+				<div class="relative z-10 mt-4 overflow-hidden rounded-full">
+					<div class="bar-fill flex h-3 w-full">
+						${list.map((item: any) => html`<span style="flex:${item.repos};background:${item.color ?? "#888"}" data-tip="${item.name}: ${item.repos} repos (${Math.round((item.repos / total) * 100)}%)"></span>`)}
+					</div>
+				</div>
+				<ul class="relative z-10 mt-4 space-y-2.5">
+					${list.map(
+						(item: any, i: number) => html`
+							<li>
+								<div class="flex items-center justify-between text-xs">
+									<span class="flex items-center gap-2 text-white/80"><span class="h-2 w-2 rounded-full" style="background:${item.color ?? "#888"}"></span>${item.name}</span>
+									<span class="text-white/45">${item.repos} repos${item.stars ? html` · ${fmt(item.stars)} ★` : ""}</span>
+								</div>
+								<div class="mt-1 h-1 overflow-hidden rounded-full bg-white/10">
+									<div class="bar-fill h-full rounded-full" style="--v:${item.repos / max};--d:${i};background:${item.color ?? "#888"}"></div>
+								</div>
+							</li>
+						`,
+					)}
+				</ul>
+			</div>
+		`;
+	};
+
+	const weekdays = (g: any) => {
+		const counts: number[] = g.weekdayCounts ?? [];
+		const max = Math.max(...counts, 1);
+		const peak = counts.indexOf(max);
+		return html`
+			<div class="card-shell-lg card-pad" data-reveal style="--i:1">
+				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">Busiest days</h3>
+				<p class="relative z-10 text-xs text-white/50">${WEEKDAYS[peak]} leads with ${fmt(max)} contributions</p>
+				<div class="relative z-10 mt-5 flex h-32 items-end gap-2">
+					${counts.map(
+						(count, i) => html`
+							<div class="group flex h-full flex-1 flex-col items-center justify-end gap-1.5" data-tip="${WEEKDAYS[i]}: ${fmt(count)}">
+								<span class="text-[10px] text-white/0 transition-colors group-hover:text-white/80">${fmt(count)}</span>
+								<div class="col-fill w-full rounded-t-md ${i === peak ? "bg-emerald-300" : "bg-white/25 group-hover:bg-white/45"} transition-colors" style="--v:${Math.max(0.04, count / max)};--d:${i};height:calc(100% - 22px)"></div>
+								<span class="text-[10px] ${i === peak ? "text-white" : "text-white/45"}">${WEEKDAYS[i]}</span>
+							</div>
+						`,
+					)}
+				</div>
+			</div>
+		`;
+	};
+
+	const highlights = (g: any) => {
+		const rows: [string, string, number | string][] = [
+			["ph-git-commit", "Commits", g.commits],
+			["ph-git-pull-request", "Pull requests", g.pullRequests],
+			["ph-bug", "Issues opened", g.issues],
+			["ph-calendar-check", "Active days", g.activeDays],
+			["ph-chart-line-up", "Avg per day", Number(g.averagePerDay).toFixed(1)],
+			["ph-buildings", "Contributed to", `${g.contributedTo} repos`],
+		];
+		const weekend = g.weekendContributions ?? 0;
+		const weekday = g.weekdayContributions ?? 0;
+		const share = weekend + weekday > 0 ? weekend / (weekend + weekday) : 0;
+		return html`
+			<div class="card-shell-lg card-pad" data-reveal style="--i:2">
+				<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">Highlights</h3>
+				<dl class="relative z-10 mt-3 divide-y divide-white/5">
+					${rows.map(
+						([icon, label, value]) => html`
+							<div class="flex items-center justify-between py-2 text-sm">
+								<dt class="flex items-center gap-2 text-white/60"><i class="ph-light ${icon}"></i>${label}</dt>
+								<dd class="font-semibold text-white">${typeof value === "number" ? fmt(value) : value}</dd>
+							</div>
+						`,
+					)}
+				</dl>
+				<div class="relative z-10 mt-3">
+					<div class="flex justify-between text-[11px] text-white/45"><span>Weekdays</span><span>Weekends ${Math.round(share * 100)}%</span></div>
+					<div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+						<div class="bar-fill h-full rounded-full bg-emerald-300/80" style="--v:${share}"></div>
+					</div>
+				</div>
+				${g.lastPushed
+					? html`<p class="relative z-10 mt-4 truncate text-xs text-white/45">Last push · <span class="text-white/70">${String(g.lastPushed.name).split("/").pop()}</span> ${timeAgo(g.lastPushed.pushedAt)}</p>`
+					: ""}
+			</div>
+		`;
+	};
+
+	const topRepos = (g: any) => {
+		const repos: any[] = g.topRepos ?? [];
+		if (repos.length === 0) return html``;
+		return html`
+			<div data-reveal>
+				<h3 class="mb-3 text-sm font-semibold tracking-wide text-white/90">Most starred</h3>
+				<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+					${repos.map(
+						(repo, i) => html`
+							<a href="https://github.com/${repo.nameWithOwner}" target="_blank" rel="noopener noreferrer" class="card-shell card-pad lift block" data-reveal style="--i:${i}">
+								<div class="relative z-10 flex items-center justify-between gap-2">
+									<span class="truncate text-sm font-semibold text-white">${repo.name}</span>
+									<i class="ph ph-arrow-up-right text-white/40"></i>
+								</div>
+								<p class="relative z-10 mt-1.5 line-clamp-2 min-h-[2rem] text-xs text-white/55">${repo.description || "No description"}</p>
+								<div class="relative z-10 mt-3 flex items-center gap-3 text-xs text-white/60">
+									${repo.language ? html`<span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full" style="background:${repo.languageColor ?? "#888"}"></span>${repo.language}</span>` : ""}
+									<span>★ ${fmt(repo.stars)}</span>
+									<span>⑂ ${fmt(repo.forks)}</span>
+								</div>
+							</a>
+						`,
+					)}
+				</div>
+			</div>
+		`;
+	};
+
+	const view = (g: any) => html`
+		<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+			${tile("ph-git-commit", "Contributions", g.contributions, 0, "last 12 months")}
+			${tile("ph-fire", "Streak", g.currentStreak, 1, "days, current")}
+			${tile("ph-trophy", "Best streak", g.longestStreak, 2, "days")}
+			${tile("ph-star", "Stars", g.stars, 3, "across repos")}
+			${tile("ph-folder-simple", "Repos", g.repos, 4, `${g.private ?? 0} private`)}
+			${tile("ph-users", "Followers", g.followers, 5, `${fmt(g.following)} following`)}
+		</div>
+		${heatmap(g)}
+		<div class="grid gap-4 lg:grid-cols-3">${languages(g)}${weekdays(g)}${highlights(g)}</div>
+		${topRepos(g)}
+	`;
+
+	let last = "";
+
+	onSnapshot((snapshot, meta) => {
+		const g = pick(snapshot, "github");
+		const time = snapshotTime(snapshot);
+		syncEl.textContent = time ? `${meta.error ? "Offline · " : ""}Updated ${timeAgo(time)}` : "";
+
+		if (!g) {
+			if (last === "error" || !snapshot && !meta.error) return;
+			last = "error";
+			root.innerHTML = `<div class="card-empty"><i class="ph ph-warning text-4xl text-white/40 mb-4"></i><p>Couldn't load GitHub activity right now.</p><button id="gh-retry" class="btn-outline mt-4">Try again</button></div>`;
+			root.querySelector("#gh-retry")?.addEventListener("click", () => void refresh(true));
+			return;
+		}
+
+		const message = g.status?.message;
+		statusEl.textContent = message ? String(message) : "";
+		statusEl.classList.toggle("hidden", !message);
+
+		const key = JSON.stringify(g);
+		if (key === last) return;
+		last = key;
+
+		root.innerHTML = toHtml(view(g));
+		observeReveals(root);
+		const scroller = document.getElementById("hm-scroll");
+		if (scroller) scroller.scrollLeft = scroller.scrollWidth;
 	});
 </script>

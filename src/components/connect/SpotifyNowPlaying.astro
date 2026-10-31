@@ -1,396 +1,117 @@
 ---
-const userId = Astro.locals.runtime?.env?.DISCORD_USER_ID || import.meta.env.DISCORD_USER_ID || "727012870683885578";
 ---
 
-<div class="mb-12">
-	<!-- Desktop: Now Playing + Playlists side by side -->
-	<div class="hidden lg:grid lg:grid-cols-4 gap-4 mb-6 items-stretch">
-		<!-- Now Playing Card -->
-		<div id="spotify-now-playing-container" data-user-id={userId} class="card-shell card-pad lg:col-span-2 h-full min-h-full flex flex-col">
-			<!-- Loading State -->
-			<div id="snp-loading" class="flex-1 flex items-center justify-center gap-3">
-				<div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-400"></div>
-				<p class="text-white/60 text-sm">Connecting...</p>
-			</div>
-
-			<!-- Error State -->
-			<div id="snp-error" class="card-empty hidden flex-1 flex items-center justify-center">
-				<div class="flex items-center gap-3">
-					<i class="ph ph-warning-circle text-red-400 text-2xl"></i>
-					<div>
-						<p class="text-red-400 text-sm">Connection failed</p>
-						<button id="snp-retry-btn" class="text-xs text-green-400 hover:text-green-300 underline">Retry</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Idle State -->
-			<div id="snp-idle" class="hidden flex-1 flex">
-				<div class="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-green-400/10 blur-3xl"></div>
-				<div class="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl"></div>
-				<div class="relative h-full w-full flex items-center justify-center">
-					<div class="flex items-center gap-5 rounded-2xl border border-white/10 bg-black/40 px-6 py-5">
-						<div class="relative h-16 w-16 flex-shrink-0">
-							<div class="absolute inset-4 rounded-full bg-black/70 flex items-center justify-center">
-								<i class="ph ph-moon-stars text-green-300 text-4xl"></i>
-							</div>
-						</div>
-						<div class="min-w-0">
-							<p class="text-white/80 text-sm font-medium">Not Playing Any Song!</p>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Playing State -->
-			<div id="snp-playing" class="hidden flex-1 flex">
-				<div class="relative flex-1 rounded-2xl p-5 overflow-hidden">
-					<div class="relative h-full w-full flex flex-col gap-4">
-						<div class="flex-1 flex items-center gap-5">
-							<div class="relative w-28 h-28 flex-shrink-0 rounded-2xl overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)]">
-								<img id="snp-cover" src="" alt="Album" class="w-full h-full object-cover" />
-								<div id="snp-no-cover" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-									<i class="ph ph-music-note text-green-400 text-2xl"></i>
-								</div>
-							</div>
-							<div class="flex-1 min-w-0">
-								<p id="snp-track" class="font-semibold text-white text-lg truncate"></p>
-								<p id="snp-artist" class="text-sm text-white/60 truncate"></p>
-							</div>
-						</div>
-						<div id="snp-progress-container" class="mt-auto">
-							<div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
-								<div id="snp-progress-bar" class="h-full bg-green-400 transition-all" style="width: 0%"></div>
-							</div>
-							<div class="flex justify-between text-xs text-white/40 mt-2">
-								<span id="snp-current-time">0:00</span>
-								<span id="snp-total-time">0:00</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Playlists -->
-		<div id="playlists-desktop" class="lg:col-span-2 grid grid-cols-3 gap-2 h-full">
-			<div class="card-skeleton p-2">
-				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2"></div>
-			</div>
-			<div class="card-skeleton p-2">
-				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2"></div>
-			</div>
-			<div class="card-skeleton p-2">
-				<div class="w-full aspect-square bg-white/10 rounded-lg mb-2"></div>
-				<div class="h-3 bg-white/10 rounded w-4/5 mb-1"></div>
-				<div class="h-2.5 bg-white/10 rounded w-1/2"></div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Mobile: Stack vertically -->
-	<div class="lg:hidden space-y-4 mb-6">
-		<!-- Now Playing Card -->
-		<div id="spotify-now-playing-mobile" data-user-id={userId} class="card-shell card-pad">
-			<h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-white">
-				<i class="ph ph-spotify-logo text-green-400"></i>
-				Now Playing
-			</h3>
-
-			<div id="snp-mobile-loading" class="flex items-center gap-3">
-				<div class="animate-spin rounded-full h-10 w-10 border-b-2 border-green-400"></div>
-				<p class="text-white/60 text-sm">Connecting...</p>
-			</div>
-
-			<div id="snp-mobile-error" class="card-empty hidden">
-				<div class="flex items-center gap-3 justify-center">
-					<i class="ph ph-warning-circle text-red-400 text-2xl"></i>
-					<p class="text-red-400 text-sm">Connection failed</p>
-				</div>
-			</div>
-
-			<div id="snp-mobile-idle" class="hidden">
-				<div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
-					<div class="relative h-12 w-12 flex-shrink-0">
-						<div class="absolute inset-0 rounded-full bg-gradient-to-br from-green-400/30 to-emerald-500/10 blur-[1px]"></div>
-						<div class="absolute inset-1 rounded-full border border-white/10 bg-black/30"></div>
-						<div class="absolute inset-4 rounded-full bg-black/60 flex items-center justify-center">
-							<i class="ph ph-moon-stars text-green-300 text-lg"></i>
-						</div>
-					</div>
-					<div class="min-w-0">
-						<p class="text-white/80 text-sm font-medium">Spotify idle</p>
-						<p class="text-xs text-white/50">No track playing.</p>
-					</div>
-				</div>
-			</div>
-
-			<div id="snp-mobile-playing" class="hidden">
-				<div class="flex items-center gap-3">
-					<div class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-						<img id="snp-mobile-cover" src="" alt="Album" class="w-full h-full object-cover" />
-					</div>
-					<div class="flex-1 min-w-0">
-						<p id="snp-mobile-track" class="font-semibold text-white text-sm truncate"></p>
-						<p id="snp-mobile-artist" class="text-xs text-white/60 truncate"></p>
-					</div>
-				</div>
-				<div class="mt-3">
-					<div class="h-1 bg-white/10 rounded-full overflow-hidden">
-						<div id="snp-mobile-progress-bar" class="h-full bg-green-400" style="width: 0%"></div>
-					</div>
-					<div class="flex justify-between text-xs text-white/40 mt-1">
-						<span id="snp-mobile-current-time">0:00</span>
-						<span id="snp-mobile-total-time">0:00</span>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Playlists (Mobile) -->
-		<h3 class="text-lg font-semibold flex items-center gap-2 text-white">
-			<i class="ph ph-playlist text-green-400"></i>
-			My Playlists
-		</h3>
-		<div id="playlists-mobile" class="grid grid-cols-2 gap-2">
-			<!-- Loading skeleton -->
-			<div class="card-skeleton p-2 flex items-center gap-3">
-				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
-				<div class="flex-1 min-w-0">
-					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
-					<div class="h-2 bg-white/10 rounded w-1/2"></div>
-				</div>
-			</div>
-			<div class="card-skeleton p-2 flex items-center gap-3">
-				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
-				<div class="flex-1 min-w-0">
-					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
-					<div class="h-2 bg-white/10 rounded w-1/2"></div>
-				</div>
-			</div>
-			<div class="card-skeleton p-2 flex items-center gap-3">
-				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
-				<div class="flex-1 min-w-0">
-					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
-					<div class="h-2 bg-white/10 rounded w-1/2"></div>
-				</div>
-			</div>
-			<div class="card-skeleton p-2 flex items-center gap-3">
-				<div class="h-10 w-10 shrink-0 rounded-md bg-white/10"></div>
-				<div class="flex-1 min-w-0">
-					<div class="h-3 bg-white/10 rounded w-3/4 mb-1.5"></div>
-					<div class="h-2 bg-white/10 rounded w-1/2"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+<div id="spotify-root" class="h-full">
+	<div class="skeleton h-80"></div>
 </div>
 
 <script>
-	import { subscribeToLanyard, refreshLanyard } from "../../lib/status/lanyard.js";
+	import { onSnapshot, pick, refresh, snapshotTime } from "../../lib/api";
+	import { html, toHtml, clock, timeAgo } from "../../lib/format";
+	import { observeReveals } from "../../lib/fx";
 
-	function formatTime(ms: number): string {
-		if (!ms) return "0:00";
-		const totalSeconds = Math.floor(ms / 1000);
-		const minutes = Math.floor(totalSeconds / 60);
-		const seconds = totalSeconds % 60;
-		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-	}
+	const root = document.getElementById("spotify-root")!;
 
-	const container = document.getElementById("spotify-now-playing-container");
-	const mobileContainer = document.getElementById("spotify-now-playing-mobile");
+	let ticker: number | undefined;
+	let last = "";
 
-	let progressInterval: ReturnType<typeof setInterval> | null = null;
+	const stopTicker = () => {
+		window.clearInterval(ticker);
+		ticker = undefined;
+	};
 
-	function setupNowPlaying(cont: HTMLElement, prefix: string) {
-		const userId = cont.dataset.userId || "727012870683885578";
+	const view = (track: any, live: boolean, durationMs: number, progressMs: number, playedAt: string | null) => {
+		const pct = durationMs ? Math.min(1, progressMs / durationMs) : 0;
+		return html`
+			<div class="card-shell-lg h-full" data-reveal>
+				${track.image ? html`<div class="pointer-events-none absolute inset-0 z-0 opacity-30 blur-3xl saturate-150" style="background:url('${track.image}') center/cover"></div>` : ""}
+				<div class="relative z-10 flex h-full flex-col justify-between gap-5 p-5 sm:p-6">
+					<div class="flex items-center justify-between">
+						<span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] ${live ? "text-emerald-300" : "text-white/50"}">
+							<span class="eq ${live ? "" : "is-paused"}"><span></span><span></span><span></span><span></span></span>
+							${live ? "Now playing" : "Last played"}
+						</span>
+						<i class="ph-fill ph-spotify-logo text-2xl text-emerald-400"></i>
+					</div>
 
-		const els = {
-			loading: document.getElementById(`${prefix}-loading`),
-			error: document.getElementById(`${prefix}-error`),
-			idle: document.getElementById(`${prefix}-idle`),
-			playing: document.getElementById(`${prefix}-playing`),
-			retryBtn: document.getElementById(`${prefix}-retry-btn`),
-			cover: document.getElementById(`${prefix}-cover`) as HTMLImageElement | null,
-			noCover: document.getElementById(`${prefix}-no-cover`),
-			track: document.getElementById(`${prefix}-track`),
-			artist: document.getElementById(`${prefix}-artist`),
-			progressBar: document.getElementById(`${prefix}-progress-bar`),
-			currentTime: document.getElementById(`${prefix}-current-time`),
-			totalTime: document.getElementById(`${prefix}-total-time`),
-		};
-
-		const hideAll = () => {
-			els.loading?.classList.add("hidden");
-			els.error?.classList.add("hidden");
-			els.idle?.classList.add("hidden");
-			els.playing?.classList.add("hidden");
-		};
-
-		const showLoading = () => {
-			hideAll();
-			els.loading?.classList.remove("hidden");
-		};
-		const showError = () => {
-			hideAll();
-			els.error?.classList.remove("hidden");
-		};
-		const showIdle = () => {
-			hideAll();
-			els.idle?.classList.remove("hidden");
-		};
-		const showPlaying = () => {
-			hideAll();
-			els.playing?.classList.remove("hidden");
-		};
-
-		return { userId, els, showLoading, showError, showIdle, showPlaying };
-	}
-
-	if (container) {
-		const desktop = setupNowPlaying(container, "snp");
-		const mobile = mobileContainer ? setupNowPlaying(mobileContainer, "snp-mobile") : null;
-
-		const startProgress = (start: number, duration: number) => {
-			if (progressInterval) clearInterval(progressInterval);
-			const update = () => {
-				let progress = Date.now() - start;
-				if (progress > duration) progress = duration;
-				const percent = (progress / duration) * 100;
-
-				// Desktop
-				if (desktop.els.progressBar) desktop.els.progressBar.style.width = `${percent}%`;
-				if (desktop.els.currentTime) desktop.els.currentTime.textContent = formatTime(progress);
-				if (desktop.els.totalTime) desktop.els.totalTime.textContent = formatTime(duration);
-
-				// Mobile
-				if (mobile?.els.progressBar) mobile.els.progressBar.style.width = `${percent}%`;
-				if (mobile?.els.currentTime) mobile.els.currentTime.textContent = formatTime(progress);
-				if (mobile?.els.totalTime) mobile.els.totalTime.textContent = formatTime(duration);
-			};
-			update();
-			progressInterval = setInterval(update, 1000);
-		};
-
-		const handlePresence = (data: any) => {
-			const spotify = data?.spotify;
-			if (!spotify) {
-				desktop.showIdle();
-				mobile?.showIdle();
-				if (progressInterval) clearInterval(progressInterval);
-				return;
-			}
-
-			desktop.showPlaying();
-			mobile?.showPlaying();
-
-			// Desktop
-			if (desktop.els.track) desktop.els.track.textContent = spotify.song || "";
-			if (desktop.els.artist) desktop.els.artist.textContent = spotify.artist || "";
-			if (desktop.els.cover && spotify.album_art_url) {
-				desktop.els.cover.src = spotify.album_art_url;
-			}
-
-			// Mobile
-			if (mobile?.els.track) mobile.els.track.textContent = spotify.song || "";
-			if (mobile?.els.artist) mobile.els.artist.textContent = spotify.artist || "";
-			if (mobile?.els.cover && spotify.album_art_url) {
-				(mobile.els.cover as HTMLImageElement).src = spotify.album_art_url;
-			}
-
-			if (spotify.timestamps) {
-				const duration = spotify.timestamps.end - spotify.timestamps.start;
-				startProgress(spotify.timestamps.start, duration);
-			}
-		};
-
-		desktop.els.retryBtn?.addEventListener("click", () => {
-			desktop.showLoading();
-			mobile?.showLoading();
-			refreshLanyard(desktop.userId).catch(() => {
-				desktop.showError();
-				mobile?.showError();
-			});
-		});
-
-		desktop.showLoading();
-		mobile?.showLoading();
-
-		subscribeToLanyard(desktop.userId, {
-			onPresence: handlePresence,
-			onError: () => {
-				desktop.showError();
-				mobile?.showError();
-			},
-		});
-	}
-
-	// Fetch playlists
-	async function loadPlaylists() {
-		const desktopContainer = document.getElementById("playlists-desktop");
-		const mobileContainer = document.getElementById("playlists-mobile");
-
-		try {
-			const res = await fetch("/api/spotify-playlists?count=4");
-			const data = await res.json();
-
-			if (data.error || !data.playlists) {
-				throw new Error(data.error || "No playlists");
-			}
-
-			const playlists = data.playlists;
-
-			if (desktopContainer) {
-				desktopContainer.innerHTML = playlists
-					.slice(0, 3)
-					.map(
-						(p: any) => `
-					<a href="${p.url}" target="_blank" rel="noopener noreferrer" 
-					   class="card-shell p-2 hover:bg-black/50 transition-colors group">
-						<div class="w-full aspect-square rounded-lg overflow-hidden bg-white/10 mb-2">
-							${p.image ? `<img src="${p.image}" alt="${p.name}" class="block w-full h-full object-cover group-hover:scale-105 transition-transform" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-xl text-white/40"></i></div>`}
+					<div class="flex items-center gap-4 sm:gap-5">
+						<a href="${track.url}" target="_blank" rel="noopener noreferrer" class="lift group relative block h-28 w-28 shrink-0 overflow-hidden rounded-xl shadow-2xl sm:h-32 sm:w-32" data-tip="Open in Spotify">
+							${track.image
+								? html`<img src="${track.image}" alt="${track.album} cover" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />`
+								: html`<div class="flex h-full w-full items-center justify-center bg-white/10"><i class="ph ph-music-notes text-3xl"></i></div>`}
+						</a>
+						<div class="min-w-0">
+							<a href="${track.url}" target="_blank" rel="noopener noreferrer" class="block truncate text-lg font-bold text-white hover:underline sm:text-xl">${track.title}</a>
+							<p class="mt-1 truncate text-sm text-white/70">${track.artists}</p>
+							<p class="mt-0.5 truncate text-xs text-white/40">${track.album}</p>
+							${!live && playedAt ? html`<p class="mt-2 text-xs text-white/40">${timeAgo(playedAt)}</p>` : ""}
 						</div>
-						<p class="font-semibold text-white text-xs truncate">${p.name}</p>
-						<p class="text-[11px] text-white/60">${p.tracks} tracks</p>
-					</a>
-				`,
-					)
-					.join("");
-			}
+					</div>
 
-			if (mobileContainer) {
-				mobileContainer.innerHTML = playlists
-					.map(
-						(p: any) => `
-					<a href="${p.url}" target="_blank" rel="noopener noreferrer" 
-					   class="card-shell p-2 hover:bg-black/50 transition-colors flex items-center gap-3 group">
-						<div class="h-10 w-10 shrink-0 rounded-md overflow-hidden bg-white/10">
-							${p.image ? `<img src="${p.image}" alt="${p.name}" class="block w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />` : `<div class="w-full h-full flex items-center justify-center"><i class="ph ph-playlist text-lg text-white/40"></i></div>`}
+					<div>
+						<div class="h-1.5 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct * 100)}">
+							<div id="sp-bar" class="h-full w-full origin-left rounded-full bg-emerald-300" style="transform:scaleX(${pct});transition:transform 1s linear"></div>
 						</div>
-						<div class="flex-1 min-w-0">
-							<p class="font-medium text-white text-xs truncate mb-0.5">${p.name}</p>
-							<p class="text-[10px] text-white/60 truncate">${p.tracks} tracks</p>
+						<div class="mt-1.5 flex justify-between font-mono text-[11px] text-white/45">
+							<span id="sp-now">${clock(progressMs)}</span>
+							<span>${clock(durationMs)}</span>
 						</div>
-					</a>
-				`,
-					)
-					.join("");
-			}
-		} catch (err) {
-			const errorHtml = `
-				<div class="col-span-full card-empty">
-					<i class="ph ph-warning-circle text-white/40 text-2xl mb-2"></i>
-					<p class="text-white/60 text-sm">Could not load playlists</p>
+					</div>
 				</div>
-			`;
-			if (desktopContainer) desktopContainer.innerHTML = errorHtml;
-			if (mobileContainer) mobileContainer.innerHTML = errorHtml;
-		}
-	}
+			</div>
+		`;
+	};
 
-	loadPlaylists();
+	onSnapshot((snapshot, meta) => {
+		const data = pick(snapshot, "spotify");
+		const track = data?.playing ? data : data?.lastPlayed;
+
+		if (!track?.title) {
+			stopTicker();
+			if (last === "error" || (!snapshot && !meta.error)) return;
+			last = "error";
+			root.innerHTML = `<div class="card-empty h-full"><p>Spotify is unavailable right now.</p><button id="sp-retry" class="btn-outline mt-4">Try again</button></div>`;
+			root.querySelector("#sp-retry")?.addEventListener("click", () => void refresh(true));
+			return;
+		}
+
+		stopTicker();
+
+		const durationMs: number = track.duration ?? data.duration ?? 0;
+		const anchor = snapshotTime(snapshot);
+		const baseProgress: number = (data.playing ? data.progress : track.progress) ?? 0;
+
+		// The reading is as old as the snapshot; advance it so the bar tracks the song, but stop
+		// claiming "now playing" once the song would have finished.
+		const projected = () => baseProgress + (anchor ? Date.now() - anchor : 0);
+		const live = Boolean(data.playing) && (!durationMs || projected() < durationMs + 5000);
+
+		const key = JSON.stringify([track.url, track.title, live, track.image]);
+		if (key !== last) {
+			last = key;
+			const shown = live ? Math.min(durationMs || Infinity, projected()) : durationMs;
+			root.innerHTML = toHtml(view(track, live, durationMs, shown, track.playedAt ?? null));
+			observeReveals(root);
+		}
+
+		if (!live) return;
+
+		const tick = () => {
+			if (document.visibilityState !== "visible") return;
+			const progress = Math.min(durationMs || Infinity, projected());
+			const bar = document.getElementById("sp-bar");
+			const now = document.getElementById("sp-now");
+			if (bar && durationMs) bar.style.transform = `scaleX(${Math.min(1, progress / durationMs)})`;
+			if (now) now.textContent = clock(progress);
+			if (durationMs && projected() >= durationMs + 5000) {
+				// The track has finished: re-evaluate now instead of waiting for the next poll.
+				stopTicker();
+				last = "";
+				void refresh(true);
+			}
+		};
+
+		tick();
+		ticker = window.setInterval(tick, 1000);
+	});
 </script>

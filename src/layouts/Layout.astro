@@ -20,6 +20,10 @@ const { title, description = "Portfolio Of SpreadSheets600" } = Astro.props;
 		<meta name="description" content={description} />
 		<title>{title}</title>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://spreadsheets600-api-io.spreadsheets600.workers.dev" crossorigin />
+		<script is:inline>
+			document.documentElement.classList.add("js");
+		</script>
 
 		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
 		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/light/style.css" />
@@ -38,5 +42,9 @@ const { title, description = "Portfolio Of SpreadSheets600" } = Astro.props;
 			</main>
 			<Footer />
 		</div>
+		<script>
+			import { initFx } from "../lib/fx";
+			initFx();
+		</script>
 	</body>
 </html>

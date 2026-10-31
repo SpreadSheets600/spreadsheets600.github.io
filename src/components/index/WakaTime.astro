@@ -1,5 +1,4 @@
 ---
-const skeletonList = Array(5).fill(0);
 ---
 
 <section id="stats" class="scroll-mt-24 mt-8 sm:mt-12">
@@ -8,180 +7,118 @@ const skeletonList = Array(5).fill(0);
 			<i class="ph-light ph-brackets-curly text-2xl"></i>
 		</div>
 		<h2 class="text-2xl font-bold text-white">Coding Stats</h2>
+		<span class="ml-auto text-xs text-white/40">via WakaTime</span>
 	</div>
 
-	<div class="grid gap-4 sm:grid-cols-3">
-		<article class="card-shell flex flex-col justify-between">
-			<header class="card-header">
-				<h3 class="text-sm font-semibold text-white/90 tracking-wide">Total Time</h3>
-			</header>
-
-			<section class="flex-1 p-4">
-				<div id="waka-total" class="mt-1">
-					<div class="h-6 w-24 animate-pulse rounded bg-white/10"></div>
-				</div>
-				<p id="waka-range" class="mt-2 text-sm text-white/30 truncate">Loading...</p>
-			</section>
-		</article>
-
-		<article class="card-shell flex flex-col justify-between">
-			<header class="card-header">
-				<h3 class="text-sm font-semibold text-white/90 tracking-wide">Daily Average</h3>
-			</header>
-
-			<section class="flex-1 p-4">
-				<div id="waka-daily" class="mt-1">
-					<div class="h-6 w-16 animate-pulse rounded bg-white/10"></div>
-				</div>
-				<p class="mt-2 text-sm text-white/30">Last 7 Days</p>
-			</section>
-		</article>
-
-		<article class="card-shell flex flex-col justify-between">
-			<header class="card-header flex items-center justify-between">
-				<h3 class="text-sm font-semibold text-white/90 tracking-wide">Today</h3>
-				<div id="waka-status-dot" class="h-2 w-2 rounded-full bg-white/20 animate-pulse"></div>
-			</header>
-
-			<section class="flex-1 p-4">
-				<div id="waka-today" class="mt-1">
-					<div class="h-6 w-16 animate-pulse rounded bg-white/10"></div>
-				</div>
-				<p id="waka-today-date" class="mt-2 text-sm text-white/30">Since Midnight</p>
-			</section>
-		</article>
-	</div>
-
-	<div class="mt-4 grid gap-4 lg:grid-cols-3">
-		{
-			[
-				{ id: "waka-os", icon: "ph-desktop", title: "Operating System" },
-				{ id: "waka-lang", icon: "ph-code-block", title: "Top Languages" },
-				{ id: "waka-editor", icon: "ph-terminal-window", title: "Code Editors" },
-			].map((section) => (
-				<article class="card-shell flex flex-col">
-					<header class="card-header flex items-center gap-2">
-						<i class={`${section.icon} text-white/70 text-lg`} />
-						<h3 class="text-sm font-semibold text-white/90 tracking-wide">{section.title}</h3>
-					</header>
-
-					<section class="p-4">
-						<div id={section.id} class="flex flex-col gap-3">
-							{skeletonList.map(() => (
-								<div class="flex flex-col gap-2">
-									<div class="flex justify-between">
-										<div class="h-3 w-24 animate-pulse rounded bg-white/10" />
-										<div class="h-3 w-8 animate-pulse rounded bg-white/10" />
-									</div>
-									<div class="h-1.5 w-full animate-pulse rounded-full bg-white/5" />
-								</div>
-							))}
-						</div>
-					</section>
-				</article>
-			))
-		}
+	<div id="waka-root" class="space-y-4">
+		<div class="grid gap-4 sm:grid-cols-3">
+			<div class="skeleton h-28"></div><div class="skeleton h-28"></div><div class="skeleton h-28"></div>
+		</div>
+		<div class="grid gap-4 lg:grid-cols-3">
+			<div class="skeleton h-60 lg:col-span-2"></div><div class="skeleton h-60"></div>
+		</div>
 	</div>
 </section>
 
 <script>
-	async function initWakaTime() {
-		try {
-			const urls = {
-				editors: "https://wakatime.com/share/@SpreadSheets600/d13c536f-1f9d-40a6-8bd5-ec5902652383.json",
-				stats: "https://wakatime.com/share/@SpreadSheets600/6f79156a-5f87-43a8-9a05-0edd976b8c9a.json",
-				langs: "https://wakatime.com/share/@SpreadSheets600/322b4068-62e5-430c-bfa2-cc92e8f7e7e3.json",
-				today: "https://wakatime.com/share/@SpreadSheets600/9ce6920b-5ae7-4f33-90fd-f18d82f3aeb9.json",
-				os: "https://wakatime.com/share/@SpreadSheets600/d3bada79-4d56-4544-8240-c9c6ff7a669d.json",
-			};
+	import { onSnapshot, pick, refresh } from "../../lib/api";
+	import { html, toHtml, fmt, duration, shortDay, longDate, percent } from "../../lib/format";
+	import { observeReveals } from "../../lib/fx";
 
-			const [editors, stats, langs, today, os] = await Promise.all(Object.values(urls).map((url) => fetch(url).then((r) => r.json())));
+	const root = document.getElementById("waka-root")!;
 
-			const setText = (id: string, text: string) => {
-				const el = document.getElementById(id);
+	const PALETTE = ["#34d399", "#60a5fa", "#f472b6", "#fbbf24", "#a78bfa", "#fb923c"];
 
-				if (el) el.innerHTML = `<span class="text-2xl font-bold text-white tracking-tight">${text}</span>`;
-			};
+	const stat = (icon: string, label: string, valueHtml: ReturnType<typeof html>, hint: string, index: number) => html`
+		<div class="card-shell card-pad lift" data-reveal style="--i:${index}">
+			<div class="relative z-10 flex items-center gap-2 text-white/50">
+				<i class="ph-light ${icon} text-lg"></i>
+				<span class="text-[11px] uppercase tracking-[0.14em]">${label}</span>
+			</div>
+			<p class="relative z-10 mt-2 text-2xl font-bold text-white sm:text-3xl">${valueHtml}</p>
+			<p class="relative z-10 mt-0.5 text-xs text-white/40">${hint}</p>
+		</div>
+	`;
 
-			const setList = (id: string, data: any[] | undefined) => {
-				const el = document.getElementById(id);
-				if (!el || !data) return;
+	const ranked = (title: string, items: { name: string; seconds: number }[], offset: number) => {
+		const max = items[0]?.seconds || 1;
+		const total = items.reduce((sum, item) => sum + item.seconds, 0) || 1;
+		return html`
+			<div class="mt-5 first:mt-0">
+				<h4 class="relative z-10 mb-2 text-[11px] uppercase tracking-[0.14em] text-white/45">${title}</h4>
+				<ul class="relative z-10 space-y-2.5">
+					${items.map(
+						(item, i) => html`
+							<li data-tip="${item.name}: ${duration(item.seconds)} (${Math.round(percent(item.seconds, total))}%)">
+								<div class="flex justify-between text-xs">
+									<span class="text-white/80">${item.name}</span>
+									<span class="text-white/45">${duration(item.seconds)}</span>
+								</div>
+								<div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+									<div class="bar-fill h-full rounded-full" style="--v:${item.seconds / max};--d:${i};background:${PALETTE[(i + offset) % PALETTE.length]}"></div>
+								</div>
+							</li>
+						`,
+					)}
+				</ul>
+			</div>
+		`;
+	};
 
-				el.innerHTML = data
-					.slice(0, 5)
-					.map(
-						(item) => `
-          <div class="group/item flex flex-col gap-3 rounded-lg transition-colors">
-            <div class="flex items-center justify-between text-sm">
-              <span class="font-medium text-white/90 truncate mr-2">${item.name}</span>
-              <span class="text-white/50 shrink-0">${item.text}</span>
-            </div>
-            <div class="bg-white/10 relative h-0.5 w-full overflow-hidden rounded-full">
-              <div class="bg-white h-full transition-all duration-1000 ease-out" style="width: ${item.percent}%"></div>
-            </div>
-          </div>
-        `,
-					)
-					.join("");
-			};
+	const view = (w: any) => {
+		const daily: { date: string; seconds: number }[] = w.daily ?? [];
+		const max = Math.max(...daily.map((d) => d.seconds), 1);
+		const avg = daily.length ? w.weekSeconds / daily.length : 0;
+		const best = daily.reduce((a, b) => (b.seconds > a.seconds ? b : a), daily[0] ?? { date: "", seconds: 0 });
+		const totalHours = Math.floor(w.totalSeconds / 3600);
 
-			if (stats.data) {
-				setText("waka-total", stats.data.grand_total.human_readable_total_including_other_language);
-				setText("waka-daily", stats.data.grand_total.human_readable_daily_average_including_other_language);
+		return html`
+			<div class="grid gap-4 sm:grid-cols-3">
+				${stat("ph-infinity", "All time", html`<span data-count="${totalHours}">0</span><span class="text-lg font-medium text-white/50"> hrs</span>`, w.total, 0)}
+				${stat("ph-calendar-blank", "Last 7 days", html`<span data-count="${(w.weekSeconds / 3600).toFixed(1)}" data-decimals="1">0</span><span class="text-lg font-medium text-white/50"> hrs</span>`, `${duration(w.weekSeconds)} in total`, 1)}
+				${stat("ph-timer", "Daily average", html`${duration(avg)}`, best.seconds ? `best day ${shortDay(best.date)} · ${duration(best.seconds)}` : "last 7 days", 2)}
+			</div>
+			<div class="grid gap-4 lg:grid-cols-3">
+				<div class="card-shell-lg card-pad lg:col-span-2" data-reveal>
+					<h3 class="relative z-10 text-sm font-semibold tracking-wide text-white/90">This week</h3>
+					<div class="relative z-10 mt-6 flex h-44 items-end gap-2 sm:gap-3">
+						${daily.map(
+							(day, i) => html`
+								<div class="group flex h-full flex-1 flex-col items-center justify-end gap-1.5" data-tip="${longDate(day.date)}\n${duration(day.seconds)} coded">
+									<span class="text-[10px] text-white/0 transition-colors group-hover:text-white/80">${duration(day.seconds)}</span>
+									<div class="col-fill w-full rounded-t-md ${day.date === best.date ? "bg-emerald-300" : "bg-white/25 group-hover:bg-white/45"} transition-colors" style="--v:${Math.max(0.03, day.seconds / max)};--d:${i};height:calc(100% - 40px)"></div>
+									<span class="text-[10px] ${day.date === best.date ? "text-white" : "text-white/45"}">${shortDay(day.date)}</span>
+								</div>
+							`,
+						)}
+					</div>
+				</div>
+				<div class="card-shell-lg card-pad" data-reveal style="--i:1">
+					${ranked("Languages", w.languages ?? [], 0)}
+					${ranked("Editors", w.editors ?? [], 3)}
+				</div>
+			</div>
+		`;
+	};
 
-				const start = new Date(stats.data.range.start).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-				const end = new Date(stats.data.range.end).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-				const rangeEl = document.getElementById("waka-range");
-				if (rangeEl) rangeEl.innerText = `${start} - ${end}`;
-			}
+	let last = "";
 
-			if (today.data) {
-				let tText = "0 mins";
-				if (Array.isArray(today.data)) {
-					const dateStr = new Date().toISOString().slice(0, 10);
-					const todayEntry = today.data.find((d: any) => d.range.date === dateStr);
+	onSnapshot((snapshot, meta) => {
+		const w = pick(snapshot, "wakatime");
 
-					if (todayEntry) tText = todayEntry.grand_total.text;
-				} else {
-					tText = today.data.text || "0 mins";
-				}
-				setText("waka-today", tText);
-
-				if (tText !== "0 secs" && tText !== "0 mins") {
-					const dot = document.getElementById("waka-status-dot");
-					if (dot instanceof HTMLElement) {
-						dot.classList.remove("bg-white/20", "animate-pulse");
-						dot.classList.add("bg-emerald-500", "shadow-[0_0_8px_rgba(16,185,129,0.5)]");
-					}
-				}
-			}
-
-			setList("waka-os", os.data);
-			setList("waka-lang", langs.data);
-			setList("waka-editor", editors.data);
-		} catch (err) {
-			console.error("Stats Failed To Load", err);
-
-			const setErrorText = (id: string, text = "Unavailable") => {
-				const el = document.getElementById(id);
-				if (el) el.innerHTML = `<span class="text-sm text-white/60">${text}</span>`;
-			};
-
-			const setErrorList = (id: string, text = "No data available") => {
-				const el = document.getElementById(id);
-				if (el) el.innerHTML = `<div class="text-sm text-white/60">${text}</div>`;
-			};
-
-			setErrorText("waka-total");
-			setErrorText("waka-daily");
-			setErrorText("waka-today");
-			setErrorText("waka-range", "Stats unavailable");
-			setErrorText("waka-today-date", "Stats unavailable");
-			setErrorList("waka-os");
-			setErrorList("waka-lang");
-			setErrorList("waka-editor");
+		if (!w) {
+			if (last === "error" || (!snapshot && !meta.error)) return;
+			last = "error";
+			root.innerHTML = `<div class="card-empty"><p>Couldn't load coding stats right now.</p><button id="waka-retry" class="btn-outline mt-4">Try again</button></div>`;
+			root.querySelector("#waka-retry")?.addEventListener("click", () => void refresh(true));
+			return;
 		}
-	}
 
-	initWakaTime();
+		const key = JSON.stringify(w);
+		if (key === last) return;
+		last = key;
+
+		root.innerHTML = toHtml(view(w));
+		observeReveals(root);
+	});
 </script>

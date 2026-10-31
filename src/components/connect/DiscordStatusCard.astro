@@ -1,82 +1,138 @@
 ---
-export let userId = "727012870683885578";
 ---
 
-<div id="discord-status-container" data-user-id={userId} class="card-shell-lg card-pad relative">
-	<div class="flex flex-wrap items-center justify-between gap-4 mb-5">
-		<div class="flex items-center gap-3">
-			<div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white">
-				<i class="ph ph-discord-logo text-2xl"></i>
-			</div>
-			<div>
-				<h3 class="text-lg font-semibold text-white">Discord Presence</h3>
-			</div>
-		</div>
-		<a id="steam-profile-link" href={`https://discord.com/users/${userId}`} target="_blank" rel="noopener noreferrer" class="btn-outline">
-			View Profile <i class="ph ph-arrow-square-out"></i>
-		</a>
-	</div>
-
-	<!-- Loading State -->
-	<div id="discord-loading" class="card-skeleton flex items-center justify-center space-x-3 py-10">
-		<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-		<span class="text-white/80 text-sm sm:text-base">Connecting to Discord...</span>
-	</div>
-
-	<!-- Error State -->
-	<div id="discord-error" class="card-empty hidden">
-		<div class="text-red-400 flex flex-col items-center justify-center space-y-3">
-			<i class="ph ph-warning-circle text-4xl"></i>
-			<span class="text-lg font-semibold">Discord unavailable</span>
-			<p class="text-white/60 text-sm">Could not connect to Lanyard API.</p>
-		</div>
-		<button id="discord-retry-btn" class="mt-5 text-blue-300 hover:text-blue-200 text-sm underline transition-colors">Try again</button>
-	</div>
-
-	<!-- Content State -->
-	<div id="discord-content" class="hidden space-y-5">
-		<div class="card-shell p-4 sm:p-5">
-			<div class="flex items-center gap-4">
-				<div class="relative flex-shrink-0">
-					<div class="relative w-16 h-16 sm:w-20 sm:h-20">
-						<img id="discord-avatar" class="absolute inset-0 w-full h-full rounded-full object-cover" alt="Discord avatar" loading="lazy" decoding="async" />
-						<img id="discord-avatar-decoration" class="hidden absolute inset-0 w-full h-full scale-[1.18] pointer-events-none z-10" alt="Avatar decoration" loading="lazy" decoding="async" />
-					</div>
-					<div id="discord-status-indicator" class="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-[5px] border-black z-30" aria-hidden="true"></div>
-				</div>
-				<div class="flex-1 min-w-0 space-y-1">
-					<div class="flex items-center gap-2 flex-wrap">
-						<h3 id="discord-name" class="text-white font-bold text-xl sm:text-2xl truncate"></h3>
-						<div id="discord-clan-tag" class="hidden flex items-center space-x-1 bg-purple-600/40 text-white text-xs px-2 py-1 rounded-full border border-purple-500/60">
-							<img id="discord-clan-badge" class="w-4 h-4 hidden" alt="Clan badge" />
-							<span id="discord-clan-text"></span>
-						</div>
-						<div id="discord-badges" class="flex items-center gap-2 flex-wrap"></div>
-					</div>
-					<p id="discord-username" class="text-white/60 text-sm sm:text-base truncate"></p>
-				</div>
-			</div>
-		</div>
-
-		<div id="discord-custom-status" class="card-shell hidden p-3 text-center">
-			<p class="text-white/80 text-sm flex items-center justify-center gap-2">
-				<img id="discord-custom-emoji-img" class="w-5 h-5 hidden" alt="Status emoji" loading="lazy" decoding="async" />
-				<span id="discord-custom-emoji" class="text-lg hidden"></span>
-				<span id="discord-custom-text" class="truncate"></span>
-			</p>
-		</div>
-
-		<div id="discord-activities-list" class="space-y-3">
-			<!-- Filled by JS -->
-		</div>
-
-		<div id="discord-no-activity" class="card-shell hidden p-4 text-center text-white/60 text-sm">No active sessions.</div>
-	</div>
+<div id="discord-root" class="h-full">
+	<div class="skeleton h-80"></div>
 </div>
 
 <script>
-	import { init } from "../../lib/status/discord.js";
+	import { onSnapshot, pick, refresh } from "../../lib/api";
+	import { html, toHtml, timeAgo } from "../../lib/format";
+	import { observeReveals } from "../../lib/fx";
 
-	const container = document.getElementById("discord-status-container");
-	if (container) init(container);
+	const root = document.getElementById("discord-root")!;
+
+	const STATUS: Record<string, { label: string; dot: string; ring: string }> = {
+		online: { label: "Online", dot: "bg-emerald-400", ring: "ring-emerald-400/60" },
+		idle: { label: "Idle", dot: "bg-amber-400", ring: "ring-amber-400/60" },
+		dnd: { label: "Do not disturb", dot: "bg-rose-500", ring: "ring-rose-500/60" },
+		offline: { label: "Offline", dot: "bg-slate-500", ring: "ring-slate-500/40" },
+	};
+
+	const ACCOUNT_ICONS: Record<string, string> = {
+		github: "ph-github-logo",
+		steam: "ph-steam-logo",
+		spotify: "ph-spotify-logo",
+		domain: "ph-globe",
+		twitter: "ph-twitter-logo",
+		youtube: "ph-youtube-logo",
+		twitch: "ph-twitch-logo",
+		reddit: "ph-reddit-logo",
+		instagram: "ph-instagram-logo",
+		tiktok: "ph-tiktok-logo",
+	};
+
+	const toColor = (value: unknown) => (typeof value === "number" ? `#${value.toString(16).padStart(6, "0")}` : null);
+
+	const view = (presence: any, profile: any) => {
+		const status = STATUS[presence.status] ?? STATUS.offline;
+		const themes: unknown[] = profile?.user_profile?.theme_colors ?? [];
+		const [from, to] = [toColor(themes[0]) ?? toColor(profile?.user?.accent_color), toColor(themes[1]) ?? toColor(themes[0])];
+		const banner = from ? `linear-gradient(120deg, ${from}55, ${(to ?? from)}33)` : "linear-gradient(120deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))";
+		const bio = profile?.user_profile?.bio || profile?.user?.bio;
+		const pronouns = profile?.user_profile?.pronouns;
+		const badges: any[] = profile?.badges ?? [];
+		const accounts: any[] = profile?.connected_accounts ?? [];
+		const activity = presence.activity;
+		const custom = presence.custom;
+		const id = profile?.user?.id;
+
+		return html`
+			<div class="card-shell-lg h-full" data-reveal>
+				<div class="relative z-10 h-20" style="background:${banner}"></div>
+				<div class="relative z-10 px-5 pb-5">
+					<div class="-mt-10 flex items-end justify-between gap-3">
+						<div class="relative h-20 w-20 shrink-0">
+							<img src="${presence.avatarUrl}" alt="" class="h-full w-full rounded-full object-cover ring-4 ring-black/70" loading="lazy" />
+							${presence.decorationUrl ? html`<img src="${presence.decorationUrl}" alt="" class="pointer-events-none absolute -inset-[10%] h-[120%] w-[120%] max-w-none" loading="lazy" />` : ""}
+							<span class="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-black/80 p-[3px]" data-tip="${status.label}">
+								<span class="relative block h-full w-full rounded-full ${status.dot} ${presence.status === "online" ? "ping-dot" : ""}"></span>
+							</span>
+						</div>
+						${id ? html`<a href="https://discord.com/users/${id}" target="_blank" rel="noopener noreferrer" class="btn-outline mb-1">Profile <i class="ph ph-arrow-up-right"></i></a>` : ""}
+					</div>
+
+					<div class="mt-3 flex flex-wrap items-center gap-2">
+						<h3 class="text-xl font-bold text-white">${presence.name}</h3>
+						${presence.tag
+							? html`<span class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/10 px-1.5 py-0.5 text-[11px] font-semibold text-white/90">${presence.badgeUrl ? html`<img src="${presence.badgeUrl}" alt="" class="h-3.5 w-3.5" />` : ""}${presence.tag}</span>`
+							: ""}
+					</div>
+					<p class="mt-0.5 text-sm text-white/55">
+						<button type="button" class="transition-colors hover:text-white" data-copy="${presence.username}" data-tip="Click to copy">@${presence.username}</button>
+						${pronouns ? html`<span class="text-white/35"> · ${pronouns}</span>` : ""}
+						<span class="text-white/35"> · ${status.label}</span>
+					</p>
+					${bio ? html`<p class="mt-3 text-sm leading-relaxed text-white/70">${bio}</p>` : ""}
+
+					<div class="mt-4 rounded-xl border border-white/10 bg-black/30 p-3">
+						${activity
+							? html`
+								<div class="flex items-center gap-3">
+									${activity.image ? html`<img src="${activity.image}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />` : html`<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10"><i class="ph ph-game-controller text-xl"></i></div>`}
+									<div class="min-w-0 text-sm">
+										<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">${activity.kind}</p>
+										<p class="truncate font-semibold text-white">${activity.name}</p>
+										${activity.details ? html`<p class="truncate text-xs text-white/60">${activity.details}</p>` : ""}
+										${activity.state ? html`<p class="truncate text-xs text-white/45">${activity.state}</p>` : ""}
+									</div>
+								</div>`
+							: custom
+								? html`
+									<div class="flex items-center gap-3 text-sm text-white/80">
+										${custom.emojiUrl ? html`<img src="${custom.emojiUrl}" alt="" class="h-6 w-6" />` : custom.emoji ? html`<span class="text-xl">${custom.emoji}</span>` : ""}
+										<span class="truncate">${custom.text}</span>
+									</div>`
+								: html`<p class="text-sm text-white/45"><i class="ph ph-moon-stars mr-1.5"></i>Nothing going on right now</p>`}
+					</div>
+
+					${badges.length
+						? html`<div class="mt-4 flex flex-wrap items-center gap-2">${badges.map(
+								(badge) => html`<a href="${badge.link ?? "https://discord.com"}" target="_blank" rel="noopener noreferrer" class="lift rounded-md" data-tip="${badge.description}"><img src="https://cdn.discordapp.com/badge-icons/${badge.icon}.png" alt="${badge.description}" class="h-6 w-6" loading="lazy" /></a>`,
+							)}</div>`
+						: ""}
+
+					${accounts.length
+						? html`<div class="mt-4 flex flex-wrap gap-2">${accounts.map(
+								(account) => html`<span class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70" data-tip="${account.type}${account.verified ? " · verified" : ""}"><i class="ph ${ACCOUNT_ICONS[account.type] ?? "ph-link"}"></i>${account.name}${account.verified ? html`<i class="ph-fill ph-seal-check text-sky-300"></i>` : ""}</span>`,
+							)}</div>`
+						: ""}
+
+					${profile?.premium_since ? html`<p class="mt-4 text-[11px] text-white/35">Nitro since ${timeAgo(profile.premium_since)}</p>` : ""}
+				</div>
+			</div>
+		`;
+	};
+
+	let last = "";
+
+	onSnapshot((snapshot, meta) => {
+		const data = pick(snapshot, "discord");
+		const presence = data?.presence;
+
+		if (!presence) {
+			if (last === "error" || (!snapshot && !meta.error)) return;
+			last = "error";
+			root.innerHTML = `<div class="card-empty h-full"><p>Discord status is unavailable right now.</p><button id="discord-retry" class="btn-outline mt-4">Try again</button></div>`;
+			root.querySelector("#discord-retry")?.addEventListener("click", () => void refresh(true));
+			return;
+		}
+
+		const key = JSON.stringify(data);
+		if (key === last) return;
+		last = key;
+
+		root.innerHTML = toHtml(view(presence, data.profile));
+		observeReveals(root);
+	});
 </script>

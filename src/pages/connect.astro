@@ -6,54 +6,43 @@ import SteamCard from "../components/connect/SteamCard.astro";
 import AniListStats from "../components/connect/AniListStats.astro";
 import DiscordStatusCard from "../components/connect/DiscordStatusCard.astro";
 import SpotifyNowPlaying from "../components/connect/SpotifyNowPlaying.astro";
+import LivePills from "../components/LivePills.astro";
 
-const steamVanity = Astro.locals.runtime?.env?.STEAM_VANITY || import.meta.env.STEAM_VANITY;
+// All live data comes from the profile API in the browser, so this page is fully static.
+export const prerender = true;
 
-const sectionCount = 4;
-const integrationCount = 4;
-const sectionCountLabel = sectionCount.toLocaleString();
-const integrationCountLabel = integrationCount.toLocaleString();
+const sections = [
+	{ id: "social-links", label: "Links", icon: "ph-link" },
+	{ id: "live-status", label: "Live", icon: "ph-wave-sine" },
+	{ id: "games", label: "Games", icon: "ph-game-controller" },
+	{ id: "anime", label: "Anime", icon: "ph-television" },
+];
 ---
 
 <Layout title="Connect | SpreadSheets600">
-	<main class="py-8 sm:py-16 flex-1">
-		<header class="mb-8 sm:mb-12">
+	<div class="py-8 sm:py-16 flex-1">
+		<header class="mb-8 sm:mb-12" data-reveal>
 			<div class="card-shell-lg p-6 sm:p-8">
-				<div class="flex flex-col gap-6">
-					<div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-						<div class="max-w-2xl">
-							<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
-								<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">Connections</span>
-							</h1>
-						</div>
-
-						<div class="grid grid-cols-2 gap-2 w-full lg:w-auto">
-							<div class="card-shell group relative overflow-hidden px-3 py-2.5">
-								<div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-sky-400/10 via-transparent to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100"></div>
-								<div class="relative flex items-center gap-2.5">
-									<div class="flex h-9 w-9 items-center justify-center rounded-lg border border-sky-300/30 bg-sky-400/10 text-sky-200 shadow-[0_0_16px_rgba(56,189,248,0.2)]">
-										<i class="ph ph-squares-four text-lg"></i>
-									</div>
-									<div class="leading-tight">
-										<p class="text-[11px] uppercase tracking-[0.14em] text-white/50">Sections</p>
-										<p class="mt-0.5 text-xl font-bold text-white">{sectionCountLabel}</p>
-									</div>
-								</div>
-							</div>
-							<div class="card-shell group relative overflow-hidden px-3 py-2.5">
-								<div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-300/10 via-transparent to-transparent opacity-70 transition-opacity duration-300 group-hover:opacity-100"></div>
-								<div class="relative flex items-center gap-2.5">
-									<div class="flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-300/10 text-emerald-200 shadow-[0_0_16px_rgba(52,211,153,0.2)]">
-										<i class="ph ph-plugs-connected text-lg"></i>
-									</div>
-									<div class="leading-tight">
-										<p class="text-[11px] uppercase tracking-[0.14em] text-white/50">Integrations</p>
-										<p class="mt-0.5 text-xl font-bold text-white">{integrationCountLabel}</p>
-									</div>
-								</div>
-							</div>
-						</div>
+				<div class="relative z-10 flex flex-col gap-6">
+					<div class="max-w-2xl">
+						<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
+							<span class="bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">Connections</span>
+						</h1>
+						<p class="mt-3 text-sm text-white/60 sm:text-base">Where I'm hanging out, what I'm playing, listening to and watching, straight from my live profile API.</p>
 					</div>
+
+					<LivePills />
+
+					<nav class="flex flex-wrap gap-2" aria-label="Sections">
+						{
+							sections.map((section) => (
+								<a href={`#${section.id}`} class="lift inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:border-white/25 hover:text-white">
+									<i class={`ph ${section.icon}`} />
+									{section.label}
+								</a>
+							))
+						}
+					</nav>
 				</div>
 			</div>
 		</header>
@@ -63,45 +52,39 @@ const integrationCountLabel = integrationCount.toLocaleString();
 		</section>
 
 		<section id="live-status" class="scroll-mt-24 mb-12">
-			<div class="mb-6 flex items-center gap-3">
+			<div class="mb-6 flex items-center gap-3" data-reveal>
 				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
 					<i class="ph ph-wave-sine text-2xl"></i>
 				</div>
-				<div>
-					<h2 class="text-2xl font-bold text-white">Live Status</h2>
-				</div>
+				<h2 class="text-2xl font-bold text-white">Live Status</h2>
 			</div>
 
 			<div class="grid gap-6 lg:grid-cols-2">
-				<DiscordStatusCard userId="727012870683885578" />
-				<SteamCard vanity={steamVanity} />
+				<DiscordStatusCard />
+				<SpotifyNowPlaying />
 			</div>
 		</section>
 
-		<section id="music" class="scroll-mt-24 mb-12">
-			<div class="mb-6 flex items-center gap-3">
+		<section id="games" class="scroll-mt-24 mb-12">
+			<div class="mb-6 flex items-center gap-3" data-reveal>
 				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
-					<i class="ph ph-music-notes text-2xl"></i>
+					<i class="ph ph-game-controller text-2xl"></i>
 				</div>
-				<div>
-					<h2 class="text-2xl font-bold text-white">Now Playing</h2>
-				</div>
+				<h2 class="text-2xl font-bold text-white">Steam</h2>
 			</div>
 
-			<SpotifyNowPlaying />
+			<SteamCard />
 		</section>
 
 		<section id="anime" class="scroll-mt-24 mb-12">
-			<div class="mb-6 flex items-center gap-3">
+			<div class="mb-6 flex items-center gap-3" data-reveal>
 				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
 					<i class="ph ph-television text-2xl"></i>
 				</div>
-				<div>
-					<h2 class="text-2xl font-bold text-white">AniList</h2>
-				</div>
+				<h2 class="text-2xl font-bold text-white">AniList</h2>
 			</div>
 
 			<AniListStats />
 		</section>
-	</main>
+	</div>
 </Layout>

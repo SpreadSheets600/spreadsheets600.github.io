@@ -1,14 +1,67 @@
 ---
-// Local, compressed backgrounds (public/backgrounds). One is picked at build time so the
-// image is part of the server-rendered HTML instead of being fetched after first paint.
-const backgroundImages = ["/backgrounds/bg-1.webp", "/backgrounds/bg-2.webp", "/backgrounds/bg-3.webp", "/backgrounds/bg-4.webp", "/backgrounds/bg-5.webp"];
-const selectedImage = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+// Local compressed wallpaper, chosen at build time: it is in the HTML so the page never paints
+// on a blank background, and it stays if the API is unreachable. The API wallpaper
+// (GET /header) crossfades in on top once it has downloaded.
+const localImages = ["/backgrounds/bg-1.webp", "/backgrounds/bg-2.webp", "/backgrounds/bg-3.webp", "/backgrounds/bg-4.webp", "/backgrounds/bg-5.webp"];
+const localImage = localImages[Math.floor(Math.random() * localImages.length)];
 ---
 
 <div class="background-container">
-	<div class="background-image" style={`background-image: url('${selectedImage}')`}></div>
+	<div class="background-image" style={`background-image: url('${localImage}')`}></div>
+	<div class="background-image background-live" id="bg-live"></div>
 	<div class="background-overlay"></div>
 </div>
+
+<script>
+	import { fetchWallpaper } from "../lib/api";
+
+	const STORAGE_KEY = "s600:wallpaper";
+	const layer = document.getElementById("bg-live");
+
+	const readStored = () => {
+		try {
+			return sessionStorage.getItem(STORAGE_KEY);
+		} catch {
+			return null;
+		}
+	};
+
+	const store = (url: string) => {
+		try {
+			sessionStorage.setItem(STORAGE_KEY, url);
+		} catch {
+			// Private mode: the wallpaper just changes on the next page.
+		}
+	};
+
+	const show = (url: string) =>
+		new Promise<boolean>((resolve) => {
+			if (!layer) return resolve(false);
+			const image = new Image();
+			image.decoding = "async";
+			image.onload = () => {
+				layer.style.backgroundImage = `url('${url}')`;
+				// Next frame so the opacity transition runs after the background is set.
+				requestAnimationFrame(() => layer.classList.add("is-on"));
+				resolve(true);
+			};
+			image.onerror = () => resolve(false);
+			image.src = url;
+		});
+
+	const run = async () => {
+		// Keep the same wallpaper while navigating within a visit instead of refetching and flashing.
+		const stored = readStored();
+		if (stored && (await show(stored))) return;
+
+		const url = await fetchWallpaper();
+		if (url && (await show(url))) store(url);
+	};
+
+	// Let the page finish its own work first; the wallpaper can be several MB.
+	if ("requestIdleCallback" in window) (window as any).requestIdleCallback(run, { timeout: 2500 });
+	else setTimeout(run, 400);
+</script>
 
 <style>
 	.background-container {
@@ -30,7 +83,15 @@ const selectedImage = backgroundImages[Math.floor(Math.random() * backgroundImag
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
-		transition: opacity 1s ease-in-out;
+	}
+
+	.background-live {
+		opacity: 0;
+		transition: opacity 1.4s ease-in-out;
+	}
+
+	.background-live.is-on {
+		opacity: 1;
 	}
 
 	.background-overlay {

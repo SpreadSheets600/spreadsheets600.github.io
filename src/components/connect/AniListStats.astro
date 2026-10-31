@@ -1,7 +1,152 @@
 ---
-import AniListStatus from "../status/AniListStatus.astro";
 ---
 
-<div class="mb-12">
-	<AniListStatus />
+<div id="anilist-root">
+	<div class="skeleton h-96"></div>
 </div>
+
+<script>
+	import { onSnapshot, pick, refresh } from "../../lib/api";
+	import { html, toHtml, fmt, timeAgo } from "../../lib/format";
+	import { observeReveals } from "../../lib/fx";
+
+	const root = document.getElementById("anilist-root")!;
+
+	const STATUS_COLOR: Record<string, string> = {
+		COMPLETED: "#34d399",
+		CURRENT: "#60a5fa",
+		PLANNING: "#fbbf24",
+		PAUSED: "#a78bfa",
+		DROPPED: "#f87171",
+		REPEATING: "#f472b6",
+	};
+	const prettyStatus = (status: string) => status.charAt(0) + status.slice(1).toLowerCase();
+
+	const counter = (label: string, value: number, i: number, opts: { decimals?: number; suffix?: string } = {}) => html`
+		<div class="rounded-xl border border-white/10 bg-black/30 p-3" data-reveal style="--i:${i}">
+			<p class="text-[10px] uppercase tracking-[0.14em] text-white/45">${label}</p>
+			<p class="mt-1 text-xl font-bold text-white" data-count="${value}" data-decimals="${opts.decimals ?? 0}" data-suffix="${opts.suffix ?? ""}">0</p>
+		</div>
+	`;
+
+	const statusSplit = (title: string, statuses: any[]) => {
+		const total = statuses.reduce((sum, item) => sum + item.count, 0) || 1;
+		return html`
+			<div>
+				<div class="flex items-center justify-between text-xs"><span class="text-white/70">${title}</span><span class="text-white/40">${fmt(total)} titles</span></div>
+				<div class="mt-2 overflow-hidden rounded-full">
+					<div class="bar-fill flex h-2.5 w-full">
+						${statuses.map((item) => html`<span style="flex:${item.count};background:${STATUS_COLOR[item.status] ?? "#888"}" data-tip="${prettyStatus(item.status)}: ${item.count}"></span>`)}
+					</div>
+				</div>
+				<div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-white/50">
+					${statuses.map((item) => html`<span class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full" style="background:${STATUS_COLOR[item.status] ?? "#888"}"></span>${prettyStatus(item.status)} ${item.count}</span>`)}
+				</div>
+			</div>
+		`;
+	};
+
+	const genres = (items: any[]) => {
+		const list = items.slice(0, 6);
+		const max = list[0]?.count || 1;
+		return html`
+			<div>
+				<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">Top anime genres</h4>
+				<ul class="space-y-2.5">
+					${list.map(
+						(item, i) => html`
+							<li data-tip="${item.genre}: ${item.count} titles${item.minutesWatched ? ` · ${fmt(item.minutesWatched / 60)}h` : ""}">
+								<div class="flex justify-between text-xs"><span class="text-white/80">${item.genre}</span><span class="text-white/45">${item.count}</span></div>
+								<div class="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="bar-fill h-full rounded-full bg-fuchsia-300" style="--v:${item.count / max};--d:${i}"></div></div>
+							</li>
+						`,
+					)}
+				</ul>
+			</div>
+		`;
+	};
+
+	const entry = (kind: "anime" | "manga", item: any, name: string, i: number) => {
+		if (!item) return html``;
+		const known = item.total ? item.progress / item.total : null;
+		return html`
+			<a href="https://anilist.co/${kind}/${item.mediaId}" target="_blank" rel="noopener noreferrer" class="card-shell lift flex gap-4 p-3" data-reveal style="--i:${i}">
+				${item.cover ? html`<img src="${item.cover}" alt="${item.title} cover" class="relative z-10 h-28 w-20 shrink-0 rounded-lg object-cover shadow-xl" />` : ""}
+				<div class="relative z-10 flex min-w-0 flex-1 flex-col justify-center">
+					<p class="text-[10px] uppercase tracking-[0.14em] text-white/40">Latest ${kind}</p>
+					<p class="mt-0.5 line-clamp-2 text-sm font-semibold text-white">${item.title}</p>
+					<p class="mt-1 text-xs" style="color:${STATUS_COLOR[item.status] ?? "#bbb"}">${prettyStatus(item.status)} · ${timeAgo(item.updatedAt)}</p>
+					<div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="bar-fill h-full rounded-full" style="--v:${known ?? 0.5};background:${STATUS_COLOR[item.status] ?? "#bbb"}"></div></div>
+					<p class="mt-1 text-[11px] text-white/45">${name} ${item.progress}${item.total ? ` / ${item.total}` : ""}</p>
+				</div>
+			</a>
+		`;
+	};
+
+	const view = (a: any) => {
+		const anime = a.anime ?? {};
+		const manga = a.manga ?? {};
+		const user = a.user ?? {};
+		const score = anime.meanScore ? anime.meanScore / 10 : 0;
+
+		return html`
+			<div class="space-y-4">
+				<div class="card-shell-lg" data-reveal>
+					<div class="relative z-10 h-24 bg-cover bg-center" style="${user.bannerImage ? `background-image:linear-gradient(to top,rgba(0,0,0,.65),rgba(0,0,0,.1)),url('${user.bannerImage}')` : "background:rgba(255,255,255,.06)"}"></div>
+					<div class="relative z-10 flex flex-wrap items-end justify-between gap-3 px-5 pb-5">
+						<div class="-mt-8 flex items-end gap-4">
+							${user.avatar ? html`<img src="${user.avatar}" alt="" class="h-20 w-20 rounded-xl object-cover ring-4 ring-black/70" loading="lazy" />` : ""}
+							<div class="pb-1">
+								<h3 class="text-xl font-bold text-white">${user.name}</h3>
+								${user.about ? html`<p class="text-sm text-white/55">${user.about}</p>` : ""}
+							</div>
+						</div>
+						<a href="https://anilist.co/user/${user.name}" target="_blank" rel="noopener noreferrer" class="btn-outline">AniList <i class="ph ph-arrow-up-right"></i></a>
+					</div>
+				</div>
+
+				<div class="card-shell-lg card-pad sm:p-6" data-reveal>
+					<div class="relative z-10 grid gap-3 sm:grid-cols-4 lg:grid-cols-7">
+						${counter("Anime", anime.count ?? 0, 0)}
+						${counter("Episodes", anime.episodesWatched ?? 0, 1)}
+						${counter("Days watched", anime.daysWatched ?? 0, 2, { decimals: 1 })}
+						${counter("Mean score", score, 3, { decimals: 1, suffix: score ? "/10" : "" })}
+						${counter("Manga", manga.count ?? 0, 4)}
+						${counter("Chapters", manga.chaptersRead ?? 0, 5)}
+						${counter("Volumes", manga.volumesRead ?? 0, 6)}
+					</div>
+					<div class="relative z-10 mt-6 grid gap-8 lg:grid-cols-3">
+						${genres(anime.genres ?? [])}
+						<div class="space-y-5">
+							<h4 class="text-[11px] uppercase tracking-[0.14em] text-white/45">Status</h4>
+							${statusSplit("Anime", anime.statuses ?? [])}
+							${statusSplit("Manga", manga.statuses ?? [])}
+						</div>
+						<div class="space-y-3">${entry("anime", a.latestAnime, "Episode", 0)}${entry("manga", a.latestManga, "Chapter", 1)}</div>
+					</div>
+				</div>
+			</div>
+		`;
+	};
+
+	let last = "";
+
+	onSnapshot((snapshot, meta) => {
+		const a = pick(snapshot, "anilist");
+
+		if (!a) {
+			if (last === "error" || (!snapshot && !meta.error)) return;
+			last = "error";
+			root.innerHTML = `<div class="card-empty"><p>AniList stats are unavailable right now.</p><button id="anilist-retry" class="btn-outline mt-4">Try again</button></div>`;
+			root.querySelector("#anilist-retry")?.addEventListener("click", () => void refresh(true));
+			return;
+		}
+
+		const key = JSON.stringify(a);
+		if (key === last) return;
+		last = key;
+
+		root.innerHTML = toHtml(view(a));
+		observeReveals(root);
+	});
+</script>
