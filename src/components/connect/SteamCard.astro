@@ -49,7 +49,7 @@
 						(game, i) => html`
 							<li>
 								<a href="https://store.steampowered.com/app/${game.appid}" target="_blank" rel="noopener noreferrer" class="lift flex items-center gap-3 rounded-lg" data-tip="${game.name}">
-									<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg" alt="" class="h-9 w-[72px] shrink-0 rounded-md bg-white/10 object-cover" loading="lazy" onerror="this.style.visibility='hidden'" />
+									<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg" alt="" class="h-9 w-[72px] shrink-0 rounded-md bg-white/10 object-cover" loading="lazy" onerror="this.style.opacity='0'" />
 									<div class="min-w-0 flex-1">
 										<div class="flex justify-between gap-2 text-xs">
 											<span class="truncate font-medium text-white/90">${game.name}</span>
@@ -122,7 +122,7 @@
 				</div>
 
 				<div class="relative z-10 mt-6 grid gap-8 lg:grid-cols-3">
-					${gameList("Recently played · 2 weeks", s.recent ?? [], (g) => g.minutes, (g) => `${Math.round(g.minutes / 60)}h recent · ${Math.round(g.totalMinutes / 60)}h total`)}
+					${gameList("Recently played", s.recent ?? [], (g) => g.minutes, (g) => (g.minutes > 0 ? `${Math.round(g.minutes / 60)}h recent · ${Math.round(g.totalMinutes / 60)}h total` : `${g.lastPlayed ? timeAgo(g.lastPlayed) + " · " : ""}${Math.round(g.totalMinutes / 60)}h total`))}
 					${gameList("Most played", s.topGames ?? [], (g) => g.minutes, (g) => `${fmt(g.hours)}h`)}
 
 					<div>
