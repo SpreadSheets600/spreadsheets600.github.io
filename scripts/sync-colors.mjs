@@ -1,10 +1,3 @@
-/**
- * Syncs GitHub language colors to a local static JSON file.
- * Run before building: npm run sync-colors
- *
- * Cloudflare Workers cannot do module-level fetch() side effects reliably
- * across cold starts, so we bundle the colors at build time instead.
- */
 
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
@@ -25,7 +18,6 @@ async function main() {
 
 	const raw = await res.json();
 
-	// Normalize: lowercase keys, only keep entries with valid hex colors
 	const normalized = {};
 	for (const [language, value] of Object.entries(raw)) {
 		const color = value?.color;

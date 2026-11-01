@@ -7,7 +7,7 @@
 
 <script>
 	import { onSnapshot, pick, refresh } from "../../lib/api";
-	import { html, raw, toHtml } from "../../lib/format";
+	import { html, toHtml } from "../../lib/format";
 	import { observeReveals } from "../../lib/fx";
 
 	const root = document.getElementById("discord-root")!;
@@ -17,38 +17,6 @@
 		idle: { label: "Idle", dot: "bg-amber-400" },
 		dnd: { label: "Do not disturb", dot: "bg-rose-500" },
 		offline: { label: "Offline", dot: "bg-slate-500" },
-	};
-
-	// Orange cat that peeks over the edge of the empty activity box. One character per pixel.
-	const o = (n: number) => "o".repeat(n);
-	const CAT_ROWS = [
-		"..kk........kk..",
-		".kook......kook.",
-		".k" + o(4) + "d" + o(2) + "d" + o(4) + "k.",
-		"k" + o(6) + "dd" + o(6) + "k",
-		"k" + o(14) + "k",
-		"k" + o(14) + "k",
-		"k" + o(5) + "wwww" + o(5) + "k",
-		".k" + o(4) + "wwww" + o(4) + "k.",
-		"..k" + o(10) + "k..",
-		"...kkkkkkkkkk...",
-	];
-	const CAT_COLORS: Record<string, string> = { k: "#2a1a0a", o: "#f59e2b", d: "#c2701a", w: "#fff4e0" };
-
-	const catSvg = () => {
-		const px = (x: number, y: number, w: number, h: number, fill: string, cls = "") =>
-			`<rect${cls ? ` class="${cls}"` : ""} x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`;
-		const body = CAT_ROWS.flatMap((row, y) => [...row].map((ch, x) => (CAT_COLORS[ch] ? px(x, y, 1, 1, CAT_COLORS[ch]) : ""))).join("");
-		return `<svg class="peek-cat" viewBox="0 0 16 12" width="112" height="84" shape-rendering="crispEdges" aria-hidden="true">
-			${body}
-			${px(7, 6, 2, 1, "#f08fb0")}
-			<g class="cat-eyes">
-				${px(3, 4, 2, 2, "#fff4e0")}${px(11, 4, 2, 2, "#fff4e0")}
-				${px(4, 4, 1, 2, "#111", "cat-pupil")}${px(12, 4, 1, 2, "#111", "cat-pupil")}
-			</g>
-			${px(2, 10, 3, 1, "#fff4e0")}${px(11, 10, 3, 1, "#fff4e0")}
-			${px(2, 11, 3, 1, "#2a1a0a")}${px(11, 11, 3, 1, "#2a1a0a")}
-		</svg>`;
 	};
 
 	const view = (presence: any, profile: any) => {
@@ -99,8 +67,7 @@
 						</div>`
 					: html`
 						<div class="relative z-10 mt-4 flex h-36 flex-col items-center overflow-hidden rounded-xl border border-white/10 bg-black/30 px-4 pt-5">
-							<p class="text-xs text-white/45">Nothing going on right now</p>
-							<div class="absolute bottom-0 left-1/2 -translate-x-1/2">${raw(catSvg())}</div>
+							<img src="/cat.svg" alt="" aria-hidden="true" class="absolute bottom-0 left-1/2 h-28 w-28 -translate-x-1/2" />
 						</div>`}
 			</div>
 		`;

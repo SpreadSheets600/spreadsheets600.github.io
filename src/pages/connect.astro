@@ -7,7 +7,6 @@ import AniListStats from "../components/connect/AniListStats.astro";
 import DiscordStatusCard from "../components/connect/DiscordStatusCard.astro";
 import SpotifyNowPlaying from "../components/connect/SpotifyNowPlaying.astro";
 
-// All live data comes from the profile API in the browser, so this page is fully static.
 export const prerender = true;
 
 const sections = [
@@ -29,7 +28,6 @@ const sections = [
 						</h1>
 						<p class="mt-3 text-sm text-white/60 sm:text-base">Where I hang out, what I play, listen to and watch.</p>
 					</div>
-
 
 					<nav class="flex flex-wrap gap-2" aria-label="Sections">
 						{

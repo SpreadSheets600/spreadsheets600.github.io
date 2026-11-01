@@ -22,10 +22,6 @@
   .card-empty {
     @apply rounded-2xl border border-white/10 bg-black/40 p-8 text-center text-white/60 backdrop-blur-xl;
   }
-
-  .card-skeleton {
-    @apply animate-pulse rounded-xl border border-white/10 bg-black/40 backdrop-blur-md;
-  }
 }
 
 @layer base {
@@ -43,7 +39,6 @@
 }
 
 @layer components {
-  /* Outline button, ported from basecoat so the site no longer depends on a CDN stylesheet. */
   .btn-outline {
     @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-150 outline-none;
   }
@@ -66,14 +61,11 @@
   }
 }
 
-/* ---------- Motion + data widgets ---------- */
-
 .card-shell,
 .card-shell-lg {
   position: relative;
 }
 
-/* Cursor-following glow, driven by --mx/--my from lib/fx.ts */
 .card-shell::before,
 .card-shell-lg::before {
   content: "";
@@ -91,7 +83,6 @@
   opacity: 1;
 }
 
-/* Scroll reveal. Gated on html.js so content never stays hidden without scripting. */
 html.js [data-reveal] {
   opacity: 0;
   transform: translateY(16px);
@@ -119,7 +110,6 @@ html.js [data-reveal].is-in {
   }
 }
 
-/* Horizontal bars / vertical columns / rings grow when their section is revealed */
 .bar-fill {
   transform-origin: left center;
   transform: scaleX(0);
@@ -152,7 +142,6 @@ html.js [data-reveal].is-in {
   stroke-dashoffset: calc(var(--len) * (1 - var(--v, 1)));
 }
 
-/* Contribution heatmap */
 .hm-grid {
   display: grid;
   grid-auto-flow: column;
@@ -194,7 +183,6 @@ html.js [data-reveal].is-in {
 .hm-3 { background: rgba(52, 211, 153, 0.75); }
 .hm-4 { background: rgb(110, 231, 183); }
 
-/* Equalizer used while Spotify is playing */
 .eq {
   display: inline-flex;
   align-items: flex-end;
@@ -234,16 +222,6 @@ html.js [data-reveal].is-in {
   75%, 100% {
     transform: scale(2.4);
     opacity: 0;
-  }
-}
-
-.spin-slow {
-  animation: spin 14s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 
@@ -315,53 +293,12 @@ html.js [data-reveal].is-in {
 }
 
 @media (max-width: 640px) {
-  .mobile-scroll {
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .mobile-tap {
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
-  }
 
   .app-container {
     font-size: 14px;
   }
 }
 
-/* Peeking cat (Discord empty state): pops up over the box edge, looks around, ducks back down */
-.peek-cat {
-  display: block;
-  animation: cat-peek 8s steps(6) infinite;
-}
-
-.peek-cat .cat-eyes {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: cat-blink 4s steps(1) infinite;
-}
-
-.peek-cat .cat-pupil {
-  animation: cat-look 4s steps(1) infinite;
-}
-
-@keyframes cat-peek {
-  0%, 6% { transform: translateY(100%); }
-  22%, 66% { transform: translateY(0); }
-  82%, 100% { transform: translateY(100%); }
-}
-
-@keyframes cat-look {
-  0%, 30% { transform: translateX(0); }
-  35%, 65% { transform: translateX(-1px); }
-  70%, 100% { transform: translateX(0); }
-}
-
-@keyframes cat-blink {
-  0%, 90%, 100% { transform: scaleY(1); }
-  94% { transform: scaleY(0.15); }
-}
-
-/* Image that dissolves toward the left edge (Steam unlock cards) */
 .fade-left {
   -webkit-mask-image: linear-gradient(to left, #000, transparent);
   mask-image: linear-gradient(to left, #000, transparent);

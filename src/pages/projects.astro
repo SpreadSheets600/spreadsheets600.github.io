@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Static at build time: data is read during the build, not on every request.
 export const prerender = true;
 
 import ProjectCard from "../components/ProjectCard.astro";
@@ -23,7 +22,6 @@ try {
 	error = true;
 }
 
-// Same profile API snapshot the home page uses: totals and the language mix come from it.
 interface ApiGithub {
 	repos?: number;
 	stars?: number;

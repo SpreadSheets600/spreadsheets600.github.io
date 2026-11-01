@@ -1,4 +1,3 @@
-/** Tiny HTML templating with escaping by default; everything from the API is untrusted text. */
 
 class Raw {
 	constructor(readonly value: string) {}
@@ -16,7 +15,6 @@ const render = (value: unknown): string => {
 	return esc(value);
 };
 
-/** `html\`<p>${userText}</p>\`` escapes interpolations; wrap pre-built markup in raw() or nest html``. */
 export function html(strings: TemplateStringsArray, ...values: unknown[]): Raw {
 	let out = "";
 	strings.forEach((part, index) => {
@@ -36,7 +34,6 @@ export const compact = (value: number | null | undefined) => compactFormat.forma
 
 export function timeAgo(input: number | string | Date | null | undefined): string {
 	if (input === null || input === undefined) return "never";
-	// Unix seconds (AniList, Steam) are normalised to ms.
 	const ms = typeof input === "number" ? (input < 1e12 ? input * 1000 : input) : new Date(input).getTime();
 	if (!Number.isFinite(ms)) return "unknown";
 

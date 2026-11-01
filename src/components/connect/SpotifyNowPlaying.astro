@@ -81,8 +81,6 @@
 		const anchor = snapshotTime(snapshot);
 		const baseProgress: number = (data.playing ? data.progress : track.progress) ?? 0;
 
-		// The reading is as old as the snapshot; advance it so the bar tracks the song, but stop
-		// claiming "now playing" once the song would have finished.
 		const projected = () => baseProgress + (anchor ? Date.now() - anchor : 0);
 		const live = Boolean(data.playing) && (!durationMs || projected() < durationMs + 5000);
 
@@ -104,7 +102,6 @@
 			if (bar && durationMs) bar.style.transform = `scaleX(${Math.min(1, progress / durationMs)})`;
 			if (now) now.textContent = clock(progress);
 			if (durationMs && projected() >= durationMs + 5000) {
-				// The track has finished: re-evaluate now instead of waiting for the next poll.
 				stopTicker();
 				last = "";
 				void refresh(true);

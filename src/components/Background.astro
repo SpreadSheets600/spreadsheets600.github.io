@@ -1,8 +1,4 @@
 ---
-// One wallpaper per visitor, never a swap: the page starts on plain dark, then the wallpaper
-// fades in once. It comes from the profile API (GET /header), is remembered for a day and its
-// bytes are kept in the Cache API, so later pages and visits show the same image immediately.
-// The local webp below is only the fallback when the API or the image download fails.
 const localImages = ["/backgrounds/bg-1.webp", "/backgrounds/bg-2.webp", "/backgrounds/bg-3.webp", "/backgrounds/bg-4.webp", "/backgrounds/bg-5.webp"];
 const fallbackImage = localImages[Math.floor(Math.random() * localImages.length)];
 ---
@@ -35,11 +31,9 @@ const fallbackImage = localImages[Math.floor(Math.random() * localImages.length)
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify({ url, at: Date.now() }));
 		} catch {
-			// Private mode: the wallpaper just picks again on the next visit.
 		}
 	};
 
-	/** Serve the image bytes from the Cache API so a repeat visit never waits on the network. */
 	const cachedSource = async (url: string): Promise<string> => {
 		try {
 			const cache = await caches.open(CACHE_NAME);
@@ -63,7 +57,6 @@ const fallbackImage = localImages[Math.floor(Math.random() * localImages.length)
 			image.decoding = "async";
 			image.onload = () => {
 				layer.style.backgroundImage = `url('${src}')`;
-				// Next frame so the opacity transition runs after the background is set.
 				requestAnimationFrame(() => layer.classList.add("is-on"));
 				resolve(true);
 			};
@@ -80,13 +73,10 @@ const fallbackImage = localImages[Math.floor(Math.random() * localImages.length)
 
 		if (url && (await show(await cachedSource(url)))) return;
 
-		// API or download failed: fall back to the bundled wallpaper (still just one fade-in).
 		const fallback = container?.dataset.fallback;
 		if (fallback) await show(fallback);
 	};
 
-	// A remembered wallpaper is cheap, so show it right away; a first visit waits for idle time
-	// because the download can be several MB.
 	if (readStored()) void run();
 	else if ("requestIdleCallback" in window) (window as any).requestIdleCallback(run, { timeout: 2000 });
 	else setTimeout(run, 300);

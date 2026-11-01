@@ -1,7 +1,3 @@
-// Language colors are bundled as a static JSON file at build time via:
-//   npm run sync-colors
-// This avoids a runtime fetch() on Cloudflare Workers, which would be
-// unreliable across cold starts due to isolate ephemerality.
 
 import bundledColors from "../data/languageColors.json";
 
@@ -21,13 +17,8 @@ const hashLanguageToColor = (language: string) => {
 	return languagePalette[hash % languagePalette.length];
 };
 
-// The bundled JSON is already normalized to lowercase keys.
 const colorMap: Record<string, string> = bundledColors as Record<string, string>;
 
-/**
- * Returns the pre-bundled language color map (synchronous, no network request).
- * Kept as an async function for API compatibility with call sites.
- */
 export const getLanguageColorMap = async (): Promise<Record<string, string>> => {
 	return colorMap;
 };

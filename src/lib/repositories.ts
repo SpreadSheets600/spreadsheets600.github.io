@@ -12,9 +12,7 @@ export interface GitHubRepo {
 
 interface RepositoryFetchResult {
 	repos: GitHubRepo[];
-	/** true only when the live GitHub API call succeeded */
 	ok: boolean;
-	/** "fallback" means the repos came from the committed YAML snapshot (no stars/language data) */
 	source: "github" | "fallback";
 }
 

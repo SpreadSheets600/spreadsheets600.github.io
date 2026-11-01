@@ -49,7 +49,6 @@ const fallbackRepo = "spreadsheets600/spreadsheets600.github.io";
 	updateLocalTime();
 	setInterval(updateLocalTime, 30000);
 
-	// "Last push" comes from the profile API snapshot, so the footer needs no GitHub API call of its own.
 	onSnapshot((snapshot) => {
 		const github = pick(snapshot, "github");
 		const pushed = github?.lastPushed;

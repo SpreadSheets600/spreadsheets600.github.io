@@ -1,4 +1,3 @@
-/** Shared motion helpers: scroll reveals, count-ups, card spotlight, tooltips and toasts. */
 
 export const prefersReducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -41,10 +40,6 @@ const runCount = (el: HTMLElement) => {
 	});
 };
 
-/**
- * Reveal `[data-reveal]` elements (and run their `[data-count]` numbers) when they scroll into
- * view. Call again after injecting markup. Nested bars/rings animate through CSS on `.is-in`.
- */
 export function observeReveals(root: ParentNode = document) {
 	const targets = Array.from(root.querySelectorAll("[data-reveal]:not(.is-in)"));
 	if (root instanceof Element && root.matches("[data-reveal]:not(.is-in)")) targets.unshift(root);
@@ -85,7 +80,6 @@ export function toast(message: string) {
 	toastTimer = window.setTimeout(() => el!.classList.remove("is-on"), 1800);
 }
 
-/** Click any `[data-copy]` element to copy its value. */
 const bindCopy = () => {
 	document.addEventListener("click", async (event) => {
 		const target = (event.target as Element | null)?.closest<HTMLElement>("[data-copy]");
@@ -99,7 +93,6 @@ const bindCopy = () => {
 	});
 };
 
-/** One floating tooltip shared by everything with `[data-tip]`. */
 const bindTooltip = () => {
 	const tip = document.createElement("div");
 	tip.className = "s600-tip";
@@ -146,7 +139,6 @@ const bindTooltip = () => {
 	document.addEventListener("focusout", hide);
 };
 
-/** Cursor-following glow on cards: sets --mx/--my that the CSS reads. */
 const bindSpotlight = () => {
 	let frame = 0;
 	document.addEventListener(
