@@ -136,21 +136,21 @@
 						<div class="mt-4 space-y-3">
 							${a.latest ? unlock("Latest unlock", a.latest, appids.get(a.latest.game), "sky", a.latest.unlockedAt ? timeAgo(a.latest.unlockedAt) : "") : ""}
 						</div>
+						${s.badgeList?.length
+							? html`
+								<div class="mt-6">
+									<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">Badges</h4>
+									<ul class="flex max-h-[108px] flex-wrap gap-3 overflow-hidden">
+										${s.badgeList.map(
+											(b: any) => html`<li class="lift" data-tip="${b.name}"><img src="${b.image}" alt="${b.name}" class="h-12 w-12 rounded-lg object-contain" loading="lazy" onerror="this.style.opacity='0'" /></li>`,
+										)}
+									</ul>
+								</div>
+							`
+							: ""}
 					</div>
 				</div>
 
-				${s.badgeList?.length
-					? html`
-						<div class="relative z-10 mt-6">
-							<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">Badges</h4>
-							<ul class="flex flex-wrap gap-3">
-								${s.badgeList.map(
-									(b: any) => html`<li class="lift" data-tip="${b.name}"><img src="${b.image}" alt="${b.name}" class="h-12 w-12 rounded-lg object-contain" loading="lazy" onerror="this.style.opacity='0'" /></li>`,
-								)}
-							</ul>
-						</div>
-					`
-					: ""}
 			</div>
 		`;
 	};
