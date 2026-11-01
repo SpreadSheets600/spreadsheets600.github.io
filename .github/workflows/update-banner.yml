@@ -1,0 +1,29 @@
+name: Update README banner
+
+on:
+    push:
+        branches: [jam-stack]
+        paths-ignore: ["docs/banner.png"]
+    workflow_dispatch: {}
+
+permissions:
+    contents: write
+
+jobs:
+    banner:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install ImageMagick
+              run: sudo apt-get update && sudo apt-get install -y imagemagick fonts-dejavu-core
+
+            - name: Build banner
+              run: ./scripts/make-banner.sh
+
+            - name: Commit banner
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git add docs/banner.png
+                  git diff --cached --quiet || (git commit -m "chore: refresh readme banner" && git push)

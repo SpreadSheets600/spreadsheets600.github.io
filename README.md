@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/banner.svg" alt="SpreadSheets600" width="100%" />
+  <img src="docs/banner.png" alt="SpreadSheets600" width="100%" />
 </div>
 
 ## spreadsheets600.github.io
