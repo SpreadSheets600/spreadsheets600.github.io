@@ -66,9 +66,15 @@
 							</div>
 						</div>`
 					: html`
-						<div class="relative z-10 mt-4 flex h-36 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/25 px-4" role="status" aria-label="Not doing anything right now">
-							<div class="loader"></div>
-							<img src="/cat-peek.svg" alt="" aria-hidden="true" class="pointer-events-none absolute bottom-0 right-6 h-24 w-auto" />
+						<div class="idle-scene relative z-10 mt-4 rounded-xl border border-white/10 bg-black/25" role="img" aria-label="Not doing anything right now: a cat, a laptop and a cup of coffee">
+							<p class="idle-caption">Quiet for now. Coding &amp; coffee break.</p>
+							<div class="idle-laptop">
+								<div class="idle-screen"><span class="idle-line"></span><span class="idle-line"></span><span class="idle-line"></span><span class="idle-line"></span><span class="idle-cursor"></span></div>
+								<div class="idle-base"></div>
+							</div>
+							<div class="idle-mug"><span class="idle-steam"></span><span class="idle-steam"></span><span class="idle-steam"></span></div>
+							<div class="idle-cat"><img src="/cat-sit.svg" alt="" aria-hidden="true" /></div>
+							<div class="idle-desk"></div>
 						</div>`}
 			</div>
 		`;

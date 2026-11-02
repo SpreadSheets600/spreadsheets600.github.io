@@ -20,6 +20,29 @@
 		offline: "bg-slate-500",
 	};
 
+	const art = (appid: number, icon?: string) => [
+		`https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/header.jpg`,
+		`https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/capsule_184x69.jpg`,
+		`https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/library_600x900.jpg`,
+		...(icon ? [icon] : []),
+	];
+
+	root.addEventListener(
+		"error",
+		(event) => {
+			const img = event.target as HTMLImageElement;
+			if (!(img instanceof HTMLImageElement) || !img.dataset.art) return;
+			const [next, ...rest] = img.dataset.art.split("|");
+			if (next) {
+				img.dataset.art = rest.join("|");
+				img.src = next;
+			} else {
+				img.style.opacity = "0";
+			}
+		},
+		true,
+	);
+
 	const ring = (size: number, stroke: number, value: number, color: string) => {
 		const r = (size - stroke) / 2;
 		const len = 2 * Math.PI * r;
@@ -47,8 +70,8 @@
 					${games.map(
 						(game, i) => html`
 							<li>
-								<a href="https://store.steampowered.com/app/${game.appid}" target="_blank" rel="noopener noreferrer" class="lift flex items-center gap-3 rounded-lg" data-tip="${game.name}">
-									<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg" alt="" class="h-9 w-[72px] shrink-0 rounded-md bg-white/10 object-cover" loading="lazy" onerror="this.style.opacity='0'" />
+								<a href="https://store.steampowered.com/app/${game.appid}" target="_blank" rel="noopener noreferrer" class="lift flex items-center gap-3 rounded-lg">
+									<img src="${art(game.appid, game.icon)[0]}" data-art="${art(game.appid, game.icon).slice(1).join("|")}" alt="" class="h-9 w-[72px] shrink-0 rounded-md bg-white/10 object-cover" loading="lazy" />
 									<div class="min-w-0 flex-1">
 										<div class="flex justify-between gap-2 text-xs">
 											<span class="truncate font-medium text-white/90">${game.name}</span>
@@ -67,9 +90,9 @@
 		`;
 	};
 
-	const unlock = (label: string, item: any, appid: number | undefined, tone: "sky" | "amber", pill: string) => html`
+	const unlock = (label: string, item: any, appid: number | undefined, icon: string | undefined, tone: "sky" | "amber", pill: string) => html`
 		<div class="relative overflow-hidden rounded-xl border ${tone === "amber" ? "border-amber-300/25" : "border-white/10"} bg-black/25">
-			${appid ? html`<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/header.jpg" alt="" class="fade-left absolute inset-y-0 right-0 h-full w-3/5 object-cover opacity-30" loading="lazy" onerror="this.style.display='none'" />` : ""}
+			${appid ? html`<img src="${art(appid, icon)[0]}" data-art="${art(appid, icon).slice(1).join("|")}" alt="" class="fade-left absolute inset-y-0 right-0 h-full w-3/5 object-cover opacity-30" loading="lazy" />` : ""}
 			<div class="relative p-3.5">
 				<div class="flex items-center justify-between gap-2">
 					<span class="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] ${tone === "amber" ? "text-amber-200/80" : "text-sky-200/80"}"><i class="ph-fill ${tone === "amber" ? "ph-diamond" : "ph-trophy"}"></i>${label}</span>
@@ -85,8 +108,8 @@
 		const a = s.achievements ?? {};
 		const step = 100 * (Math.floor(s.level / 10) + 1);
 		const levelProgress = s.xpNeeded > 0 && s.xpNeeded <= step ? 1 - s.xpNeeded / step : 0;
-		const appids = new Map<string, number>();
-		for (const game of [...(s.recent ?? []), ...(s.topGames ?? []), s.latestPlayed]) if (game?.name) appids.set(game.name, game.appid);
+		const games = new Map<string, any>();
+		for (const game of [...(s.recent ?? []), ...(s.topGames ?? []), s.latestPlayed]) if (game?.name && !games.get(game.name)?.icon) games.set(game.name, game);
 
 		return html`
 			<div class="space-y-4">
@@ -111,11 +134,12 @@
 				</div>
 
 				<div class="card-shell-lg card-pad sm:p-6" data-reveal>
-					<div class="relative z-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
+					<div class="relative z-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
 						${stat("Games", s.ownedGames, 0)}
 						${stat("Hours played", s.totalHours, 1)}
 						${stat("Backlog", s.backlog, 2)}
-						${stat("Perfect games", a.perfect ?? 0, 3)}
+						${stat("Achievements", a.unlocked ?? 0, 3)}
+						${stat("Perfect games", a.perfect ?? 0, 4)}
 					</div>
 
 					<div class="relative z-10 mt-6 grid gap-8 lg:grid-cols-3">
@@ -127,7 +151,7 @@
 							<div class="flex items-center gap-1.5 text-xs"><span class="text-white/70">${fmt(a.unlocked)} / ${fmt(a.total)} unlocked</span><span class="ml-auto text-white/40">${Math.round(a.percent ?? 0)}%</span></div>
 							<div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="bar-fill h-full rounded-full bg-amber-300" style="--v:${(a.percent ?? 0) / 100};--d:0"></div></div>
 							<div class="mt-4">
-								${a.latest ? unlock("Latest unlock", a.latest, appids.get(a.latest.game), "sky", a.latest.unlockedAt ? timeAgo(a.latest.unlockedAt) : "") : ""}
+								${a.latest ? unlock("Latest unlock", a.latest, games.get(a.latest.game)?.appid, games.get(a.latest.game)?.icon, "sky", a.latest.unlockedAt ? timeAgo(a.latest.unlockedAt) : "") : ""}
 							</div>
 						</div>
 					</div>
