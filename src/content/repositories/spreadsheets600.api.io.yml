@@ -1,0 +1,9 @@
+name: spreadsheets600.api.io
+description: "Personal profile API on Cloudflare Workers (Python): GitHub, WakaTime, Steam, Spotify, AniList and Discord data, plus live README cards"
+html_url: "https://github.com/SpreadSheets600/spreadsheets600.api.io"
+homepage: "https://api.spreadsheets600.buzz/"
+language: Python
+stargazers_count: 0
+forks_count: 0
+updated_at: "2026-11-01T13:22:30Z"
+topics:
