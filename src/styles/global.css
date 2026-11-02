@@ -369,11 +369,11 @@ html.js [data-reveal].is-in {
 
 .idle-cat {
   position: absolute;
-  bottom: 14px;
+  bottom: 0;
   left: calc(50% + 1.875rem);
   z-index: 1;
   width: 6rem;
-  height: 5.6rem;
+  height: calc(5.6rem + 14px);
   overflow: hidden;
 }
 
