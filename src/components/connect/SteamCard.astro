@@ -31,8 +31,8 @@
 		`;
 	};
 
-	const stat = (icon: string, label: string, value: number, i: number) => html`
-		<div class="rounded-xl border border-white/10 bg-black/30 p-3" data-reveal style="--i:${i}">
+	const stat = (label: string, value: number, i: number) => html`
+		<div class="rounded-xl border border-white/10 bg-black/25 p-3" data-reveal style="--i:${i}">
 			<div class="text-[10px] uppercase tracking-[0.14em] text-white/45">${label}</div>
 			<p class="mt-1 text-xl font-bold text-white" data-count="${value}">0</p>
 		</div>
@@ -43,7 +43,7 @@
 		return html`
 			<div>
 				<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">${title}</h4>
-				<ul class="space-y-3">
+				<ul class="space-y-3.5">
 					${games.map(
 						(game, i) => html`
 							<li>
@@ -68,7 +68,7 @@
 	};
 
 	const unlock = (label: string, item: any, appid: number | undefined, tone: "sky" | "amber", pill: string) => html`
-		<div class="relative overflow-hidden rounded-xl border ${tone === "amber" ? "border-amber-300/25" : "border-white/10"} bg-black/30">
+		<div class="relative overflow-hidden rounded-xl border ${tone === "amber" ? "border-amber-300/25" : "border-white/10"} bg-black/25">
 			${appid ? html`<img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/header.jpg" alt="" class="fade-left absolute inset-y-0 right-0 h-full w-3/5 object-cover opacity-30" loading="lazy" onerror="this.style.display='none'" />` : ""}
 			<div class="relative p-3.5">
 				<div class="flex items-center justify-between gap-2">
@@ -76,7 +76,6 @@
 					${pill ? html`<span class="shrink-0 rounded-full ${tone === "amber" ? "bg-amber-300/15 text-amber-200" : "bg-white/10 text-white/70"} px-2 py-0.5 text-[10px] font-bold">${pill}</span>` : ""}
 				</div>
 				<p class="mt-2 font-semibold leading-snug text-white">${item.name}</p>
-				${item.description ? html`<p class="mt-1 line-clamp-2 text-xs text-white/55">${item.description}</p>` : ""}
 				<p class="mt-2 truncate text-[11px] text-white/45">${item.game}</p>
 			</div>
 		</div>
@@ -86,71 +85,53 @@
 		const a = s.achievements ?? {};
 		const step = 100 * (Math.floor(s.level / 10) + 1);
 		const levelProgress = s.xpNeeded > 0 && s.xpNeeded <= step ? 1 - s.xpNeeded / step : 0;
-		const inGame = s.game;
 		const appids = new Map<string, number>();
 		for (const game of [...(s.recent ?? []), ...(s.topGames ?? []), s.latestPlayed]) if (game?.name) appids.set(game.name, game.appid);
 
 		return html`
-			<div class="card-shell-lg card-pad sm:p-6" data-reveal>
-				<div class="relative z-10 flex flex-wrap items-center justify-between gap-4">
-					<div class="flex items-center gap-4">
-						<div class="relative h-[84px] w-[84px] shrink-0">
-							<div class="absolute inset-0">${ring(84, 4, levelProgress, "#7dd3fc")}</div>
-							<img src="${s.avatar}" alt="" class="absolute inset-[7px] h-[70px] w-[70px] rounded-full object-cover" loading="lazy" />
-						</div>
-						<div>
-							<div class="flex items-center gap-2">
-								<h3 class="text-xl font-bold text-white">${s.name}</h3>
-								<span class="rounded-full border border-sky-300/40 bg-sky-300/10 px-2 py-0.5 text-[11px] font-bold text-sky-200" data-tip="${s.xpNeeded} XP to level ${s.level + 1}">Lv ${s.level}</span>
-								<span class="h-2.5 w-2.5 rounded-full ${STATUS_STYLE[s.status] ?? STATUS_STYLE.offline}" data-tip="${s.status}"></span>
-							</div>
-							<p class="text-sm text-white/55">${inGame ? html`Playing <span class="text-emerald-300">${inGame}</span>` : s.latestPlayed ? html`Last played <span class="text-white/80">${s.latestPlayed.name}</span>` : "Steam"}</p>
-							<p class="mt-0.5 text-xs text-white/35">${s.badges} badges${s.country ? ` · ${s.country}` : ""}</p>
-						</div>
-					</div>
-					<a href="${s.profileUrl}" target="_blank" rel="noopener noreferrer" class="btn-outline">Steam profile <i class="ph ph-arrow-up-right"></i></a>
-				</div>
-
-				<div class="relative z-10 mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-					${stat("ph-game-controller", "Games", s.ownedGames, 0)}
-					${stat("ph-clock", "Hours played", s.totalHours, 1)}
-					${stat("ph-stack", "Backlog", s.backlog, 2)}
-					${stat("ph-trophy", "Perfect games", a.perfect ?? 0, 3)}
-				</div>
-
-				<div class="relative z-10 mt-6 grid gap-8 lg:grid-cols-3">
-					${gameList("Recently played", s.recent ?? [], (g) => g.minutes, (g) => (g.minutes > 0 ? `${Math.round(g.minutes / 60)}h recent · ${Math.round(g.totalMinutes / 60)}h total` : `${g.lastPlayed ? timeAgo(g.lastPlayed) + " · " : ""}${Math.round(g.totalMinutes / 60)}h total`))}
-					${gameList("Most played", s.topGames ?? [], (g) => g.minutes, (g) => `${fmt(g.hours)}h`)}
-
-					<div>
-						<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">Achievements</h4>
+			<div class="space-y-4">
+				<div class="card-shell-lg card-pad sm:p-6" data-reveal>
+					<div class="relative z-10 flex flex-wrap items-center justify-between gap-4">
 						<div class="flex items-center gap-4">
 							<div class="relative h-[84px] w-[84px] shrink-0">
-								${ring(84, 7, (a.percent ?? 0) / 100, "#fbbf24")}
-								<div class="absolute inset-0 flex flex-col items-center justify-center">
-									<span class="text-lg font-bold text-white" data-count="${a.percent ?? 0}" data-decimals="0" data-suffix="%">0%</span>
-								</div>
+								<div class="absolute inset-0">${ring(84, 4, levelProgress, "#7dd3fc")}</div>
+								<img src="${s.avatar}" alt="" class="absolute inset-[7px] h-[70px] w-[70px] rounded-full object-cover" loading="lazy" />
 							</div>
-							<p class="text-xs text-white/55">${fmt(a.unlocked)} of ${fmt(a.total)} unlocked across the ${a.checked ?? 0} games checked</p>
-						</div>
-						<div class="mt-4 space-y-3">
-							${a.latest ? unlock("Latest unlock", a.latest, appids.get(a.latest.game), "sky", a.latest.unlockedAt ? timeAgo(a.latest.unlockedAt) : "") : ""}
-						</div>
-						${s.badgeList?.length
-							? html`
-								<div class="mt-6">
-									<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">Badges</h4>
-									<ul class="flex max-h-[108px] flex-wrap gap-3 overflow-hidden">
-										${s.badgeList.map(
-											(b: any) => html`<li class="lift" data-tip="${b.name}"><img src="${b.image}" alt="${b.name}" class="h-12 w-12 rounded-lg object-contain" loading="lazy" onerror="this.style.opacity='0'" /></li>`,
-										)}
-									</ul>
+							<div>
+								<div class="flex items-center gap-2">
+									<h3 class="text-xl font-bold text-white">${s.name}</h3>
+									<span class="rounded-full border border-sky-300/40 bg-sky-300/10 px-2 py-0.5 text-[11px] font-bold text-sky-200" data-tip="${s.xpNeeded} XP to level ${s.level + 1}">Lv ${s.level}</span>
+									<span class="h-2.5 w-2.5 rounded-full ${STATUS_STYLE[s.status] ?? STATUS_STYLE.offline}" data-tip="${s.status}"></span>
 								</div>
-							`
-							: ""}
+								<p class="text-sm text-white/55">${s.game ? html`Playing <span class="text-emerald-300">${s.game}</span>` : s.latestPlayed ? html`Last played <span class="text-white/80">${s.latestPlayed.name}</span>` : "Steam"}</p>
+							</div>
+						</div>
+						<a href="${s.profileUrl}" target="_blank" rel="noopener noreferrer" class="btn-outline">Steam <i class="ph ph-arrow-up-right"></i></a>
 					</div>
 				</div>
 
+				<div class="card-shell-lg card-pad sm:p-6" data-reveal>
+					<div class="relative z-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
+						${stat("Games", s.ownedGames, 0)}
+						${stat("Hours played", s.totalHours, 1)}
+						${stat("Backlog", s.backlog, 2)}
+						${stat("Perfect games", a.perfect ?? 0, 3)}
+					</div>
+
+					<div class="relative z-10 mt-6 grid gap-8 lg:grid-cols-3">
+						${gameList("Recently played", (s.recent ?? []).slice(0, 4), (g) => g.minutes, (g) => `${Math.round(g.totalMinutes / 60)}h`)}
+						${gameList("Most played", (s.topGames ?? []).slice(0, 4), (g) => g.minutes, (g) => `${fmt(g.hours)}h`)}
+
+						<div>
+							<h4 class="mb-3 text-[11px] uppercase tracking-[0.14em] text-white/45">Achievements</h4>
+							<div class="flex items-center gap-1.5 text-xs"><span class="text-white/70">${fmt(a.unlocked)} / ${fmt(a.total)} unlocked</span><span class="ml-auto text-white/40">${Math.round(a.percent ?? 0)}%</span></div>
+							<div class="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div class="bar-fill h-full rounded-full bg-amber-300" style="--v:${(a.percent ?? 0) / 100};--d:0"></div></div>
+							<div class="mt-4">
+								${a.latest ? unlock("Latest unlock", a.latest, appids.get(a.latest.game), "sky", a.latest.unlockedAt ? timeAgo(a.latest.unlockedAt) : "") : ""}
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		`;
 	};

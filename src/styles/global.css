@@ -4,11 +4,11 @@
 
 @layer components {
   .card-shell {
-    @apply overflow-hidden rounded-xl border border-white/10 bg-black/45 transition-all duration-300 hover:border-white/20 hover:shadow-lg;
+    @apply overflow-hidden rounded-xl border border-white/10 bg-black/25 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-lg;
   }
 
   .card-shell-lg {
-    @apply overflow-hidden rounded-2xl border border-white/10 bg-black/45 transition-all duration-300 hover:border-white/20 hover:shadow-lg;
+    @apply overflow-hidden rounded-2xl border border-white/10 bg-black/25 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-lg;
   }
 
   .card-pad {
@@ -20,7 +20,7 @@
   }
 
   .card-empty {
-    @apply rounded-2xl border border-white/10 bg-black/40 p-8 text-center text-white/60 backdrop-blur-xl;
+    @apply rounded-2xl border border-white/10 bg-black/25 p-8 text-center text-white/60 backdrop-blur-xl;
   }
 }
 
@@ -302,4 +302,19 @@ html.js [data-reveal].is-in {
 .fade-left {
   -webkit-mask-image: linear-gradient(to left, #000, transparent);
   mask-image: linear-gradient(to left, #000, transparent);
+}
+
+.loader {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.85);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

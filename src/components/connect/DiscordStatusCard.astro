@@ -56,7 +56,7 @@
 
 				${activity
 					? html`
-						<div class="relative z-10 mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/30 p-4">
+						<div class="relative z-10 mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-black/25 p-4">
 							${activity.image ? html`<img src="${activity.image}" alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" loading="lazy" />` : html`<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/10"><i class="ph ph-game-controller text-xl"></i></div>`}
 							<div class="min-w-0 text-sm">
 								<p class="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-300">${activity.kind}</p>
@@ -66,8 +66,9 @@
 							</div>
 						</div>`
 					: html`
-						<div class="relative z-10 mt-4 flex h-36 flex-col items-center overflow-hidden rounded-xl border border-white/10 bg-black/30 px-4 pt-5">
-							<img src="/cat.svg" alt="" aria-hidden="true" class="absolute bottom-0 left-1/2 h-28 w-28 -translate-x-1/2" />
+						<div class="relative z-10 mt-4 flex h-36 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/25 px-4" role="status" aria-label="Not doing anything right now">
+							<div class="loader"></div>
+							<img src="/cat-peek.svg" alt="" aria-hidden="true" class="pointer-events-none absolute bottom-0 right-6 h-24 w-auto" />
 						</div>`}
 			</div>
 		`;
