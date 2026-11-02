@@ -36,8 +36,8 @@
 		"error",
 		(event) => {
 			const img = event.target as HTMLImageElement;
-			if (!(img instanceof HTMLImageElement) || !img.dataset.art) return;
-			const [next, ...rest] = img.dataset.art.split("|");
+			if (!(img instanceof HTMLImageElement) || img.dataset.art === undefined) return;
+			const [next, ...rest] = img.dataset.art ? img.dataset.art.split("|") : [];
 			if (next) {
 				img.dataset.art = rest.join("|");
 				img.src = next;

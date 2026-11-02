@@ -306,7 +306,12 @@ html.js [data-reveal].is-in {
 
 .idle-scene {
   position: relative;
+  display: flex;
   height: 9.5rem;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2.25rem;
+  padding-bottom: 14px;
   overflow: hidden;
 }
 
@@ -320,12 +325,10 @@ html.js [data-reveal].is-in {
 }
 
 .idle-laptop {
-  position: absolute;
-  bottom: 14px;
-  left: 50%;
+  position: relative;
   z-index: 1;
   width: 7.5rem;
-  transform: translateX(-120%);
+  flex-shrink: 0;
 }
 
 .idle-screen {
@@ -369,12 +372,11 @@ html.js [data-reveal].is-in {
 }
 
 .idle-cat {
-  position: absolute;
-  bottom: 14px;
-  right: 1.5rem;
+  position: relative;
   z-index: 1;
-  width: 6.5rem;
-  height: 4.6rem;
+  width: 6rem;
+  height: 5.6rem;
+  flex-shrink: 0;
   overflow: hidden;
 }
 
@@ -396,9 +398,9 @@ html.js [data-reveal].is-in {
 
 @keyframes peek {
   0%, 12% { transform: translateY(105%) rotate(0deg); }
-  30%, 40% { transform: translateY(8%) rotate(0deg); }
-  46%, 54% { transform: translateY(8%) rotate(-4deg); }
-  60%, 70% { transform: translateY(8%) rotate(3deg); }
+  30%, 40% { transform: translateY(4%) rotate(0deg); }
+  46%, 54% { transform: translateY(4%) rotate(-4deg); }
+  60%, 70% { transform: translateY(4%) rotate(3deg); }
   88%, 100% { transform: translateY(105%) rotate(0deg); }
 }
 
@@ -406,5 +408,5 @@ html.js [data-reveal].is-in {
   .idle-line, .idle-cursor, .idle-cat img {
     animation: none;
   }
-  .idle-cat img { transform: translateY(8%); }
+  .idle-cat img { transform: translateY(4%); }
 }
