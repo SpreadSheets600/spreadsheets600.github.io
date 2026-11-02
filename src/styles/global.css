@@ -306,12 +306,7 @@ html.js [data-reveal].is-in {
 
 .idle-scene {
   position: relative;
-  display: flex;
   height: 9.5rem;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 2.25rem;
-  padding-bottom: 14px;
   overflow: hidden;
 }
 
@@ -325,10 +320,11 @@ html.js [data-reveal].is-in {
 }
 
 .idle-laptop {
-  position: relative;
+  position: absolute;
+  bottom: 14px;
+  left: calc(50% - 7.875rem);
   z-index: 1;
   width: 7.5rem;
-  flex-shrink: 0;
 }
 
 .idle-screen {
@@ -372,11 +368,12 @@ html.js [data-reveal].is-in {
 }
 
 .idle-cat {
-  position: relative;
+  position: absolute;
+  bottom: 14px;
+  left: calc(50% + 1.875rem);
   z-index: 1;
   width: 6rem;
   height: 5.6rem;
-  flex-shrink: 0;
   overflow: hidden;
 }
 
