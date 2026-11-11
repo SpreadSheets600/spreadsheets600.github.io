@@ -3,9 +3,9 @@ description: AI powered browser tab organization by topic, domain, and context u
 html_url: "https://github.com/SpreadSheets600/TidyTabs"
 homepage: "https://chromewebstore.google.com/detail/tidytabs/cpmlaapifmhgklniidiijogjgnnhcbmn?authuser=3&pageId=none"
 language: JavaScript
-stargazers_count: 39
+stargazers_count: 38
 forks_count: 0
-updated_at: "2026-10-28T17:47:17Z"
+updated_at: "2026-11-10T13:51:11Z"
 topics:
   - chrome-extension
   - gemini
